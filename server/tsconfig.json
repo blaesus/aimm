@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "removeComments": true,
+        "noEmitOnError": false,
+        "module": "Node16"
+    },
+    "extends": "../tsconfig.json",
+    "include": [
+        "api.ts"
+    ]
+}
