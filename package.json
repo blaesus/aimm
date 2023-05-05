@@ -1,20 +1,32 @@
 {
-  "name": "web",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "cd web && next dev",
-    "build": "cd web && next build",
-    "start": "cd web && next start",
-    "lint": "cd web && next lint"
-  },
-  "dependencies": {
-    "@types/node": "20.0.0",
-    "@types/react": "18.2.5",
-    "@types/react-dom": "18.2.3",
-    "next": "13.4.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "typescript": "5.0.4"
-  }
+    "name": "aimm",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "dev": "cd web && next dev",
+        "build": "cd web && next build",
+        "start": "cd web && next start",
+        "lint": "cd web && next lint",
+        "mirror": "ts-node -r tsconfig-paths/register src/server/data/mirror.ts",
+        "genprisma": "./node_modules/.bin/prisma generate",
+        "migrateprisma": "./node_modules/.bin/prisma migrate dev --name"
+    },
+    "prisma": {
+        "schema": "data/schema.prisma"
+    },
+    "dependencies": {
+        "next": "13.4.0",
+        "prisma": "^4.13.0",
+        "react": "18.2.0",
+        "react-dom": "18.2.0"
+    },
+    "devDependencies": {
+        "@prisma/client": "^4.13.0",
+        "@types/node": "18.16.2",
+        "@types/pg": "^8.6.6",
+        "@types/react": "18.2.5",
+        "@types/react-dom": "18.2.3",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "5.0.4"
+    }
 }

@@ -1,0 +1,126 @@
+// Adapted from github.com/civitai/civitai
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Registry {
+  Amm
+  Civitai
+  Huggingface
+}
+
+model Repository {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @db.VarChar(255)
+  subtype      String?
+  registry     Registry @default(Amm)
+  idInRegistry String
+  updated      BigInt
+  raw          Json?
+  favour       BigInt
+
+  revisions Revision[]
+
+  @@unique([registry, idInRegistry])
+  @@index([name])
+  @@index([favour(sort: Desc)])
+}
+
+model Revision {
+  id           String     @id @default(uuid()) @db.Uuid
+  repoId       String     @db.Uuid
+  repo         Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  idInRegistry String
+  hashA        String
+  updated      BigInt
+  raw          Json?
+
+  fileRecords FileRecord[]
+
+  @@unique([repoId, idInRegistry])
+  @@index([repoId])
+}
+
+model FileRecord {
+  id          String   @id @default(uuid()) @db.Uuid
+  revisionId  String   @db.Uuid
+  revision    Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  filename    String
+  hashA       String
+  downloadUrl String
+  updated     BigInt
+  raw         Json?
+
+  storageRecords FileStorageRecordOnFileRecord[]
+
+  @@unique([revisionId, hashA])
+  @@index([filename])
+  @@index([revisionId, hashA])
+}
+
+enum StorageService {
+  AWS_S3
+  CloudFlare_R2
+  BackBlaze_B2
+  Local
+}
+
+model FileStorageRecord {
+  id          String         @id @default(uuid()) @db.Uuid
+  hashA       String
+  service     StorageService
+  idInService String
+  created     BigInt
+  raw         Json?
+
+  fileRecords FileStorageRecordOnFileRecord[]
+
+  @@index([idInService])
+  @@index([hashA])
+}
+
+model FileStorageRecordOnFileRecord {
+  fileStorageRecord   FileStorageRecord @relation(fields: [fileStorageRecordId], references: [id])
+  fileStorageRecordId String            @db.Uuid
+  fileRecord          FileRecord        @relation(fields: [fileRecordId], references: [id])
+  fileRecordId        String            @db.Uuid
+  assignmentTime      BigInt
+
+  @@id([fileStorageRecordId, fileRecordId])
+}
+
+model FetchRecord {
+  id         String  @id @default(uuid()) @db.Uuid
+  category   String?
+  fetcher    String?
+  remotePath String
+  time       BigInt
+  successful Boolean
+  status     Int?
+  headers    String?
+  data       String
+  batch      String?
+
+  @@index([remotePath])
+}
+
+model KeyValueCache {
+  id       String @id @default(uuid()) @db.Uuid
+  category String
+  key      String
+  value    String
+  updated  BigInt
+
+  @@unique([category, key])
+  @@index([key], type: Hash)
+}
