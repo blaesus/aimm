@@ -7,6 +7,7 @@
         "build": "cd web && next build",
         "start": "cd web && next start",
         "lint": "cd web && next lint",
+        "deploy": "sh ops/deploy-docker.sh",
         "mirror": "ts-node -r tsconfig-paths/register src/server/data/mirror.ts",
         "genprisma": "./node_modules/.bin/prisma generate",
         "migrateprisma": "./node_modules/.bin/prisma migrate dev --name"
