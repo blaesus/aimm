@@ -2,13 +2,30 @@ import Koa from "koa";
 import bodyParser from "koa-bodyparser";
 import Router from "koa-router";
 import { prisma } from "../data/prismaClient";
-import { FileRecordApiItem } from "./api/files/route";
+import { Registry } from ".prisma/client";
 
 const app = new Koa();
 const router = new Router();
 
 // Use bodyParser middleware to parse request body
 app.use(bodyParser());
+
+export type FileRecordApiItem<BIGINT = bigint> = {
+    id: string,
+    hashA: string,
+    downloadUrl: string,
+    revision: {
+        id: string,
+        idInRegistry: string,
+        repo: {
+            id: string,
+            name: string,
+            registry: Registry,
+            idInRegistry: string,
+            favour: BIGINT,
+        }
+    }
+}
 
 const fileRecordOutputSelect = {
     id: true,
