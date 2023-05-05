@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { pipeline } from "node:stream/promises";
 import axios, { AxiosPromise, AxiosProxyConfig, AxiosRequestConfig } from "axios";
-import Agent from "agentkeepalive"
+import Agent from "agentkeepalive";
 
 interface Requester {
     getData<T>(url: string): AxiosPromise<T>,
@@ -26,7 +26,7 @@ export function buildProxyConfigFromEnv(): AxiosProxyConfig | undefined {
             host,
             port: Number.parseInt(port),
             protocol,
-        }
+        };
     }
 }
 

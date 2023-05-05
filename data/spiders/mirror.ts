@@ -1,8 +1,5 @@
 import * as dotenv from "dotenv";
-import { reindexCivitaiModels } from "@/server/data/civitai";
-import { reindexCivitaiFromLocalFetchRecords } from "@/server/data/localCivitai";
-import { reindexHuggingFaceRepos } from "@/server/data/huggingface";
-
+import { reindexHuggingFaceRepos } from "./huggingface";
 
 async function main() {
     dotenv.config()

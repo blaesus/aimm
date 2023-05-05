@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { CivitaiModelPayload, saveCivitaiModelPayload } from "@/server/data/civitai";
+import { CivitaiModelPayload, saveCivitaiModelPayload } from "./civitai";
 
 // Use with care
 export async function reindexCivitaiFromLocalFetchRecords() {
