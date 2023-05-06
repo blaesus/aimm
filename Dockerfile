@@ -1,6 +1,4 @@
 FROM node:18-bullseye-slim
-#FROM node:18-bullseye
-
 
 WORKDIR /usr/server
 COPY package*.json ./
