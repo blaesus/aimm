@@ -2,6 +2,8 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Read;
 
+use reqwest;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
@@ -20,6 +22,40 @@ fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
 
     let hash = hasher.finalize(); // Get the SHA256 hash value
     Ok(format!("{:x}", hash))
+}
+
+#[derive(Debug, Deserialize)]
+struct Repository_FileRecordApiItem {
+    id: String,
+    name: String,
+    registry: String,
+    idInRegistry: String,
+    favour: u64,
+}
+
+#[derive(Debug, Deserialize)]
+struct Revision_FileRecordApiItem {
+    id: String,
+    idInRegistry: String,
+    repo: Repository_FileRecordApiItem,
+}
+
+#[derive(Debug, Deserialize)]
+struct FileRecordApiItem {
+    id: String,
+    hashA: String,
+    downloadUrl: String,
+    filename: String,
+    revision: Revision_FileRecordApiItem,
+}
+
+#[derive(Debug, Deserialize)]
+struct FileResponse(Vec<FileRecordApiItem>);
+
+fn download_file_records(sha256: &str) -> Result<Vec<FileRecordApiItem>, Box<dyn Error>> {
+    let api_url = format!("https://api.apm.run/api/files?sha256={}", sha256);
+    let response: FileResponse = reqwest::blocking::get(&api_url)?.json()?;
+    return Ok(response.0);
 }
 
 fn main() {
@@ -58,6 +94,16 @@ fn main() {
 
     for file in ai_files {
         let sha = sha256_file(&file.to_string_lossy()).unwrap();
-        println!("{}: {}", file.to_string_lossy(), sha);
+        let file_records = download_file_records(&sha).unwrap();
+        let download_urls = file_records
+            .iter()
+            .map(|file_record| {
+                (
+                    file_record.downloadUrl.clone(),
+                    file_record.revision.repo.favour,
+                )
+            })
+            .collect::<Vec<(String, u64)>>();
+        println!("{}: {}\n{:#?}", file.to_string_lossy(), sha, download_urls);
     }
 }
