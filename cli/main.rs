@@ -268,8 +268,16 @@ fn is_path_probably_git(target: &str) -> bool {
 
 fn install_from_manifest(manifest: AimmModuleManifest) {
     for item in manifest.items {
-        // download file
-        // fake headers with Chrome UA
+        // Skip if an file is already there
+        if Path::new(&item.path).exists() {
+            let existing_sha = sha256_file(&item.path).unwrap();
+            println!(
+                "Skipping {} because it already exists with SHA256 {} (wanted {})",
+                item.path, existing_sha, item.sha256
+            );
+            continue;
+        }
+
         let webroot = Url::parse(&item.url).unwrap().host().unwrap().to_string();
 
         let headers = {
