@@ -383,7 +383,6 @@ fn main() {
             scan(PathBuf::from(root));
         }
         Some(SubCommands::Install { target, mode }) => {
-            println!("mode {:?}", mode);
             let manifest_name = "aimm.json";
             let manifest_text = std::fs::read_to_string(manifest_name).unwrap();
             let parsed = serde_json::from_str::<AimmModuleManifest>(&manifest_text).unwrap();
