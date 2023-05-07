@@ -29,6 +29,11 @@ fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
     Ok(format!("{:x}", hash))
 }
 
+enum ManifestItemType {
+    File,
+    Git,
+}
+
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize, Serialize)]
 struct ModuleManifestItem {
