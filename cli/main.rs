@@ -274,28 +274,29 @@ fn install_from_manifest(manifest: AimmModuleManifest) {
 
         let headers = {
             let mut header_map = reqwest::header::HeaderMap::new();
-            header_map.insert(
-                reqwest::header::USER_AGENT,
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
-                 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                    .parse()
-                    .unwrap(),
-            );
             header_map.insert(reqwest::header::ORIGIN, webroot.parse().unwrap());
             header_map.insert(reqwest::header::REFERER, webroot.parse().unwrap());
+            header_map.insert(
+                reqwest::header::ACCEPT_ENCODING,
+                "gzip, deflate, br".parse().unwrap(),
+            );
+            header_map.insert(reqwest::header::ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9".parse().unwrap());
+            header_map.insert(
+                reqwest::header::CACHE_CONTROL,
+                "keep-alive".parse().unwrap(),
+            );
             header_map
         };
 
         let client = reqwest::blocking::Client::builder()
-            .default_headers(headers)
             .user_agent(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
-                 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36"
             )
             .build()
             .unwrap();
 
-        let mut response = client.get(&item.url).send().unwrap();
+        println!("Getting {}", item.url);
+        let mut response = client.get(&item.url).headers(headers).send().unwrap();
         let mut dest = {
             let path = Path::new(&item.path);
             // make dir if non-existing, recursively
@@ -338,7 +339,6 @@ fn main() {
             scan(PathBuf::from(root));
         }
         Some(SubCommands::Install { target }) => {
-            let root = target.as_ref().map(|r| r.as_str()).unwrap_or(".");
             let manifest_name = "aimm.json";
             let manifest_text = std::fs::read_to_string(manifest_name).unwrap();
             let parsed = serde_json::from_str::<AimmModuleManifest>(&manifest_text).unwrap();
