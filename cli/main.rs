@@ -276,15 +276,6 @@ fn install_from_manifest(manifest: AimmModuleManifest) {
             let mut header_map = reqwest::header::HeaderMap::new();
             header_map.insert(reqwest::header::ORIGIN, webroot.parse().unwrap());
             header_map.insert(reqwest::header::REFERER, webroot.parse().unwrap());
-            header_map.insert(
-                reqwest::header::ACCEPT_ENCODING,
-                "gzip, deflate, br".parse().unwrap(),
-            );
-            header_map.insert(reqwest::header::ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9".parse().unwrap());
-            header_map.insert(
-                reqwest::header::CACHE_CONTROL,
-                "keep-alive".parse().unwrap(),
-            );
             header_map
         };
 
