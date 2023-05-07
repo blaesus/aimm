@@ -231,18 +231,23 @@ struct Cli {
 enum SubCommands {
     /// does testing things
     Scan {
+        #[arg(short, long)]
         root: Option<String>,
     },
     Add {
+        #[arg(short, long)]
         target: Option<String>,
     },
     Install {
+        #[arg(short, long)]
         #[clap(default_value = "aimm.json")]
         manifest: String,
 
+        #[arg(short, long)]
         #[clap(default_value = ".")]
         target: String,
 
+        #[arg(short, long)]
         mode: Option<InstallFromManifestMode>,
     },
 }
