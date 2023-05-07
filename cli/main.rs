@@ -1,9 +1,10 @@
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-use git2::Repository;
+use clap::{Parser, Subcommand};
+use git2::{Repository, RepositoryInitOptions};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -83,6 +84,28 @@ fn download_file_records(sha256: &str) -> Result<Vec<FileRecordApiItem>, Box<dyn
     return Ok(response.0);
 }
 
+fn git_clone(url: &str) {
+    // set the path where the cloned repository will be created
+    let local_path = Path::new("./test");
+
+    // perform the clone operation
+    let _repo = git2::build::RepoBuilder::new()
+        .fetch_options({
+            let mut fetch_options = git2::FetchOptions::new();
+            fetch_options
+                .download_tags(git2::AutotagOption::All)
+                .proxy_options({
+                    let mut proxy_options = git2::ProxyOptions::new();
+                    proxy_options.auto();
+                    proxy_options
+                })
+                .update_fetchhead(true);
+            fetch_options
+        })
+        .clone(url, local_path)
+        .unwrap();
+}
+
 fn scan(root: PathBuf) {
     let ai_extensions = vec![
         "safetensors",
@@ -154,6 +177,43 @@ fn scan(root: PathBuf) {
     }
 }
 
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<SubCommands>,
+}
+
+#[derive(Subcommand)]
+enum SubCommands {
+    /// does testing things
+    Scan {
+        /// lists test values
+        #[arg(short, long)]
+        root: Option<String>,
+    },
+    Add {
+        target: Option<String>,
+    },
+}
+
 fn main() {
-    scan(std::env::current_dir().unwrap());
+    let cli = Cli::parse();
+    // You can check for the existence of subcommands, and if found use their
+    // matches just as you would the top level cmd
+    match &cli.command {
+        Some(SubCommands::Add { target }) => {
+            println!("Adding target {:?}", target)
+        }
+        Some(SubCommands::Scan { root }) => {
+            if let Some(root) = root {
+                println!("root={}", root);
+            } else {
+                println!("no root");
+            }
+        }
+        None => {}
+    }
+
+    // git_clone("https://github.com/eastmaple/easytrojan")
 }
