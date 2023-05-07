@@ -14,16 +14,18 @@ datasource db {
 }
 
 enum Registry {
-  Amm
+  AIMM
   Civitai
   Huggingface
+  GitHub
+  GitLab
 }
 
 model Repository {
   id           String   @id @default(uuid()) @db.Uuid
   name         String   @db.VarChar(255)
   subtype      String?
-  registry     Registry @default(Amm)
+  registry     Registry @default(AIMM)
   idInRegistry String
   updated      BigInt
   raw          Json?
