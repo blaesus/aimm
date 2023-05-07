@@ -119,6 +119,8 @@ fn scan(root: PathBuf) {
         "bin.4",
     ];
 
+    let base = root.clone();
+
     let ai_files = {
         let mut files = Vec::new();
         let mut directories = vec![root];
@@ -148,9 +150,7 @@ fn scan(root: PathBuf) {
                                     .iter()
                                     .any(|ext| extension.eq_ignore_ascii_case(ext));
                                 if is_ai_file {
-                                    let relative_path = path
-                                        .strip_prefix(std::env::current_dir().unwrap())
-                                        .unwrap();
+                                    let relative_path = path.strip_prefix(&base).unwrap();
                                     files.push(relative_path.to_owned());
                                 }
                             }
@@ -189,8 +189,6 @@ struct Cli {
 enum SubCommands {
     /// does testing things
     Scan {
-        /// lists test values
-        #[arg(short, long)]
         root: Option<String>,
     },
     Add {
@@ -237,11 +235,8 @@ fn main() {
             }
         }
         Some(SubCommands::Scan { root }) => {
-            if let Some(root) = root {
-                println!("root={}", root);
-            } else {
-                println!("no root");
-            }
+            let root = root.as_ref().map(|r| r.as_str()).unwrap_or(".");
+            scan(PathBuf::from(root));
         }
         None => {}
     }
