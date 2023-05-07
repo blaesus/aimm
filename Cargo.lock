@@ -11,6 +11,7 @@ dependencies = [
  "reqwest",
  "serde",
  "sha2",
+ "url",
 ]
 
 [[package]]

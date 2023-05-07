@@ -8,6 +8,7 @@ use git2::{Repository, RepositoryInitOptions};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use url::{ParseError, Url};
 
 fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
     let mut file = File::open(path)?;
@@ -197,13 +198,43 @@ enum SubCommands {
     },
 }
 
+fn is_path_probably_git(target: &str) -> bool {
+    let git_services = vec!["github.com", "gitlab.com", "huggingface.co"];
+    let url = Url::parse(target).unwrap();
+    let ext = Path::new(url.path()).extension();
+    println!("ext {:?}", ext);
+    if url.scheme() == "git" {
+        true
+    } else {
+        let is_git_capable_service = url
+            .host()
+            .map(|x| git_services.iter().any(|s| *s == x.to_string()))
+            .unwrap_or(false);
+
+        let path_extension = Path::new(url.path()).extension();
+
+        return if !is_git_capable_service {
+            false
+        } else if let Some(ext) = path_extension {
+            ext.to_str() == Some("git")
+        } else {
+            true // no extension, likely git repo, not a file
+        };
+    }
+}
+
 fn main() {
     let cli = Cli::parse();
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
         Some(SubCommands::Add { target }) => {
-            println!("Adding target {:?}", target)
+            if let Some(target) = target {
+                let probably_git = is_path_probably_git(target);
+                println!("probably git: {} {}", target, probably_git)
+            } else {
+                eprintln!("Must specify add target")
+            }
         }
         Some(SubCommands::Scan { root }) => {
             if let Some(root) = root {
