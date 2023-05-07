@@ -90,6 +90,7 @@ struct FileResponse(Vec<FileRecordApiItem>);
 fn download_file_records(sha256: &str) -> Result<Vec<FileRecordApiItem>, Box<dyn Error>> {
     // let api_url = format!("http://localhost:3030/files?sha256={}", sha256);
     let api_url = format!("http://api.apm.run/api/files?sha256={}", sha256);
+    println!("Getting {}", api_url);
     let response: FileResponse = reqwest::blocking::get(&api_url)?.json()?;
     return Ok(response.0);
 }
@@ -235,6 +236,9 @@ enum SubCommands {
     Add {
         target: Option<String>,
     },
+    Install {
+        target: Option<String>,
+    },
 }
 
 fn is_path_probably_git(target: &str) -> bool {
@@ -278,6 +282,13 @@ fn main() {
         Some(SubCommands::Scan { root }) => {
             let root = root.as_ref().map(|r| r.as_str()).unwrap_or(".");
             scan(PathBuf::from(root));
+        }
+        Some(SubCommands::Install { target }) => {
+            let root = target.as_ref().map(|r| r.as_str()).unwrap_or(".");
+            let manifest_name = "aimm.json";
+            let manifest_text = std::fs::read_to_string(manifest_name).unwrap();
+            let parsed = serde_json::from_str::<AimmModuleManifest>(&manifest_text).unwrap();
+            println!(":? {:?}", parsed);
         }
         None => {}
     }

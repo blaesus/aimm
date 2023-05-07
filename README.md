@@ -14,6 +14,9 @@ AI Model Manager.
 ```sh
 # Scan an existing directory to build a manifest file
 aimm scan
+
+# Install packages from aimm.json
+aimm install
 ```
 
 # To be implemented
