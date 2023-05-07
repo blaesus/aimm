@@ -290,12 +290,10 @@ fn install_from_manifest(manifest: AimmModuleManifest) {
         let mut response = client.get(&item.url).headers(headers).send().unwrap();
         let mut dest = {
             let path = Path::new(&item.path);
-            // make dir if non-existing, recursively
             if let Some(parent) = path.parent() {
                 std::fs::create_dir_all(parent).unwrap();
             }
-            let display = path.display();
-            println!("Saving to {}", display);
+            println!("Saving to {}", path.display());
             File::create(&path).unwrap()
         };
         std::io::copy(&mut response, &mut dest).unwrap();
