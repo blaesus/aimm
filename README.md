@@ -45,5 +45,63 @@ aimm install
 aimm install -r non-default-named.amm.json
 ```
 
+# The API service
+
+No authentication required at the moment. Please play nice.
+
+`hashA` is the sha256 of the file.
+
+Projects/repos have UUIDs as IDS in AIMM.
+Civitai IDs are ints (e.g. `models/7204`), while HuggingFace uses strings (e.g. `lmsys/vicuna-7b-delta-v0`).
+
+## Files
+
+### Search files by filename (partial)
+
+```
+https://api.aimm.dev/v1/files?filename=meina&pretty=1
+```
+
+```json
+[
+    {
+        "id": "7b1393c5-e398-4bc4-b416-3f2b3ac24165",
+        "hashA": "e03274b1e7478ce7cfd86e4758d9918d26f6f1f73a6e37d425587a7938ac6f79",
+        "downloadUrl": "https://civitai.com/api/download/models/16925",
+        "filename": "meinamix_meinaV7.safetensors",
+        "revision": {
+            "id": "c02e9d09-f7cf-49c1-a44e-00a03b0918ed",
+            "idInRegistry": "16925",
+            "repo": {
+                "id": "876abe0f-b774-4629-bcc8-024b2250a374",
+                "name": "MeinaMix",
+                "registry": "Civitai",
+                "idInRegistry": "7240",
+                "favour": 102479
+            }
+        }
+    },
+    {
+        "id": "b4a7b957-f830-4c86-831e-cde04128f767",
+        "hashA": "eac6c08a199c4953f80ae5b4ea5f9b2d88c7f3c6f2546e14a57851e3e4a1c5cb",
+        "downloadUrl": "https://civitai.com/api/download/models/46137",
+        "filename": "meinamix_meinaV9.safetensors",
+        "revision": {
+            "id": "1f726859-a61a-4df1-9057-20e869f0a54d",
+            "idInRegistry": "46137",
+            "repo": {
+                "id": "876abe0f-b774-4629-bcc8-024b2250a374",
+                "name": "MeinaMix",
+                "registry": "Civitai",
+                "idInRegistry": "7240",
+                "favour": 102479
+            }
+        }
+    },
+]
+```
+
+### Search files by sha256 (must provide full)
+
 # License
 MIT
