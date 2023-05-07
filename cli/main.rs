@@ -237,7 +237,12 @@ enum SubCommands {
         target: Option<String>,
     },
     Install {
-        target: Option<String>,
+        #[clap(default_value = "aimm.json")]
+        manifest: String,
+
+        #[clap(default_value = ".")]
+        target: String,
+
         mode: Option<InstallFromManifestMode>,
     },
 }
@@ -382,8 +387,12 @@ fn main() {
             let root = root.as_ref().map(|r| r.as_str()).unwrap_or(".");
             scan(PathBuf::from(root));
         }
-        Some(SubCommands::Install { target, mode }) => {
-            let manifest_name = "aimm.json";
+        Some(SubCommands::Install {
+            manifest,
+            target,
+            mode,
+        }) => {
+            let manifest_name = manifest;
             let manifest_text = std::fs::read_to_string(manifest_name).unwrap();
             let parsed = serde_json::from_str::<AimmModuleManifest>(&manifest_text).unwrap();
             let mode = mode.clone().unwrap_or_default();
