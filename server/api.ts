@@ -163,7 +163,7 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 // Start the server
-const PORT = 3030;
+const PORT = 4000;
 app.listen(PORT, () => {
     console.log(`API server running on port ${PORT}`);
 });

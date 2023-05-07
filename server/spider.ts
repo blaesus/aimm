@@ -108,7 +108,7 @@ router.post("/_spiders/:type", async (ctx) => {
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-const PORT = 3040;
+const PORT = 4010;
 app.listen(PORT, () => {
     console.log(`Spider controller running on port ${PORT}`);
 });
