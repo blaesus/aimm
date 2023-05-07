@@ -24,6 +24,26 @@ fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
     Ok(format!("{:x}", hash))
 }
 
+#[allow(non_snake_case)]
+struct AimmManifestItem {
+    name: String,
+    path: String,
+    sha256: String,
+    url: String,
+}
+
+#[allow(non_snake_case)]
+struct AimmManifest {
+    manifestVersion: String,
+    name: String,
+    version: String,
+    description: String,
+    license: String,
+    authors: Vec<String>,
+    items: Vec<AimmManifestItem>,
+}
+
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct Repository_FileRecordApiItem {
     id: String,
@@ -33,6 +53,7 @@ struct Repository_FileRecordApiItem {
     favour: u64,
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct Revision_FileRecordApiItem {
     id: String,
@@ -40,6 +61,7 @@ struct Revision_FileRecordApiItem {
     repo: Repository_FileRecordApiItem,
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct FileRecordApiItem {
     id: String,
@@ -59,7 +81,16 @@ fn download_file_records(sha256: &str) -> Result<Vec<FileRecordApiItem>, Box<dyn
 }
 
 fn main() {
-    let ai_extensions = vec!["safetensors", "pt"];
+    let ai_extensions = vec![
+        "safetensors",
+        "pt",
+        "pth",
+        "bin",
+        "bin.1",
+        "bin.2",
+        "bin.3",
+        "bin.4",
+    ];
 
     let ai_files = {
         let mut files = Vec::new();
@@ -75,10 +106,10 @@ fn main() {
                     match path.extension() {
                         None => continue,
                         Some(extension) => {
-                            if ai_extensions
+                            let is_ai_file = ai_extensions
                                 .iter()
-                                .any(|ext| extension.eq_ignore_ascii_case(ext))
-                            {
+                                .any(|ext| extension.eq_ignore_ascii_case(ext));
+                            if is_ai_file {
                                 let relative_path =
                                     path.strip_prefix(std::env::current_dir().unwrap()).unwrap();
                                 files.push(relative_path.to_owned());
