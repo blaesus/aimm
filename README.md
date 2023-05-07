@@ -12,12 +12,15 @@ AI Model Manager.
 # Use it
 
 ```sh
+# Scan an existing directory to build a manifest file
+aimm scan
+```
 
+# To be implemented
+
+```sh
 # Initialize a new project
 aimm init
-
-# Probe an existing directory to build a map file
-aimm scan
 
 # Install from Git
 aimm install https://github.com/AUTOMATIC1111/stable-diffusion-webui
@@ -40,7 +43,6 @@ aimm install bloom
 # Install from an existing amm.json
 aimm install
 aimm install -r non-default-named.amm.json
-
 ```
 
 # License

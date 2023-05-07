@@ -1,12 +1,13 @@
 use std::error::Error;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 use clap::{Parser, Subcommand};
 use git2::{Repository, RepositoryInitOptions};
 use reqwest;
 use serde::{Deserialize, Serialize};
+use serde_json;
 use sha2::{Digest, Sha256};
 use url::{ParseError, Url};
 
@@ -29,6 +30,7 @@ fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
 }
 
 #[allow(non_snake_case)]
+#[derive(Debug, Deserialize, Serialize)]
 struct ModuleManifestItem {
     name: String,
     path: String,
@@ -37,6 +39,7 @@ struct ModuleManifestItem {
 }
 
 #[allow(non_snake_case)]
+#[derive(Debug, Deserialize, Serialize)]
 struct AimmModuleManifest {
     manifestVersion: String,
     name: String,
@@ -80,9 +83,16 @@ struct FileRecordApiItem {
 struct FileResponse(Vec<FileRecordApiItem>);
 
 fn download_file_records(sha256: &str) -> Result<Vec<FileRecordApiItem>, Box<dyn Error>> {
-    let api_url = format!("http://localhost:3030/files?sha256={}", sha256);
+    // let api_url = format!("http://localhost:3030/files?sha256={}", sha256);
+    let api_url = format!("http://api.apm.run/api/files?sha256={}", sha256);
     let response: FileResponse = reqwest::blocking::get(&api_url)?.json()?;
     return Ok(response.0);
+}
+
+fn pick_file_records(file_records: &[FileRecordApiItem]) -> Option<&FileRecordApiItem> {
+    file_records
+        .iter()
+        .max_by(|a, b| a.revision.repo.favour.cmp(&b.revision.repo.favour))
 }
 
 fn git_clone(url: &str) {
@@ -161,21 +171,47 @@ fn scan(root: PathBuf) {
         }
         files
     };
-    println!("files: {:#?}", ai_files);
+
+    let current_dir = std::env::current_dir().unwrap().into_os_string();
+
+    let mut manifest = AimmModuleManifest {
+        manifestVersion: "0.1.0".to_owned(),
+        name: current_dir.to_string_lossy().to_string(),
+        version: "0.1.0".to_owned(),
+        description: "".to_owned(),
+        license: "NOTLICENSED".to_owned(),
+        authors: vec![],
+        items: vec![],
+        subModules: vec![],
+    };
+
     for file in ai_files {
         let sha = sha256_file(&file.to_string_lossy()).unwrap();
         let file_records = download_file_records(&sha).unwrap();
-        let download_urls = file_records
-            .iter()
-            .map(|file_record| {
-                (
-                    file_record.downloadUrl.clone(),
-                    file_record.revision.repo.favour,
-                )
-            })
-            .collect::<Vec<(String, u64)>>();
-        println!("{}: {}\n{:#?}", file.to_string_lossy(), sha, download_urls);
+        match pick_file_records(&file_records) {
+            None => {
+                println!("No file records found for {}", file.to_string_lossy());
+            }
+            Some(record) => {
+                println!(
+                    "Using {} for {}",
+                    record.downloadUrl,
+                    file.to_string_lossy()
+                );
+                manifest.items.push(ModuleManifestItem {
+                    name: file.file_name().unwrap().to_string_lossy().to_string(),
+                    path: file.to_string_lossy().to_string(),
+                    sha256: sha,
+                    url: record.downloadUrl.clone(),
+                });
+            }
+        }
     }
+
+    let manifest_json = serde_json::to_string_pretty(&manifest).unwrap();
+    // write json to a file
+    let mut file = File::create("aimm.json").unwrap();
+    file.write_all(manifest_json.as_bytes()).unwrap();
 }
 
 #[derive(Parser)]
