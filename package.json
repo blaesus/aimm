@@ -3,10 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "dev": "cd web && next dev",
-        "build": "cd web && next build",
-        "start": "cd web && next start",
-        "lint": "cd web && next lint",
+        "start": "sh dev.sh",
         "deploy": "sh ops/deploy-docker.sh",
         "mirror": "ts-node -r tsconfig-paths/register src/server/data/mirror.ts",
         "genprisma": "./node_modules/.bin/prisma generate",
@@ -16,24 +13,20 @@
         "schema": "data/schema.prisma"
     },
     "dependencies": {
-        "@trpc/client": "^10.25.0",
-        "@trpc/server": "^10.25.0",
-        "@types/koa": "^2.13.6",
-        "@types/koa-bodyparser": "^4.3.10",
-        "@types/koa-router": "^7.4.4",
         "agentkeepalive": "^4.3.0",
         "axios": "^1.4.0",
         "dotenv": "^16.0.3",
         "koa": "^2.14.2",
         "koa-bodyparser": "^4.4.0",
         "koa-router": "^12.0.0",
-        "next": "13.4.0",
         "prisma": "^4.13.0",
         "react": "18.2.0",
-        "react-dom": "18.2.0",
-        "zod": "^3.21.4"
+        "react-dom": "18.2.0"
     },
     "devDependencies": {
+        "@types/koa": "^2.13.6",
+        "@types/koa-bodyparser": "^4.3.10",
+        "@types/koa-router": "^7.4.4",
         "@prisma/client": "^4.13.0",
         "@types/node": "18.16.2",
         "@types/pg": "^8.6.6",

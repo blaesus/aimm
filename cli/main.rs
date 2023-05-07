@@ -53,7 +53,7 @@ struct FileRecordApiItem {
 struct FileResponse(Vec<FileRecordApiItem>);
 
 fn download_file_records(sha256: &str) -> Result<Vec<FileRecordApiItem>, Box<dyn Error>> {
-    let api_url = format!("https://api.apm.run/api/files?sha256={}", sha256);
+    let api_url = format!("http://localhost:3030/api/files?sha256={}", sha256);
     let response: FileResponse = reqwest::blocking::get(&api_url)?.json()?;
     return Ok(response.0);
 }
