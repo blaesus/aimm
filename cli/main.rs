@@ -1,7 +1,9 @@
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
+use std::path::PathBuf;
 
+use git2::Repository;
 use reqwest;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -25,7 +27,7 @@ fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
 }
 
 #[allow(non_snake_case)]
-struct AimmManifestItem {
+struct ModuleManifestItem {
     name: String,
     path: String,
     sha256: String,
@@ -33,14 +35,15 @@ struct AimmManifestItem {
 }
 
 #[allow(non_snake_case)]
-struct AimmManifest {
+struct AimmModuleManifest {
     manifestVersion: String,
     name: String,
     version: String,
     description: String,
     license: String,
     authors: Vec<String>,
-    items: Vec<AimmManifestItem>,
+    items: Vec<ModuleManifestItem>,
+    subModules: Vec<AimmModuleManifest>,
 }
 
 #[allow(non_snake_case)]
@@ -80,7 +83,7 @@ fn download_file_records(sha256: &str) -> Result<Vec<FileRecordApiItem>, Box<dyn
     return Ok(response.0);
 }
 
-fn main() {
+fn scan(root: PathBuf) {
     let ai_extensions = vec![
         "safetensors",
         "pt",
@@ -94,25 +97,38 @@ fn main() {
 
     let ai_files = {
         let mut files = Vec::new();
-        let mut stack = Vec::new();
-        stack.push(std::env::current_dir().unwrap());
-        while let Some(dir) = stack.pop() {
-            for entry in std::fs::read_dir(dir).unwrap() {
-                let entry = entry.unwrap();
-                let path = entry.path();
-                if path.is_dir() {
-                    stack.push(path);
-                } else {
-                    match path.extension() {
-                        None => continue,
-                        Some(extension) => {
-                            let is_ai_file = ai_extensions
-                                .iter()
-                                .any(|ext| extension.eq_ignore_ascii_case(ext));
-                            if is_ai_file {
-                                let relative_path =
-                                    path.strip_prefix(std::env::current_dir().unwrap()).unwrap();
-                                files.push(relative_path.to_owned());
+        let mut directories = vec![root];
+        while let Some(dir) = directories.pop() {
+            // Check if dir is a git repo
+            let git_dir = dir.join(".git");
+            if git_dir.exists() {
+                let repo = match Repository::open(dir) {
+                    Ok(repo) => repo,
+                    Err(e) => panic!("failed to init: {}", e),
+                };
+                println!("Found git repo: {:?}", repo.path());
+                let head = repo.head().unwrap();
+                let branch_name = head.shorthand().unwrap();
+                println!("Current branch: {}", branch_name);
+            } else {
+                for entry in std::fs::read_dir(dir).unwrap() {
+                    let entry = entry.unwrap();
+                    let path = entry.path();
+                    if path.is_dir() {
+                        directories.push(path);
+                    } else {
+                        match path.extension() {
+                            None => continue,
+                            Some(extension) => {
+                                let is_ai_file = ai_extensions
+                                    .iter()
+                                    .any(|ext| extension.eq_ignore_ascii_case(ext));
+                                if is_ai_file {
+                                    let relative_path = path
+                                        .strip_prefix(std::env::current_dir().unwrap())
+                                        .unwrap();
+                                    files.push(relative_path.to_owned());
+                                }
                             }
                         }
                     }
@@ -122,7 +138,6 @@ fn main() {
         files
     };
     println!("files: {:#?}", ai_files);
-
     for file in ai_files {
         let sha = sha256_file(&file.to_string_lossy()).unwrap();
         let file_records = download_file_records(&sha).unwrap();
@@ -137,4 +152,8 @@ fn main() {
             .collect::<Vec<(String, u64)>>();
         println!("{}: {}\n{:#?}", file.to_string_lossy(), sha, download_urls);
     }
+}
+
+fn main() {
+    scan(std::env::current_dir().unwrap());
 }
