@@ -266,6 +266,60 @@ fn is_path_probably_git(target: &str) -> bool {
     }
 }
 
+fn install_from_manifest(manifest: AimmModuleManifest) {
+    for item in manifest.items {
+        // download file
+        // fake headers with Chrome UA
+        let webroot = Url::parse(&item.url).unwrap().host().unwrap().to_string();
+
+        let headers = {
+            let mut header_map = reqwest::header::HeaderMap::new();
+            header_map.insert(
+                reqwest::header::USER_AGENT,
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
+                 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                    .parse()
+                    .unwrap(),
+            );
+            header_map.insert(reqwest::header::ORIGIN, webroot.parse().unwrap());
+            header_map.insert(reqwest::header::REFERER, webroot.parse().unwrap());
+            header_map
+        };
+
+        let client = reqwest::blocking::Client::builder()
+            .default_headers(headers)
+            .user_agent(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
+                 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            )
+            .build()
+            .unwrap();
+
+        let mut response = client.get(&item.url).send().unwrap();
+        let mut dest = {
+            let path = Path::new(&item.path);
+            // make dir if non-existing, recursively
+            if let Some(parent) = path.parent() {
+                std::fs::create_dir_all(parent).unwrap();
+            }
+            let display = path.display();
+            println!("Saving to {}", display);
+            File::create(&path).unwrap()
+        };
+        std::io::copy(&mut response, &mut dest).unwrap();
+        // verify sha256
+        let computed_sha = sha256_file(&item.path).unwrap();
+        if computed_sha != item.sha256 {
+            eprintln!("SHA256 mismatch for {}", item.path);
+        } else {
+            println!(
+                "SHA256 verified for {} with sha256 {}",
+                item.path, computed_sha
+            );
+        }
+    }
+}
+
 fn main() {
     let cli = Cli::parse();
     // You can check for the existence of subcommands, and if found use their
@@ -288,10 +342,8 @@ fn main() {
             let manifest_name = "aimm.json";
             let manifest_text = std::fs::read_to_string(manifest_name).unwrap();
             let parsed = serde_json::from_str::<AimmModuleManifest>(&manifest_text).unwrap();
-            println!(":? {:?}", parsed);
+            install_from_manifest(parsed)
         }
         None => {}
     }
-
-    // git_clone("https://github.com/eastmaple/easytrojan")
 }
