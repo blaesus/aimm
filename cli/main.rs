@@ -238,6 +238,7 @@ enum SubCommands {
     },
     Install {
         target: Option<String>,
+        mode: Option<InstallFromManifestMode>,
     },
 }
 
@@ -266,16 +267,62 @@ fn is_path_probably_git(target: &str) -> bool {
     }
 }
 
-fn install_from_manifest(manifest: AimmModuleManifest) {
+#[derive(Debug, Eq, PartialEq, Clone)]
+enum InstallFromManifestMode {
+    Keep,
+    Update,
+}
+
+impl From<String> for InstallFromManifestMode {
+    fn from(s: String) -> Self {
+        match s.as_str() {
+            "keep" => InstallFromManifestMode::Keep,
+            "update" => InstallFromManifestMode::Update,
+            _ => panic!("Unknown install mode {}", s),
+        }
+    }
+}
+
+impl Default for InstallFromManifestMode {
+    fn default() -> Self {
+        return InstallFromManifestMode::Keep;
+    }
+}
+
+fn install_from_manifest(manifest: AimmModuleManifest, mode: InstallFromManifestMode) {
     for item in manifest.items {
-        // Skip if an file is already there
+        let expected_sha = item.sha256;
         if Path::new(&item.path).exists() {
             let existing_sha = sha256_file(&item.path).unwrap();
-            println!(
-                "Skipping {} because it already exists with SHA256 {} (wanted {})",
-                item.path, existing_sha, item.sha256
-            );
-            continue;
+            if existing_sha == expected_sha {
+                println!(
+                    "Skipping {} because it already exists with SHA256 {}, as expected",
+                    item.path, existing_sha
+                );
+                continue;
+            } else {
+                // File exists
+                match mode {
+                    InstallFromManifestMode::Keep => {
+                        println!(
+                            "Skipping {} because it already exists (SHA256 {}), even if we expected {}",
+                            item.path, existing_sha, expected_sha
+                        );
+                        continue;
+                    }
+                    InstallFromManifestMode::Update => {
+                        println!(
+                            "Updating {} because it already exists (SHA256 {}), but we expected {}",
+                            item.path, existing_sha, expected_sha
+                        );
+                        // Rename current file
+                        let mut new_path = item.path.clone();
+                        new_path.push_str(".old");
+                        std::fs::rename(&item.path, &new_path).unwrap();
+                    }
+                    _ => (),
+                }
+            }
         }
 
         let webroot = Url::parse(&item.url).unwrap().host().unwrap().to_string();
@@ -307,7 +354,7 @@ fn install_from_manifest(manifest: AimmModuleManifest) {
         std::io::copy(&mut response, &mut dest).unwrap();
         // verify sha256
         let computed_sha = sha256_file(&item.path).unwrap();
-        if computed_sha != item.sha256 {
+        if computed_sha != expected_sha {
             eprintln!("SHA256 mismatch for {}", item.path);
         } else {
             println!(
@@ -335,11 +382,13 @@ fn main() {
             let root = root.as_ref().map(|r| r.as_str()).unwrap_or(".");
             scan(PathBuf::from(root));
         }
-        Some(SubCommands::Install { target }) => {
+        Some(SubCommands::Install { target, mode }) => {
+            println!("mode {:?}", mode);
             let manifest_name = "aimm.json";
             let manifest_text = std::fs::read_to_string(manifest_name).unwrap();
             let parsed = serde_json::from_str::<AimmModuleManifest>(&manifest_text).unwrap();
-            install_from_manifest(parsed)
+            let mode = mode.clone().unwrap_or_default();
+            install_from_manifest(parsed, mode)
         }
         None => {}
     }
