@@ -153,7 +153,6 @@ router.get("/files", async (ctx: Koa.Context) => {
     const jsonSpace = query.pretty ? 4 : undefined;
     ctx.set("Content-Type", "application/json");
     ctx.body = JSON.stringify(files, fileRecordOutputReplacer, jsonSpace);
-
 });
 
 // Add router middleware to the app
@@ -163,5 +162,5 @@ app.use(router.allowedMethods());
 // Start the server
 const PORT = 3030;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`API server running on port ${PORT}`);
 });

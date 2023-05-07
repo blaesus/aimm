@@ -2,13 +2,12 @@ import crypto from "crypto";
 import { Prisma, PrismaClient } from "@prisma/client";
 import RepositoryCreateInput = Prisma.RepositoryCreateInput;
 import RevisionCreateInput = Prisma.RevisionCreateInput;
-
-import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer } from "@/server/data/utils";
 import {
     HuggingfaceCommitJson_FromList,
     HuggingfaceCommitJson_Full,
     HuggingFaceFilePointer,
-} from "../../../data/huggingfaceTypes";
+} from "../huggingfaceTypes";
+import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer } from "./utils";
 
 type HuggingfaceCommitResponse = HuggingfaceCommitJson_FromList[]
 
