@@ -2,6 +2,9 @@ import Koa from "koa";
 import Router from "koa-router";
 import { reindexCivitaiModels } from "../data/spiders/civitai";
 import { reindexHuggingFaceRepos } from "../data/spiders/huggingface";
+import * as dotenv from "dotenv";
+
+dotenv.config()
 
 const app = new Koa();
 const router = new Router();
@@ -89,10 +92,17 @@ router.post("/_spiders/:type", async (ctx) => {
         ctx.status = 404;
         return;
     }
+    const status = spiderStatuus[type]
+    if (status.start && !status.end) {
+        ctx.status = 400;
+        ctx.body = JSON.stringify({started: false, reason: "a spider is running"});
+    }
+    else {
+        launchSpider(type).catch(console.error);
+        ctx.status = 201;
+        ctx.body = JSON.stringify({started: true});
+    }
 
-    launchSpider(type).catch(console.error);
-    ctx.status = 201;
-    ctx.body = JSON.stringify({started: true});
 });
 
 app.use(router.routes());

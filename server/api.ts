@@ -3,6 +3,9 @@ import bodyParser from "koa-bodyparser";
 import Router from "koa-router";
 import { prisma } from "../data/prismaClient";
 import { Registry } from ".prisma/client";
+import * as dotenv from "dotenv";
+
+dotenv.config()
 
 const app = new Koa();
 const router = new Router();

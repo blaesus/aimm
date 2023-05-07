@@ -206,6 +206,7 @@ export async function reindexCivitaiModels(params?: CivitaiIndexingParams) {
 
     while (true) {
         const url = `https://civitai.com/api/v1/models?page=${page}&limit=${pageSize}`;
+        console.info(`Civitai: fetching ${url}`)
 
         try {
             const response = await requester.getData<CivitaiModelPayload>(url);
