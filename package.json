@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "start": "sh dev.sh",
-        "deploy": "sh ops/deploy-docker.sh",
+        "deploy": "sh ops/deploy.sh",
         "mirror": "ts-node -r tsconfig-paths/register src/server/data/mirror.ts",
         "genprisma": "./node_modules/.bin/prisma generate",
         "migrateprisma": "./node_modules/.bin/prisma migrate dev --name"
