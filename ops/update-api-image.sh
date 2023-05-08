@@ -4,4 +4,4 @@ docker build --file api.dockerfile --network="host" --no-cache -t aimm-api . &&
 docker stop aimm-api-container;
 sleep 5;
 docker rm -f aimm-api-container;
-docker run -d --netowork="host" --add-host=host.docker.internal:172.17.0.1 --name aimm-api-container aimm-api;
+docker run -d --network="host" --add-host=host.docker.internal:172.17.0.1 --name aimm-api-container aimm-api;
