@@ -6,19 +6,12 @@ services:
       dockerfile: ops/api.dockerfile
     env_file:
       - ./ops/.env.prod
-    ports:
-      - "4000:4000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    network_mode: "host"
     command: node server/api.js
   spider:
     build:
       context: .
       dockerfile: ops/spider.dockerfile
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    ports:
-      - "4010:4010"
     network_mode: "host"
     env_file:
       - ./ops/.env.prod
