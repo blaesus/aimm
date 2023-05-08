@@ -3,6 +3,7 @@ import Router from "koa-router";
 import { reindexCivitaiModels } from "../data/spiders/civitai";
 import { reindexHuggingFaceRepos } from "../data/spiders/huggingface";
 import * as dotenv from "dotenv";
+import { prisma } from "../data/prismaClient";
 
 dotenv.config()
 
@@ -29,6 +30,12 @@ const spiderStatuus: { [key in Spider]: SpiderStatus } = {
         end: null,
     },
 };
+
+router.get("/hello", async (ctx: Koa.Context) => {
+    const count = await prisma.repository.count();
+    ctx.body = `Hello world from spider with ${count} repositories!`;
+});
+
 router.get("/_spiders/:type", async (ctx) => {
     const authorizationHeader = ctx.request.headers.authorization || "";
     const token = authorizationHeader.replace("Bearer ", "");

@@ -73,7 +73,7 @@ function fileRecordOutputReplacer(this: any, key: string, value: any) {
 // Define a route for handling GET requests to the root URL
 router.get("/hello", async (ctx: Koa.Context) => {
     const count = await prisma.repository.count();
-    ctx.body = `Hello, world from ${count} repositories!`;
+    ctx.body = `Hello world from API with ${count} repositories!`;
 });
 
 type FileQuery = "filename" | "sha256" | "pretty" | "case-insensitive"
