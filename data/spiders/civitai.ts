@@ -45,7 +45,6 @@ async function completeFileHashes(
                 },
             });
             if (cached) {
-                console.info(`Found previously seen ${f.downloadUrl} in cache with sha256 ${cached.value}`);
                 sha256 = cached.value;
             }
             else {
