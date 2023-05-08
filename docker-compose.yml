@@ -9,14 +9,14 @@ services:
     ports:
       - "4000:4000"
     extra_hosts:
-      - "host.docker.internal:127.0.0.1"
+      - "host.docker.internal:host-gateway"
     command: node server/api.js
   spider:
     build:
       context: .
       dockerfile: ops/spider.dockerfile
     extra_hosts:
-      - "host.docker.internal:127.0.0.1"
+      - "host.docker.internal:host-gateway"
     ports:
       - "4010:4010"
     network_mode: "host"
