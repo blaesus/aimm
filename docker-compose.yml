@@ -1,0 +1,21 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ops/api.dockerfile
+    env_file:
+      - ./ops/.env.prod
+    ports:
+      - "4000:4000"
+    command: node server/api.js
+  spider:
+    build:
+      context: .
+      dockerfile: ops/spider.dockerfile
+    ports:
+      - "4010:4010"
+    network_mode: "host"
+    env_file:
+      - ./ops/.env.prod
+    command: node server/spider.js
