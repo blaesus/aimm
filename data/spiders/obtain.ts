@@ -4,7 +4,7 @@ import { promises as fs } from "fs";
 import { ServiceUplaodParams, uploadToB2 } from "./s3like";
 import { StorageService } from "@prisma/client";
 
-export interface ObtainFilesProps {
+export interface ObtainFilesParams {
     service?: StorageService,
     batchSize?: number;
     // Minimal favour for a repo to be obtained
@@ -23,12 +23,13 @@ const uploaders: { [key in StorageService]: (params: ServiceUplaodParams) => Pro
     Local: dummyUploaders,
 };
 
-export async function obtainFiles(props: ObtainFilesProps = {}) {
+export async function obtainFiles(props: ObtainFilesParams = {}) {
+    console.info("Obtain files loaded with params", props);
     const {service = "BackBlaze_B2", batchSize = 100, favourThreshold = 1000} = props;
     const repos = await prisma.repository.findMany({
         where: {
             name: {
-                contains: "SamDoesArts"
+                contains: "SamDoesArts",
             },
             favour: {
                 gt: favourThreshold,

@@ -4,6 +4,7 @@ import { reindexCivitaiModels } from "../data/spiders/civitai";
 import { reindexHuggingFaceRepos } from "../data/spiders/huggingface";
 import * as dotenv from "dotenv";
 import { prisma } from "../data/prismaClient";
+import { obtainFiles } from "../data/spiders/obtain";
 
 dotenv.config()
 
@@ -12,7 +13,7 @@ const router = new Router();
 
 const appSecret = "12321c8sd3";
 
-type Spider = "civitai" | "huggingface"
+type Spider = "civitai" | "huggingface" | "obtain-files"
 
 interface SpiderStatus {
     start: number | null,
@@ -29,6 +30,10 @@ const spiderStatuus: { [key in Spider]: SpiderStatus } = {
         start: null,
         end: null,
     },
+    "obtain-files": {
+        start: null,
+        end: null,
+    }
 };
 
 router.get("/hello", async (ctx: Koa.Context) => {
@@ -65,19 +70,21 @@ function getSpiderName(s: string): Spider | null {
     }
 }
 
-const reindexers: { [key in Spider]: () => Promise<void> } = {
+
+const reindexers: { [key in Spider]: (params: {}) => Promise<void> } = {
     civitai: reindexCivitaiModels,
     huggingface: reindexHuggingFaceRepos,
+    "obtain-files": obtainFiles,
 };
 
-async function launchSpider(spiderName: Spider) {
+async function launchSpider(spiderName: Spider, data: {}) {
     let start = new Date().toISOString();
     spiderStatuus[spiderName] = {
         start: Date.now(),
         end: null,
         remark: `Started at ${start}`,
     };
-    await reindexers[spiderName]();
+    await reindexers[spiderName](data);
     spiderStatuus[spiderName] = {
         start: Date.now(),
         end: null,
@@ -105,7 +112,8 @@ router.post("/_spiders/:type", async (ctx) => {
         ctx.body = JSON.stringify({started: false, reason: "a spider is running"});
     }
     else {
-        launchSpider(type).catch(console.error);
+        const requestBody = ctx.request.body || {};
+        launchSpider(type, requestBody).catch(console.error);
         ctx.status = 201;
         ctx.body = JSON.stringify({started: true});
     }
