@@ -26,10 +26,13 @@ const uploaders: { [key in StorageService]: (params: ServiceUplaodParams) => Pro
 };
 
 function getRegistry(intendedRegistry: string): Registry | null {
-    if (intendedRegistry === "Civitai" || intendedRegistry === "Huggingface") {
-        return intendedRegistry
+    if (intendedRegistry === "Civitai"
+        || intendedRegistry === "Huggingface"
+        || intendedRegistry === "AimmHub"
+        || intendedRegistry === "GitHub") {
+        return intendedRegistry;
     }
-    return null
+    return null;
 }
 
 export async function obtainFiles(props: ObtainFilesParams = {}) {
