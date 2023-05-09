@@ -43,43 +43,86 @@ export async function obtainFiles(props: ObtainFilesProps = {}) {
                     repoId: repo.id,
                 },
                 storageRecords: {
-                    none: {}
-                }
-            }
-        })
-        console.info(`Found ${fileRecords.length} files for ${repo.name}...`)
+                    none: {},
+                },
+            },
+        });
+        console.info(`Found ${fileRecords.length} files for ${repo.name}...`);
 
-        for (const file of fileRecords) {
+        for (const fileRecord of fileRecords) {
+            // File if the file is already uploaded
+            const existingStorageRecords = await prisma.fileStorageRecord.findMany({
+                where: {
+                    hashA: fileRecord.hashA,
+                },
+            });
+            if (existingStorageRecords.length >= 1) {
+                console.info(`File ${fileRecord.downloadUrl} is already uploaded to ${existingStorageRecords.length} storage records; creating a relation`);
+                const time = Date.now();
+                for (const storeage of existingStorageRecords) {
+                    await prisma.fileStorageRecordOnFileRecord.create({
+                        data: {
+                            fileRecordId: fileRecord.id,
+                            fileStorageRecordId: storeage.id,
+                            assignmentTime: time,
+                        },
+                    });
+                }
+                continue;
+            }
+
             // download file
             const requester = makeRequester({
-                root: (new URL(file.downloadUrl)).host,
+                root: (new URL(fileRecord.downloadUrl)).host,
             });
-            const localPath = `/tmp/${Math.random().toString()}`;
-            console.info(`Saving ${file.downloadUrl} to ${localPath}...`);
+            const localPath = `/tmp/temp-aimm-blob-${Math.random().toString()}`;
+            console.info(`Saving ${fileRecord.downloadUrl} to ${localPath}...`);
             const bytes = await requester.downloadToLocal({
-                remotePath: file.downloadUrl,
+                remotePath: fileRecord.downloadUrl,
                 localPath,
             });
             if (!bytes) {
-                console.info(`Failed to download file ${file.downloadUrl}`);
+                console.info(`Failed to download file ${fileRecord.downloadUrl}`);
                 continue;
             }
             console.info(`Get ${bytes} bytes`);
             // verify sha256
             const localHash = await hashLocalFile(localPath);
-            if (localHash !== file.hashA) {
-                console.info(`Hash mismatch for ${file.downloadUrl}: ${localHash}, expecting ${file.hashA}`);
+            if (!localHash) {
+                console.error(`Failed to hash ${localHash}`);
+            }
+            else if (localHash !== fileRecord.hashA) {
+                console.error(`Hash mismatch for ${fileRecord.downloadUrl}: ${localHash}, expecting ${fileRecord.hashA}`);
             }
             else {
                 // Upload to Backblaze
-                const remotePath = `${file.hashA}-${file.filename}`;
+                console.info(`Uploading to storage server ${service}...`);
+                const remotePath = `${fileRecord.hashA}-${fileRecord.filename}`;
                 const upload = uploaders[service];
                 const response = await upload({
                     localPath,
                     remotePath,
                 });
                 if (response) {
-                    console.info(`Uploaded ${file.downloadUrl} to ${remotePath} on ${service}}`);
+                    console.info(`Uploaded ${fileRecord.downloadUrl} to ${remotePath} on ${service}}`);
+                    const now = Date.now();
+                    const newStorageRecord = await prisma.fileStorageRecord.create({
+                        data: {
+                            hashA: localHash,
+                            service,
+                            idInService: remotePath,
+                            created: now,
+                            size: bytes,
+                            raw: response,
+                        },
+                    });
+                    await prisma.fileStorageRecordOnFileRecord.create({
+                        data: {
+                            fileRecordId: fileRecord.id,
+                            fileStorageRecordId: newStorageRecord.id,
+                            assignmentTime: now,
+                        },
+                    });
                 }
             }
             // remove file
