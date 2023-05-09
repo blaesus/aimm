@@ -18,10 +18,7 @@ async function main() {
         if (hash) {
             await prisma.fileRecord.update({
                 where: {
-                    revisionId_hashA: {
-                        revisionId: r.revisionId,
-                        hashA: r.hashA,
-                    }
+                    id: r.id,
                 },
                 data: {
                     hashA: hash,
