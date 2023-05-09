@@ -28,9 +28,6 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
     const {service = "BackBlaze_B2", batchSize = 100, favourThreshold = 1000} = props;
     const repos = await prisma.repository.findMany({
         where: {
-            name: {
-                contains: "SamDoesArts",
-            },
             favour: {
                 gt: favourThreshold,
             },
