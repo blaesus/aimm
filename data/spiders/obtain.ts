@@ -27,6 +27,9 @@ export async function obtainFiles(props: ObtainFilesProps = {}) {
     const {service = "BackBlaze_B2", batchSize = 100, favourThreshold = 1000} = props;
     const repos = await prisma.repository.findMany({
         where: {
+            name: {
+                contains: "SamDoesArts"
+            },
             favour: {
                 gt: favourThreshold,
             },
@@ -47,7 +50,7 @@ export async function obtainFiles(props: ObtainFilesProps = {}) {
                 },
             },
         });
-        console.info(`Found ${fileRecords.length} files for ${repo.name}...`);
+        console.info(`Found undownloaded ${fileRecords.length} files for ${repo.name}...`);
 
         for (const fileRecord of fileRecords) {
             // File if the file is already uploaded
@@ -75,7 +78,7 @@ export async function obtainFiles(props: ObtainFilesProps = {}) {
             const requester = makeRequester({
                 root: (new URL(fileRecord.downloadUrl)).host,
             });
-            const localPath = `/tmp/temp-aimm-blob-${Math.random().toString()}`;
+            const localPath = `/tmp/temp-aimm-blob-${Date.now()}`;
             console.info(`Saving ${fileRecord.downloadUrl} to ${localPath}...`);
             const bytes = await requester.downloadToLocal({
                 remotePath: fileRecord.downloadUrl,
@@ -85,7 +88,7 @@ export async function obtainFiles(props: ObtainFilesProps = {}) {
                 console.info(`Failed to download file ${fileRecord.downloadUrl}`);
                 continue;
             }
-            console.info(`Get ${bytes} bytes`);
+            console.info(`Downloaded ${bytes} bytes`);
             // verify sha256
             const localHash = await hashLocalFile(localPath);
             if (!localHash) {
@@ -104,7 +107,7 @@ export async function obtainFiles(props: ObtainFilesProps = {}) {
                     remotePath,
                 });
                 if (response) {
-                    console.info(`Uploaded ${fileRecord.downloadUrl} to ${remotePath} on ${service}}`);
+                    console.info(`Uploaded ${fileRecord.downloadUrl} to ${remotePath} on ${service}`);
                     const now = Date.now();
                     const newStorageRecord = await prisma.fileStorageRecord.create({
                         data: {
@@ -113,7 +116,14 @@ export async function obtainFiles(props: ObtainFilesProps = {}) {
                             idInService: remotePath,
                             created: now,
                             size: bytes,
-                            raw: response,
+                            raw: {
+                                response,
+                                repo: {
+                                    id: repo.id,
+                                    name: repo.name,
+                                },
+                                revision: fileRecord.revisionId,
+                            },
                         },
                     });
                     await prisma.fileStorageRecordOnFileRecord.create({

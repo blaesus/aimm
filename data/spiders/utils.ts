@@ -60,6 +60,12 @@ export function makeRequester(options?: RequesterOptions): Requester {
         httpAgent: keepAliveAgent,
         timeout: 60_000,
         withCredentials: true,
+        onDownloadProgress: (event) => {
+            const percent = Math.round((event.progress || 0) * 100);
+            if (percent === 1 || percent % 10 === 0) {
+                console.info(`Downloaded ${event.loaded}/${event.total} bytes (${percent.toFixed(2)}%)`);
+            }
+        },
     };
 
     const axiosInstance = axios.create(axiosParams);
@@ -84,7 +90,7 @@ export function makeRequester(options?: RequesterOptions): Requester {
     async function downloadToLocal(params: DownloadToLocalParams): Promise<number | null> {
         const {remotePath, localPath} = params;
         try {
-            const {data} = await axiosInstance.get(remotePath, {
+            const {data, headers} = await axiosInstance.get(remotePath, {
                 ...axiosParams,
                 responseType: "stream",
                 maxContentLength: Infinity,
@@ -92,6 +98,11 @@ export function makeRequester(options?: RequesterOptions): Requester {
             });
             const writer = createWriteStream(localPath);
             await pipeline(data, writer);
+            const contentLength = headers["content-length"];
+            if (contentLength && +contentLength !== writer.bytesWritten) {
+                console.error(`Length mistach`)
+                return null
+            }
             return writer.bytesWritten;
         } catch (error) {
             console.error(`cannot save remote path for hashing ${remotePath} to ${localPath}: ${error}`);
