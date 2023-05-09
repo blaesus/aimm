@@ -22,6 +22,7 @@ async function main() {
                 },
                 data: {
                     hashA: hash,
+                    revisionId: r.revisionId,
                 },
             });
         }
