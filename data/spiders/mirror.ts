@@ -1,14 +1,13 @@
 import * as dotenv from "dotenv";
-import { reindexHuggingFaceRepos } from "./huggingface";
+import { obtainFiles } from "./obtain";
+import { uploadFileToS3Like, uploadToB2 } from "./s3like";
+import { prisma } from "../prismaClient";
 
 async function main() {
-    dotenv.config()
-    // await reindexCivitaiFromLocal();
-    // await reindexCivitaiModels();
-    await reindexHuggingFaceRepos();
-
-    console.info(process.env)
+    dotenv.config();
+    await obtainFiles({
+        batchSize: 100,
+    })
 }
 
-
-main().catch(console.error);
+main();

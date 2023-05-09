@@ -83,6 +83,7 @@ model FileStorageRecord {
   service     StorageService
   idInService String
   created     BigInt
+  size        BigInt
   raw         Json?
 
   fileRecords FileStorageRecordOnFileRecord[]

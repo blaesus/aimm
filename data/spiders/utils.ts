@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { pipeline } from "node:stream/promises";
 import axios, { AxiosPromise, AxiosProxyConfig, AxiosRequestConfig } from "axios";
 import Agent from "agentkeepalive";
-import { createWriteStream } from "fs";
+import { createWriteStream, createReadStream } from "fs";
 
 interface Requester {
     getData<T>(url: string): AxiosPromise<T>,
@@ -59,6 +59,7 @@ export function makeRequester(options?: RequesterOptions): Requester {
         proxy: options?.proxy,
         httpAgent: keepAliveAgent,
         timeout: 60_000,
+        withCredentials: true,
     };
 
     const axiosInstance = axios.create(axiosParams);
@@ -147,4 +148,16 @@ export function parsePossibleLfsPointer(content: string): LfsPointer | null {
 
 export async function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function hashLocalFile(path: string): Promise<string | null> {
+    try {
+        const data = createReadStream(path);
+        const hash = crypto.createHash("sha256").setEncoding("binary");
+        await pipeline(data, hash);
+        return hash.digest().toString("hex");
+    } catch (error) {
+        console.error(`cannot get remote path for hashing ${path}: ${error}`);
+        return null;
+    }
 }

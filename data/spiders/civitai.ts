@@ -3,7 +3,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import RepositoryCreateInput = Prisma.RepositoryCreateInput;
 import RevisionCreateInput = Prisma.RevisionCreateInput;
 import { CivitaiModelFileJson, CivitaiModelJson, CivitaiModelVersionJson } from "../civitaiTypes";
-import { buildProxyConfigFromEnv, makeRequester } from "./utils";
+import { buildProxyConfigFromEnv, makeRequester, sleep } from "./utils";
 
 export interface CivitaiModelPayload {
     metadata: {
@@ -224,14 +224,16 @@ export async function reindexCivitaiModels(params?: CivitaiIndexingParams) {
 
             const {data} = response;
             await saveCivitaiModelPayload(prisma, data);
-
-            if (page >= 10000 || page >= data.metadata.totalPages) {
+            if (page >= data.metadata.totalPages) {
                 return;
             }
         } catch (err: any) {
             console.log("Error: ", err);
         }
-        await new Promise(resolve => setTimeout(resolve, requestWaitMs));
+        await sleep(requestWaitMs);
         page += 1;
+        if (page >= 10000) {
+            return;
+        }
     }
 }

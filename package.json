@@ -13,6 +13,7 @@
         "schema": "data/schema.prisma"
     },
     "dependencies": {
+        "@aws-sdk/client-s3": "^3.329.0",
         "agentkeepalive": "^4.3.0",
         "axios": "^1.4.0",
         "dotenv": "^16.0.3",
