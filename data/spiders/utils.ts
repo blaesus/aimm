@@ -61,8 +61,8 @@ export function makeRequester(options?: RequesterOptions): Requester {
         timeout: 60_000,
         withCredentials: true,
         onDownloadProgress: (event) => {
-            const percent = Math.round((event.progress || 0) * 100);
-            if (percent === 1 || percent % 10 === 0) {
+            const percent = Math.round((event.progress || 0) * 1000)/10;
+            if ((percent * 10) % 10 === 0) {
                 console.info(`Downloaded ${event.loaded}/${event.total} bytes (${percent.toFixed(2)}%)`);
             }
         },
