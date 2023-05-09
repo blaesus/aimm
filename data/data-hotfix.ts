@@ -13,7 +13,7 @@ async function main() {
     const requester = makeRequester();
     for (const r of brokenFileRecords) {
         console.info(`Fixing ${r.filename}...`);
-        const hash = await requester.hashRemoteFile(r.filename);
+        const hash = await requester.hashRemoteFile(r.downloadUrl);
         console.info(`Calculated hash ${hash}...`);
         if (hash) {
             await prisma.fileRecord.update({
