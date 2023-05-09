@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { pipeline } from "node:stream/promises";
 import axios, { AxiosPromise, AxiosProxyConfig, AxiosRequestConfig } from "axios";
 import Agent from "agentkeepalive";
+import { createWriteStream } from "fs";
 
 interface Requester {
     getData<T>(url: string): AxiosPromise<T>,
@@ -9,6 +10,13 @@ interface Requester {
     getTextData(url: string): AxiosPromise<string>,
 
     hashRemoteFile(url: string): Promise<string | null>,
+
+    downloadToLocal(params: DownloadToLocalParams): Promise<number | null>,
+}
+
+interface DownloadToLocalParams {
+    remotePath: string,
+    localPath: string,
 }
 
 interface RequesterOptions {
@@ -34,8 +42,8 @@ export function makeRequester(options?: RequesterOptions): Requester {
     const keepAliveAgent = new Agent({
         maxSockets: 4,
         maxFreeSockets: 10,
-        timeout: 60000, // active socket keepalive for 60 seconds
-        freeSocketTimeout: 30000, // free socket keepalive for 30 seconds
+        timeout: 60_000, // active socket keepalive for 60 seconds
+        freeSocketTimeout: 30_000, // free socket keepalive for 30 seconds
     });
     const root = options?.root ?? "https://civitai.com";
     const axiosParams: AxiosRequestConfig = {
@@ -50,6 +58,7 @@ export function makeRequester(options?: RequesterOptions): Requester {
         },
         proxy: options?.proxy,
         httpAgent: keepAliveAgent,
+        timeout: 60_000,
     };
 
     const axiosInstance = axios.create(axiosParams);
@@ -71,6 +80,24 @@ export function makeRequester(options?: RequesterOptions): Requester {
         }
     }
 
+    async function downloadToLocal(params: DownloadToLocalParams): Promise<number | null> {
+        const {remotePath, localPath} = params;
+        try {
+            const {data} = await axiosInstance.get(remotePath, {
+                ...axiosParams,
+                responseType: "stream",
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
+            });
+            const writer = createWriteStream(localPath);
+            await pipeline(data, writer);
+            return writer.bytesWritten;
+        } catch (error) {
+            console.error(`cannot save remote path for hashing ${remotePath} to ${localPath}: ${error}`);
+            return null;
+        }
+    }
+
     async function getData<T>(url: string): AxiosPromise<T> {
         return axiosInstance.get<T>(url);
     }
@@ -85,6 +112,7 @@ export function makeRequester(options?: RequesterOptions): Requester {
         hashRemoteFile,
         getData,
         getTextData,
+        downloadToLocal,
     };
 }
 
@@ -115,4 +143,8 @@ export function parsePossibleLfsPointer(content: string): LfsPointer | null {
     else {
         return null;
     }
+}
+
+export async function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
