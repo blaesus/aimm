@@ -4,12 +4,12 @@ AI Model Manager.
 
 ## Terminology
 
-| APM        | Civitai            | HuggingFace      |
+| AIMM       | Civitai            | HuggingFace      |
 |------------|--------------------|------------------|
 | Repository | Model (checkpoint) | Repo             |
 | Revision   | Model version      | Revsion / commit |
 
-# Use it
+## Use it
 
 ```sh
 # Scan an existing directory to build a manifest file
@@ -19,7 +19,7 @@ aimm scan
 aimm install
 ```
 
-# To be implemented
+## To be implemented
 
 ```sh
 # Initialize a new project
@@ -48,7 +48,7 @@ aimm install
 aimm install -r non-default-named.amm.json
 ```
 
-# The API service
+## The API service
 
 No authentication required at the moment. Please play nice.
 
@@ -57,12 +57,12 @@ No authentication required at the moment. Please play nice.
 Projects/repos have UUIDs as IDS in AIMM.
 Civitai IDs are ints (e.g. `models/7204`), while HuggingFace uses strings (e.g. `lmsys/vicuna-7b-delta-v0`).
 
-## Files
+### 1. Files
 
-### Search files by filename (partial)
+#### 1.1 Search files by filename (partial)
 
 ```
-https://api.aimm.dev/v1/files?filename=meina&pretty=1
+https://api.aimm.dev/files?filename=meina&pretty=1
 ```
 
 ```json
