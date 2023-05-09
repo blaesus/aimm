@@ -25,21 +25,22 @@ const uploaders: { [key in StorageService]: (params: ServiceUplaodParams) => Pro
     Local: dummyUploaders,
 };
 
-function getRegistry(intendedRegistry: string): Registry | null {
+function getRegistry(intendedRegistry?: string): Registry | undefined {
     if (intendedRegistry === "Civitai"
         || intendedRegistry === "Huggingface"
         || intendedRegistry === "AimmHub"
         || intendedRegistry === "GitHub") {
         return intendedRegistry;
     }
-    return null;
 }
 
 export async function obtainFiles(props: ObtainFilesParams = {}) {
     console.info("Obtain files loaded with params", props);
-    const {service = "BackBlaze_B2", batchSize = 100, favourThreshold = 10_000} = props;
+    const {service = "BackBlaze_B2", registry, batchSize = 100, favourThreshold = 10_000} = props;
+    const targetRegistry = getRegistry(registry);
     const repos = await prisma.repository.findMany({
         where: {
+            registry: targetRegistry,
             favour: {
                 gt: favourThreshold,
             },
