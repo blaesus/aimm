@@ -16,9 +16,12 @@ async function main() {
         const hash = await requester.hashRemoteFile(r.downloadUrl);
         console.info(`Calculated hash ${hash}...`);
         if (hash) {
-            await prisma.fileRecord.updateMany({
+            await prisma.fileRecord.update({
                 where: {
-                    id: r.id,
+                    revisionId_hashA: {
+                        revisionId: r.revisionId,
+                        hashA: r.hashA,
+                    }
                 },
                 data: {
                     hashA: hash,

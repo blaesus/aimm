@@ -3,9 +3,11 @@ import { hashLocalFile, makeRequester, sleep } from "./utils";
 import { promises as fs } from "fs";
 import { ServiceUplaodParams, uploadToB2 } from "./s3like";
 import { StorageService } from "@prisma/client";
+import { Registry } from ".prisma/client";
 
 export interface ObtainFilesParams {
     service?: StorageService,
+    registry?: string,
     batchSize?: number;
     // Minimal favour for a repo to be obtained
     favourThreshold?: number;
@@ -22,6 +24,13 @@ const uploaders: { [key in StorageService]: (params: ServiceUplaodParams) => Pro
     AWS_S3: dummyUploaders,
     Local: dummyUploaders,
 };
+
+function getRegistry(intendedRegistry: string): Registry | null {
+    if (intendedRegistry === "Civitai" || intendedRegistry === "Huggingface") {
+        return intendedRegistry
+    }
+    return null
+}
 
 export async function obtainFiles(props: ObtainFilesParams = {}) {
     console.info("Obtain files loaded with params", props);
