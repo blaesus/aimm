@@ -25,7 +25,7 @@ const uploaders: { [key in StorageService]: (params: ServiceUplaodParams) => Pro
 
 export async function obtainFiles(props: ObtainFilesParams = {}) {
     console.info("Obtain files loaded with params", props);
-    const {service = "BackBlaze_B2", batchSize = 100, favourThreshold = 1000} = props;
+    const {service = "BackBlaze_B2", batchSize = 100, favourThreshold = 10_000} = props;
     const repos = await prisma.repository.findMany({
         where: {
             favour: {
