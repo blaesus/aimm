@@ -62,7 +62,7 @@ export function makeRequester(options?: RequesterOptions): Requester {
         withCredentials: true,
         onDownloadProgress: (event) => {
             const percent = Math.round((event.progress || 0) * 1000)/10;
-            if ((percent * 10) % 10 === 0) {
+            if (percent % 10 === 0) {
                 console.info(`Downloaded ${event.loaded}/${event.total} bytes (${percent.toFixed(2)}%)`);
             }
         },
