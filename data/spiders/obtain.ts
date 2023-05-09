@@ -86,7 +86,6 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
                 console.info(`Failed to download file ${fileRecord.downloadUrl}`);
                 continue;
             }
-            console.info(`Downloaded ${bytes} bytes`);
             // verify sha256
             const localHash = await hashLocalFile(localPath);
             if (!localHash) {
