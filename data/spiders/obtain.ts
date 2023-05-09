@@ -150,5 +150,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
             await fs.rm(localPath);
             await sleep(1000);
         }
+        console.info(`Finished processing ${repo.name}`)
     }
+    console.info("Obtain finished.")
 }

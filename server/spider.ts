@@ -71,7 +71,7 @@ function getSpiderName(s: string): Spider | null {
 }
 
 
-const reindexers: { [key in Spider]: (params: {}) => Promise<void> } = {
+const spiders: { [key in Spider]: (params: {}) => Promise<void> } = {
     civitai: reindexCivitaiModels,
     huggingface: reindexHuggingFaceRepos,
     "obtain-files": obtainFiles,
@@ -84,7 +84,7 @@ async function launchSpider(spiderName: Spider, data: {}) {
         end: null,
         remark: `Started at ${start}`,
     };
-    await reindexers[spiderName](data);
+    await spiders[spiderName](data);
     spiderStatuus[spiderName] = {
         start: Date.now(),
         end: null,

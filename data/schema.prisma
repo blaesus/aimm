@@ -127,3 +127,39 @@ model KeyValueCache {
   @@unique([category, key])
   @@index([key], type: Hash)
 }
+
+model Account {
+  id       String  @id @default(uuid()) @db.Uuid
+  name     String  @unique
+  disabled BigInt?
+
+  credential Credential?
+  sessions   Session[]
+}
+
+model Credential {
+  id        Int     @id @default(autoincrement())
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String  @unique @db.Uuid
+
+  hash    String
+  salt    String
+  updated BigInt
+}
+
+model Session {
+  id               String  @id @default(uuid()) @db.Uuid
+  account          Account @relation(fields: [accountId], references: [id])
+  accountId        String  @unique @db.Uuid
+  secret           String
+  created          BigInt
+  forceInvalidated Boolean
+}
+
+model Role {
+  id String @id @default(uuid()) @db.Uuid
+}
+
+model Privilege {
+  id String @id @default(uuid()) @db.Uuid
+}
