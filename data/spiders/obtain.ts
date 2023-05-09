@@ -5,6 +5,8 @@ import { ServiceUplaodParams, uploadToB2 } from "./s3like";
 import { StorageService } from "@prisma/client";
 import { Registry } from ".prisma/client";
 
+const MULTIPART_UPLOAD_LIMIT = 1_000_000;
+
 export interface ObtainFilesParams {
     service?: StorageService,
     registry?: string,
@@ -112,9 +114,11 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
                 console.info(`Uploading to storage server ${service}...`);
                 const remotePath = fileRecord.hashA;
                 const upload = uploaders[service];
+                const multipart = bytes > MULTIPART_UPLOAD_LIMIT;
                 const response = await upload({
                     localPath,
                     remotePath,
+                    multipart,
                 });
                 if (response) {
                     console.info(`Uploaded ${fileRecord.downloadUrl} to ${remotePath} on ${service}`);
@@ -150,7 +154,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
             await fs.rm(localPath);
             await sleep(1000);
         }
-        console.info(`Finished processing ${repo.name}`)
+        console.info(`Finished processing ${repo.name}`);
     }
-    console.info("Obtain finished.")
+    console.info("Obtain finished.");
 }
