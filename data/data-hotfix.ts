@@ -4,14 +4,7 @@ import * as dotenv from "dotenv";
 
 async function main() {
     dotenv.config();
-    const prisma = new PrismaClient({
-        datasources: {
-            db: {
-                url: process.env.PROD_DATABASE_URL,
-            }
-        }
-
-    });
+    const prisma = new PrismaClient({});
     const brokenFileRecords = await prisma.fileRecord.findMany({
         where: {
             hashA: "https://git-lfs.github.com/spec/v1",
