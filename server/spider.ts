@@ -62,7 +62,7 @@ router.get("/_spiders/:type", async (ctx) => {
 });
 
 function getSpiderName(s: string): Spider | null {
-    if (s === "civitai" || s === "huggingface") {
+    if (s === "civitai" || s === "huggingface" || s === "obtain-files") {
         return s;
     }
     else {
