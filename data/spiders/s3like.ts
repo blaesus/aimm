@@ -41,8 +41,8 @@ export async function uploadFileToS3Like(params: UploadParams) {
         const multipartUpload = new Upload({
             client: s3,
             params: uploadParams,
-            partSize: 10 * 1024 * 1024, // 5 MB
-            queueSize: 1,
+            partSize: 10 * 1024 * 1024,
+            queueSize: 4,
             leavePartsOnError: false,
         });
 
