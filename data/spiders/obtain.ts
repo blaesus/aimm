@@ -98,7 +98,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
             else {
                 // Upload to Backblaze
                 console.info(`Uploading to storage server ${service}...`);
-                const remotePath = `${fileRecord.hashA}-${fileRecord.filename}`;
+                const remotePath = `${fileRecord.hashA}-${encodeURIComponent(fileRecord.filename)}`;
                 const upload = uploaders[service];
                 const response = await upload({
                     localPath,
