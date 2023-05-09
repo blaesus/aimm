@@ -28,7 +28,7 @@ export async function uploadFileToS3Like(params: UploadParams) {
 
     const uploadParams: PutObjectCommandInput = {
         Bucket: bucketName,
-        Key: remotePath,
+        Key: encodeURIComponent(remotePath),
         Body: fileStream,
     };
 
