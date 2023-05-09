@@ -41,12 +41,12 @@ export async function uploadFileToS3Like(params: UploadParams) {
         const multipartUpload = new Upload({
             client: s3,
             params: uploadParams,
-            partSize: 10 * 1024 * 1024,
+            partSize: 100 * 1024 * 1024,
             queueSize: 4,
             leavePartsOnError: false,
         });
         multipartUpload.on("httpUploadProgress", (progress) => {
-            console.log(progress);
+            console.log(`Upload part: ${progress.part}`);
         });
 
         try {
