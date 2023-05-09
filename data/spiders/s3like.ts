@@ -45,13 +45,15 @@ export async function uploadFileToS3Like(params: UploadParams) {
             queueSize: 4,
             leavePartsOnError: false,
         });
+        multipartUpload.on("httpUploadProgress", (progress) => {
+            console.log(progress);
+        });
 
         try {
             return multipartUpload.done();
         } catch (error) {
             return null;
         }
-
     }
     else {
         const command = new PutObjectCommand(uploadParams);
@@ -68,13 +70,14 @@ export async function uploadFileToS3Like(params: UploadParams) {
 export type ServiceUplaodParams = Pick<UploadParams, "localPath" | "remotePath" | "multipart">;
 
 export async function uploadToB2(params: ServiceUplaodParams) {
-    const {localPath, remotePath} = params;
+    const {localPath, remotePath, multipart} = params;
     return uploadFileToS3Like({
         endpoint: process.env["B2_ENDPOINT"] || "",
         region: process.env["B2_REGION"] || "",
         bucketName: process.env["AI_BLOBS_BUCKET"] || "",
         localPath,
         remotePath,
+        multipart,
         accessKeyId: process.env["B2_KEY_ID"] || "",
         secretAccessKey: process.env["B2_KEY"] || "",
     });
