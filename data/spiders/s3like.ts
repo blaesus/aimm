@@ -17,35 +17,6 @@ interface UploadParams {
     multipart?: boolean
 }
 
-async function uploadFileToS3LikeOncepiece(params: UploadParams) {
-    const {endpoint, region, bucketName, localPath, remotePath, accessKeyId, secretAccessKey} = params;
-
-    const s3 = new S3Client({
-        endpoint,
-        region,
-        credentials: {
-            accessKeyId: accessKeyId,
-            secretAccessKey: secretAccessKey,
-        },
-    });
-
-    const fileStream = fs.createReadStream(localPath);
-
-    const uploadParams: PutObjectCommandInput = {
-        Bucket: bucketName,
-        Key: remotePath,
-        Body: fileStream,
-    };
-
-    const command = new PutObjectCommand(uploadParams);
-
-    try {
-        return s3.send(command);
-    } catch (err) {
-        return null;
-    }
-}
-
 export async function uploadFileToS3Like(params: UploadParams) {
     const {endpoint, region, bucketName, localPath, remotePath, accessKeyId, secretAccessKey, multipart} = params;
 

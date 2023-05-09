@@ -118,7 +118,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
                 const response = await upload({
                     localPath,
                     remotePath,
-                    multipart,
+                    multipart
                 });
                 if (response) {
                     console.info(`Uploaded ${fileRecord.downloadUrl} to ${remotePath} on ${service}`);
@@ -154,7 +154,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
             await fs.rm(localPath);
             await sleep(1000);
         }
-        console.info(`Finished processing ${repo.name}`);
+        console.info(`Finished processing ${repo.name}`)
     }
-    console.info("Obtain finished.");
+    console.info("Obtain finished.")
 }
