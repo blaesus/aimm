@@ -311,14 +311,14 @@ export async function reindexHuggingFaceRepos(params?: HuggingFaceReindexParams)
                 break;
             }
 
-            if (page >= 10000) {
-                break;
-            }
         } catch (err: any) {
             console.error("Error: ", err);
         }
         await new Promise(resolve => setTimeout(resolve, requestWaitMs));
         page += 1;
+        if (page >= 10000) {
+            break;
+        }
     }
 
     console.info(`Huggingface model index reindexing finished with ${page} pages, last url: ${url}`)
