@@ -5,11 +5,14 @@ import { reindexHuggingFaceRepos } from "../data/spiders/huggingface";
 import * as dotenv from "dotenv";
 import { prisma } from "../data/prismaClient";
 import { obtainFiles } from "../data/spiders/obtain";
+import bodyParser from "koa-bodyparser";
 
 dotenv.config()
 
 const app = new Koa();
 const router = new Router();
+
+app.use(bodyParser());
 
 const appSecret = "12321c8sd3";
 
@@ -112,6 +115,7 @@ router.post("/_spiders/:type", async (ctx) => {
     }
     else {
         const requestBody = ctx.request.body || {};
+        console.info(ctx.request)
         launchSpider(type, requestBody).catch(console.error);
         ctx.status = 201;
         ctx.body = JSON.stringify({started: true});
