@@ -115,7 +115,6 @@ router.post("/_spiders/:type", async (ctx) => {
     }
     else {
         const requestBody = ctx.request.body || {};
-        console.info(ctx.request)
         launchSpider(type, requestBody).catch(console.error);
         ctx.status = 201;
         ctx.body = JSON.stringify({started: true});
