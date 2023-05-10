@@ -86,9 +86,8 @@ async function launchSpider(spiderName: Spider, data: {}) {
     };
     await spiders[spiderName](data);
     spiderStatuus[spiderName] = {
-        start: Date.now(),
-        end: null,
-        remark: `Started at ${new Date().toISOString()}`,
+        ...spiderStatuus[spiderName],
+        end: Date.now(),
     };
 }
 
