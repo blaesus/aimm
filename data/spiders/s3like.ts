@@ -45,9 +45,9 @@ export async function uploadFileToS3Like(params: UploadParams) {
             queueSize: 4,
             leavePartsOnError: false,
         });
-        multipartUpload.on("httpUploadProgress", (progress) => {
-            console.log(`Upload part: ${progress.part}`);
-        });
+        // multipartUpload.on("httpUploadProgress", (progress) => {
+        //     console.log(`Upload part: ${progress.part}`);
+        // });
 
         try {
             return multipartUpload.done();

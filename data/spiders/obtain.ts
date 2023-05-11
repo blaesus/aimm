@@ -94,7 +94,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
                 root: (new URL(fileRecord.downloadUrl)).host,
             });
             const localPath = `/tmp/temp-aimm-blob-${Date.now()}`;
-            console.info(`Saving ${fileRecord.downloadUrl} to ${localPath}...`);
+            console.info(`Saving ${fileRecord.filename}(${fileRecord.downloadUrl}) to ${localPath}...`);
             const bytes = await requester.downloadToLocal({
                 remotePath: fileRecord.downloadUrl,
                 localPath,
