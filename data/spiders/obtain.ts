@@ -46,7 +46,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
             id,
             registry: targetRegistry,
             favour: {
-                gt: favourThreshold,
+                gte: favourThreshold,
             },
         },
         orderBy: {
