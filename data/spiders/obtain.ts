@@ -54,6 +54,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
         },
         take: batchSize,
     });
+    console.info(`Obtaining ${repos.length} repos...`)
     for (const repo of repos) {
         const fileRecords = await prisma.fileRecord.findMany({
             where: {
