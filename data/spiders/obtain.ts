@@ -8,6 +8,7 @@ import { Registry } from ".prisma/client";
 const MULTIPART_UPLOAD_LIMIT = 1_000_000;
 
 export interface ObtainFilesParams {
+    id?: string,
     service?: StorageService,
     registry?: string,
     batchSize?: number;
@@ -38,10 +39,11 @@ function getRegistry(intendedRegistry?: string): Registry | undefined {
 
 export async function obtainFiles(props: ObtainFilesParams = {}) {
     console.info("Obtain files loaded with params", props);
-    const {service = "BackBlaze_B2", registry, batchSize = 100, favourThreshold = 10_000} = props;
+    const {id, service = "BackBlaze_B2", registry, batchSize = 100, favourThreshold = 10_000} = props;
     const targetRegistry = getRegistry(registry);
     const repos = await prisma.repository.findMany({
         where: {
+            id,
             registry: targetRegistry,
             favour: {
                 gt: favourThreshold,
