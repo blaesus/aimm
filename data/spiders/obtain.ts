@@ -65,7 +65,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
                 },
             },
         });
-        console.info(`Found undownloaded ${fileRecords.length} files for ${repo.name}...`);
+        console.info(`Obtaining ${repo.name}, found ${fileRecords.length} files to download...`);
 
         for (const fileRecord of fileRecords) {
             // File if the file is already uploaded
