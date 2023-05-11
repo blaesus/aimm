@@ -60,12 +60,12 @@ export function makeRequester(options?: RequesterOptions): Requester {
         httpAgent: keepAliveAgent,
         timeout: 60_000,
         withCredentials: true,
-        onDownloadProgress: (event) => {
-            const percent = Math.round((event.progress || 0) * 1000)/10;
-            if (percent % 10 === 0) {
-                console.info(`Downloaded ${event.loaded}/${event.total} bytes (${percent.toFixed(2)}%)`);
-            }
-        },
+        // onDownloadProgress: (event) => {
+        //     const percent = Math.round((event.progress || 0) * 1000)/10;
+        //     if (percent % 10 === 0) {
+        //         console.info(`Downloaded ${event.loaded}/${event.total} bytes (${percent.toFixed(2)}%)`);
+        //     }
+        // },
     };
 
     const axiosInstance = axios.create(axiosParams);
