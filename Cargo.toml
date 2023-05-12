@@ -3,6 +3,12 @@ name = "aimm"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+include = [
+    "**/*.rs",
+    "cli/**/*",
+    "Cargo.toml",
+    "Cargo.lock",
+]
 
 [[bin]]
 name = "aimm"
