@@ -56,6 +56,22 @@ struct AimmModuleManifest {
     subModules: Vec<AimmModuleManifest>,
 }
 
+impl AimmModuleManifest {
+    pub fn read_from_file(path: &str) -> Result<Self, Box<dyn Error>> {
+        let mut file = File::open(path)?;
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+        let manifest: AimmModuleManifest = serde_json::from_str(&contents)?;
+        Ok(manifest)
+    }
+    pub fn save_to_file(&self, path: &str) -> Result<(), Box<dyn Error>> {
+        let mut file = File::create(path)?;
+        let contents = serde_json::to_string_pretty(&self)?;
+        file.write_all(contents.as_bytes())?;
+        Ok(())
+    }
+}
+
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct Repository_FileRecordApiItem {
@@ -236,7 +252,8 @@ enum SubCommands {
     },
     Add {
         #[arg(short, long)]
-        target: Option<String>,
+        remote_path: String,
+        local_path: Option<String>,
     },
     Install {
         #[arg(short, long)]
@@ -380,12 +397,40 @@ fn main() {
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
-        Some(SubCommands::Add { target }) => {
-            if let Some(target) = target {
-                let probably_git = is_path_probably_git(target);
-                println!("probably git: {} {}", target, probably_git)
+        Some(SubCommands::Add {
+            remote_path,
+            local_path,
+        }) => {
+            let probably_git = is_path_probably_git(remote_path);
+            println!("probably git: {} {}", remote_path, probably_git);
+            if probably_git {
+                unimplemented!()
             } else {
-                eprintln!("Must specify add target")
+                // Download file
+                let mut response = reqwest::blocking::get(remote_path).unwrap();
+                let url = Url::parse(remote_path).unwrap();
+                let filename = url.path_segments().unwrap().last().unwrap();
+                let final_local_path = local_path.unwrap_or(filename.to_string());
+                let mut dest = {
+                    let path = Path::new(&final_local_path);
+                    if let Some(parent) = path.parent() {
+                        std::fs::create_dir_all(parent).unwrap();
+                    }
+                    println!("Saving to {}", path.display());
+                    File::create(&path).unwrap()
+                };
+                std::io::copy(&mut response, &mut dest).unwrap();
+                let sha = sha256_file(&final_local_path).unwrap();
+
+                // Load manifest from local file
+                let mut manifest = AimmModuleManifest::read_from_file("aimm.json").unwrap();
+                manifest.items.push(ModuleManifestItem {
+                    name: filename.to_string(),
+                    path: final_local_path,
+                    sha256: sha,
+                    url: remote_path.clone(),
+                });
+                manifest.save_to_file("aimm.json").unwrap();
             }
         }
         Some(SubCommands::Scan { root }) => {
