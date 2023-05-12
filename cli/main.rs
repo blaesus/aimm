@@ -457,10 +457,8 @@ fn main() {
                         Some(local_path) => {
                             let path = Path::new(local_path);
                             if path.is_dir() {
-                                // join filename to local_path
-                                let mut local_path = local_path.to_owned();
-                                local_path.push_str(filename);
-                                local_path
+                                let full_path = path.join(filename);
+                                full_path.to_str().unwrap().to_owned()
                             } else {
                                 local_path.to_owned()
                             }
