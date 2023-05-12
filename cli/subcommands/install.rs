@@ -1,6 +1,5 @@
-use crate::args::{AddArgs, InstallArgs, InstallFromManifestMode};
+use crate::args::{InstallArgs, InstallFromManifestMode};
 use crate::manifest::AimmModuleManifest;
-use crate::subcommands::add;
 use crate::utils::sha256_file;
 use std::fs::File;
 use std::path::Path;
