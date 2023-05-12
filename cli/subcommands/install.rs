@@ -15,11 +15,13 @@ fn get_filename_in_header(response: &reqwest::blocking::Response) -> Option<Stri
         .ok()?;
 
     println!("content_disposition {}", content_disposition);
+
     Some(
         content_disposition
             .split("filename=")
             .nth(1)?
             .replace("\"", "")
+            .replace(";", "")
             .to_string(),
     )
 }
