@@ -13,13 +13,16 @@ pub struct AddArgs {
     pub local_path: Option<String>,
 }
 
+#[derive(Parser, Debug)]
+pub struct ScanArgs {
+    #[arg(short, long)]
+    pub root: Option<String>,
+}
+
 #[derive(Subcommand)]
 pub enum SubCommands {
     /// does testing things
-    Scan {
-        #[arg(short, long)]
-        root: Option<String>,
-    },
+    Scan(ScanArgs),
     Add(AddArgs),
     Install {
         #[arg(short, long)]
