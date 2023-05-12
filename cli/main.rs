@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -52,8 +53,8 @@ struct AimmModuleManifest {
     description: String,
     license: String,
     authors: Vec<String>,
-    items: Vec<ModuleManifestItem>,
-    subModules: Vec<AimmModuleManifest>,
+    items: HashMap<String, ModuleManifestItem>,
+    submodules: HashMap<String, AimmModuleManifest>,
 }
 
 impl AimmModuleManifest {
@@ -103,12 +104,13 @@ struct FileRecordApiItem {
 #[derive(Debug, Deserialize)]
 struct FileResponse(Vec<FileRecordApiItem>);
 
-fn download_file_records(sha256: &str) -> Result<Vec<FileRecordApiItem>, Box<dyn Error>> {
+fn download_file_records(sha256: &str) -> Vec<FileRecordApiItem> {
     // let api_url = format!("http://localhost:4000/files?sha256={}", sha256);
-    let api_url = format!("http://api.aimm.dev/api/files?sha256={}", sha256);
+    let api_url = format!("https://api.aimm.dev/files?sha256={}", sha256);
     println!("Getting {}", api_url);
-    let response: FileResponse = reqwest::blocking::get(&api_url)?.json()?;
-    return Ok(response.0);
+    let Ok(response) = reqwest::blocking::get(&api_url) else {return vec![]};
+    let Ok(json)= response.json::<FileResponse>() else {return vec![]};
+    return json.0;
 }
 
 fn pick_file_records(file_records: &[FileRecordApiItem]) -> Option<&FileRecordApiItem> {
@@ -203,16 +205,26 @@ fn scan(root: PathBuf) {
         description: "".to_owned(),
         license: "NOTLICENSED".to_owned(),
         authors: vec![],
-        items: vec![],
-        subModules: vec![],
+        items: HashMap::new(),
+        submodules: HashMap::new(),
     };
 
     for file in ai_files {
+        println!("file: {:?}", file);
         let sha = sha256_file(&file.to_string_lossy()).unwrap();
-        let file_records = download_file_records(&sha).unwrap();
+        let file_records = download_file_records(&sha);
         match pick_file_records(&file_records) {
             None => {
                 println!("No file records found for {}", file.to_string_lossy());
+                manifest.items.insert(
+                    file.to_string_lossy().to_string(),
+                    ModuleManifestItem {
+                        name: file.file_name().unwrap().to_string_lossy().to_string(),
+                        path: file.to_string_lossy().to_string(),
+                        sha256: sha,
+                        url: String::new(),
+                    },
+                );
             }
             Some(record) => {
                 println!(
@@ -220,12 +232,15 @@ fn scan(root: PathBuf) {
                     record.downloadUrl,
                     file.to_string_lossy()
                 );
-                manifest.items.push(ModuleManifestItem {
-                    name: file.file_name().unwrap().to_string_lossy().to_string(),
-                    path: file.to_string_lossy().to_string(),
-                    sha256: sha,
-                    url: record.downloadUrl.clone(),
-                });
+                manifest.items.insert(
+                    record.downloadUrl.clone(),
+                    ModuleManifestItem {
+                        name: file.file_name().unwrap().to_string_lossy().to_string(),
+                        path: file.to_string_lossy().to_string(),
+                        sha256: sha,
+                        url: record.downloadUrl.clone(),
+                    },
+                );
             }
         }
     }
@@ -316,7 +331,7 @@ impl Default for InstallFromManifestMode {
 }
 
 fn install_from_manifest(manifest: AimmModuleManifest, mode: InstallFromManifestMode) {
-    for item in manifest.items {
+    for (designation, item) in manifest.items {
         let expected_sha = item.sha256;
         if Path::new(&item.path).exists() {
             let existing_sha = sha256_file(&item.path).unwrap();
@@ -466,12 +481,15 @@ fn main() {
                 // Load manifest from local file
                 let mut manifest = AimmModuleManifest::read_from_file("aimm.json").unwrap();
                 let sha = sha256_file(&final_local_path).unwrap();
-                manifest.items.push(ModuleManifestItem {
-                    name: filename.to_string(),
-                    path: final_local_path,
-                    sha256: sha,
-                    url: remote_path.clone(),
-                });
+                manifest.items.insert(
+                    remote_path.clone(),
+                    ModuleManifestItem {
+                        name: filename.to_string(),
+                        path: final_local_path,
+                        sha256: sha,
+                        url: remote_path.clone(),
+                    },
+                );
                 manifest.save_to_file("aimm.json").unwrap();
             }
         }
