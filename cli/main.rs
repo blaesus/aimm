@@ -1,80 +1,24 @@
 mod args;
+mod manifest;
+mod subcommands;
+mod utils;
 
 use std::collections::HashMap;
-use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
+use clap::Parser;
 use git2::{Repository, RepositoryInitOptions};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use sha2::{Digest, Sha256};
 use url::{ParseError, Url};
 
 use crate::args::{Cli, InstallFromManifestMode, SubCommands};
-
-fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
-    let mut file = File::open(path)?;
-    let mut buffer = [0; 32 * 1024]; // Create a buffer to read file content
-
-    let mut hasher = Sha256::new(); // Create a new SHA256 hasher
-
-    loop {
-        let bytes_read = file.read(&mut buffer)?; // Read file content to buffer
-        if bytes_read == 0 {
-            break; // End of file
-        }
-        hasher.update(&buffer[..bytes_read]); // Hash the read bytes
-    }
-
-    let hash = hasher.finalize(); // Get the SHA256 hash value
-    Ok(format!("{:x}", hash))
-}
-
-enum ManifestItemType {
-    File,
-    Git,
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug, Deserialize, Serialize)]
-struct ModuleManifestItem {
-    name: String,
-    path: String,
-    sha256: String,
-    url: String,
-}
-
-#[allow(non_snake_case)]
-#[derive(Debug, Deserialize, Serialize)]
-struct AimmModuleManifest {
-    manifestVersion: String,
-    name: String,
-    version: String,
-    description: String,
-    license: String,
-    authors: Vec<String>,
-    items: HashMap<String, ModuleManifestItem>,
-    submodules: HashMap<String, AimmModuleManifest>,
-}
-
-impl AimmModuleManifest {
-    pub fn read_from_file(path: &str) -> Result<Self, Box<dyn Error>> {
-        let mut file = File::open(path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-        let manifest: AimmModuleManifest = serde_json::from_str(&contents)?;
-        Ok(manifest)
-    }
-    pub fn save_to_file(&self, path: &str) -> Result<(), Box<dyn Error>> {
-        let mut file = File::create(path)?;
-        let contents = serde_json::to_string_pretty(&self)?;
-        file.write_all(contents.as_bytes())?;
-        Ok(())
-    }
-}
+use crate::manifest::{AimmModuleManifest, ModuleManifestItem};
+use crate::subcommands::add;
+use crate::utils::sha256_file;
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
@@ -254,31 +198,6 @@ fn scan(root: PathBuf) {
     file.write_all(manifest_json.as_bytes()).unwrap();
 }
 
-fn is_path_probably_git(target: &str) -> bool {
-    let git_services = vec!["github.com", "gitlab.com", "huggingface.co"];
-    let url = Url::parse(target).unwrap();
-    let ext = Path::new(url.path()).extension();
-    println!("ext {:?}", ext);
-    if url.scheme() == "git" {
-        true
-    } else {
-        let is_git_capable_service = url
-            .host()
-            .map(|x| git_services.iter().any(|s| *s == x.to_string()))
-            .unwrap_or(false);
-
-        let path_extension = Path::new(url.path()).extension();
-
-        return if !is_git_capable_service {
-            false
-        } else if let Some(ext) = path_extension {
-            ext.to_str() == Some("git")
-        } else {
-            true // no extension, likely git repo, not a file
-        };
-    }
-}
-
 fn install_from_manifest(manifest: AimmModuleManifest, mode: InstallFromManifestMode) {
     for (designation, item) in manifest.items {
         let expected_sha = item.sha256;
@@ -355,91 +274,12 @@ fn install_from_manifest(manifest: AimmModuleManifest, mode: InstallFromManifest
     }
 }
 
-fn get_filename_in_header(response: &reqwest::blocking::Response) -> Option<String> {
-    let content_disposition = response
-        .headers()
-        .get(reqwest::header::CONTENT_DISPOSITION)?
-        .to_str()
-        .ok()?;
-
-    println!("content_disposition {}", content_disposition);
-    Some(
-        content_disposition
-            .split("filename=")
-            .nth(1)?
-            .replace("\"", "")
-            .to_string(),
-    )
-}
-
 fn main() {
     let cli = Cli::parse();
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
-        Some(SubCommands::Add {
-            remote_path,
-            local_path,
-        }) => {
-            let probably_git = is_path_probably_git(remote_path);
-            println!("probably git: {} {}", remote_path, probably_git);
-            if probably_git {
-                unimplemented!()
-            } else {
-                // Download file
-                let mut response = reqwest::blocking::get(remote_path).unwrap();
-                // Check content disposition
-                let header_filename = get_filename_in_header(&response).unwrap_or(String::new());
-
-                println!("header filename {}", header_filename);
-
-                let url = Url::parse(remote_path).unwrap();
-                let filename = {
-                    if header_filename.len() > 0 {
-                        &header_filename
-                    } else {
-                        url.path_segments().unwrap().last().unwrap()
-                    }
-                };
-                let final_local_path: String = {
-                    match local_path {
-                        Some(local_path) => {
-                            let path = Path::new(local_path);
-                            if path.is_dir() {
-                                let full_path = path.join(filename);
-                                full_path.to_str().unwrap().to_owned()
-                            } else {
-                                local_path.to_owned()
-                            }
-                        }
-                        None => filename.to_owned(),
-                    }
-                };
-                let mut dest = {
-                    let path = Path::new(&final_local_path);
-                    if let Some(parent) = path.parent() {
-                        std::fs::create_dir_all(parent).unwrap();
-                    }
-                    println!("Saving to {}", path.display());
-                    File::create(&path).unwrap()
-                };
-                std::io::copy(&mut response, &mut dest).unwrap();
-
-                // Load manifest from local file
-                let mut manifest = AimmModuleManifest::read_from_file("aimm.json").unwrap();
-                let sha = sha256_file(&final_local_path).unwrap();
-                manifest.items.insert(
-                    remote_path.clone(),
-                    ModuleManifestItem {
-                        name: filename.to_string(),
-                        path: final_local_path,
-                        sha256: sha,
-                        url: remote_path.clone(),
-                    },
-                );
-                manifest.save_to_file("aimm.json").unwrap();
-            }
-        }
+        Some(SubCommands::Add(args)) => add(args),
         Some(SubCommands::Scan { root }) => {
             let root = root.as_ref().map(|r| r.as_str()).unwrap_or(".");
             scan(PathBuf::from(root));

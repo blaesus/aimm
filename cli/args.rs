@@ -7,6 +7,12 @@ pub struct Cli {
     pub command: Option<SubCommands>,
 }
 
+#[derive(Parser, Debug)]
+pub struct AddArgs {
+    pub remote_path: String,
+    pub local_path: Option<String>,
+}
+
 #[derive(Subcommand)]
 pub enum SubCommands {
     /// does testing things
@@ -14,10 +20,7 @@ pub enum SubCommands {
         #[arg(short, long)]
         root: Option<String>,
     },
-    Add {
-        remote_path: String,
-        local_path: Option<String>,
-    },
+    Add(AddArgs),
     Install {
         #[arg(short, long)]
         #[clap(default_value = "aimm.json")]
