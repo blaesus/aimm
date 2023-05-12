@@ -251,7 +251,6 @@ enum SubCommands {
         root: Option<String>,
     },
     Add {
-        #[arg(short, long)]
         remote_path: String,
         local_path: Option<String>,
     },
@@ -392,6 +391,23 @@ fn install_from_manifest(manifest: AimmModuleManifest, mode: InstallFromManifest
     }
 }
 
+fn get_filename_in_header(response: &reqwest::blocking::Response) -> Option<String> {
+    let content_disposition = response
+        .headers()
+        .get(reqwest::header::CONTENT_DISPOSITION)?
+        .to_str()
+        .ok()?;
+
+    println!("content_disposition {}", content_disposition);
+    Some(
+        content_disposition
+            .split("filename=")
+            .nth(1)?
+            .replace("\"", "")
+            .to_string(),
+    )
+}
+
 fn main() {
     let cli = Cli::parse();
     // You can check for the existence of subcommands, and if found use their
@@ -408,9 +424,35 @@ fn main() {
             } else {
                 // Download file
                 let mut response = reqwest::blocking::get(remote_path).unwrap();
+                // Check content disposition
+                let header_filename = get_filename_in_header(&response).unwrap_or(String::new());
+
+                println!("header filename {}", header_filename);
+
                 let url = Url::parse(remote_path).unwrap();
-                let filename = url.path_segments().unwrap().last().unwrap();
-                let final_local_path = local_path.unwrap_or(filename.to_string());
+                let filename = {
+                    if header_filename.len() > 0 {
+                        &header_filename
+                    } else {
+                        url.path_segments().unwrap().last().unwrap()
+                    }
+                };
+                let final_local_path: String = {
+                    match local_path {
+                        Some(local_path) => {
+                            let path = Path::new(local_path);
+                            if path.is_dir() {
+                                // join filename to local_path
+                                let mut local_path = local_path.to_owned();
+                                local_path.push_str(filename);
+                                local_path
+                            } else {
+                                local_path.to_owned()
+                            }
+                        }
+                        None => filename.to_owned(),
+                    }
+                };
                 let mut dest = {
                     let path = Path::new(&final_local_path);
                     if let Some(parent) = path.parent() {
@@ -420,10 +462,10 @@ fn main() {
                     File::create(&path).unwrap()
                 };
                 std::io::copy(&mut response, &mut dest).unwrap();
-                let sha = sha256_file(&final_local_path).unwrap();
 
                 // Load manifest from local file
                 let mut manifest = AimmModuleManifest::read_from_file("aimm.json").unwrap();
+                let sha = sha256_file(&final_local_path).unwrap();
                 manifest.items.push(ModuleManifestItem {
                     name: filename.to_string(),
                     path: final_local_path,
