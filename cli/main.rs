@@ -3,21 +3,17 @@ mod manifest;
 mod subcommands;
 mod utils;
 
-use std::collections::HashMap;
-use std::fs::File;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 use clap::Parser;
 use git2::{Repository, RepositoryInitOptions};
-use reqwest;
 use serde::{Deserialize, Serialize};
-use serde_json;
 use url::{ParseError, Url};
 
 use crate::args::{Cli, InstallFromManifestMode, SubCommands};
 use crate::manifest::{AimmModuleManifest, ModuleManifestItem};
-use crate::subcommands::{add, install, scan};
+use crate::subcommands::{install, scan};
 use crate::utils::sha256_file;
 
 fn git_clone(url: &str) {
@@ -47,7 +43,6 @@ fn main() {
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
-        Some(SubCommands::Add(args)) => add(args),
         Some(SubCommands::Scan(args)) => scan(args),
         Some(SubCommands::Install(args)) => install(args),
         None => {}

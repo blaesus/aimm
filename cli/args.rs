@@ -8,12 +8,6 @@ pub struct Cli {
 }
 
 #[derive(Parser, Debug)]
-pub struct AddArgs {
-    pub remote_path: String,
-    pub local_path: Option<String>,
-}
-
-#[derive(Parser, Debug)]
 pub struct ScanArgs {
     #[arg(short, long)]
     pub root: Option<String>,
@@ -21,15 +15,19 @@ pub struct ScanArgs {
 
 #[derive(Parser, Debug)]
 pub struct InstallArgs {
-    #[arg(short, long)]
+    pub remote_path: Option<String>,
+
+    pub local_path: Option<String>,
+
+    #[arg(long)]
     #[clap(default_value = "aimm.json")]
     pub manifest: String,
 
-    #[arg(short, long)]
+    #[arg(long)]
     #[clap(default_value = ".")]
     pub target: String,
 
-    #[arg(short, long)]
+    #[arg(long)]
     pub mode: Option<InstallFromManifestMode>,
 }
 
@@ -37,7 +35,6 @@ pub struct InstallArgs {
 pub enum SubCommands {
     /// does testing things
     Scan(ScanArgs),
-    Add(AddArgs),
     Install(InstallArgs),
 }
 
