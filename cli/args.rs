@@ -19,23 +19,26 @@ pub struct ScanArgs {
     pub root: Option<String>,
 }
 
+#[derive(Parser, Debug)]
+pub struct InstallArgs {
+    #[arg(short, long)]
+    #[clap(default_value = "aimm.json")]
+    pub manifest: String,
+
+    #[arg(short, long)]
+    #[clap(default_value = ".")]
+    pub target: String,
+
+    #[arg(short, long)]
+    pub mode: Option<InstallFromManifestMode>,
+}
+
 #[derive(Subcommand)]
 pub enum SubCommands {
     /// does testing things
     Scan(ScanArgs),
     Add(AddArgs),
-    Install {
-        #[arg(short, long)]
-        #[clap(default_value = "aimm.json")]
-        manifest: String,
-
-        #[arg(short, long)]
-        #[clap(default_value = ".")]
-        target: String,
-
-        #[arg(short, long)]
-        mode: Option<InstallFromManifestMode>,
-    },
+    Install(InstallArgs),
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
