@@ -121,7 +121,7 @@ fn install_new_package(args: &NewPackageArgs) {
 }
 
 fn install_from_manifest(manifest: AimmModuleManifest, mode: InstallFromManifestMode) {
-    for (designation, item) in manifest.items {
+    for (_designation, item) in manifest.items {
         let expected_sha = item.sha256;
         if Path::new(&item.path).exists() {
             let existing_sha = sha256_file(&item.path).unwrap();
@@ -202,7 +202,7 @@ pub fn install(args: &InstallArgs) {
         local_path,
         manifest,
         mode,
-        target,
+        target: _,
     } = args;
     if let Some(remote_path) = remote_path {
         let local_path = local_path.clone();

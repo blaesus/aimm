@@ -3,18 +3,18 @@ mod manifest;
 mod subcommands;
 mod utils;
 
-use std::io::{Read, Write};
-use std::path::{Path, PathBuf};
+
+use std::path::{Path};
 
 use clap::Parser;
-use git2::{Repository, RepositoryInitOptions};
-use serde::{Deserialize, Serialize};
-use url::{ParseError, Url};
 
-use crate::args::{Cli, InstallFromManifestMode, SubCommands};
-use crate::manifest::{AimmModuleManifest, ModuleManifestItem};
+
+
+
+use crate::args::{Cli, SubCommands};
+
 use crate::subcommands::{install, scan};
-use crate::utils::sha256_file;
+
 
 fn git_clone(url: &str) {
     // set the path where the cloned repository will be created
