@@ -1,16 +1,19 @@
+mod args;
+
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
-use clap::{Parser, Subcommand};
 use git2::{Repository, RepositoryInitOptions};
 use reqwest;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use sha2::{Digest, Sha256};
 use url::{ParseError, Url};
+
+use crate::args::{Cli, InstallFromManifestMode, SubCommands};
 
 fn sha256_file(path: &str) -> Result<String, Box<dyn Error>> {
     let mut file = File::open(path)?;
@@ -251,38 +254,6 @@ fn scan(root: PathBuf) {
     file.write_all(manifest_json.as_bytes()).unwrap();
 }
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = None)]
-struct Cli {
-    #[command(subcommand)]
-    command: Option<SubCommands>,
-}
-
-#[derive(Subcommand)]
-enum SubCommands {
-    /// does testing things
-    Scan {
-        #[arg(short, long)]
-        root: Option<String>,
-    },
-    Add {
-        remote_path: String,
-        local_path: Option<String>,
-    },
-    Install {
-        #[arg(short, long)]
-        #[clap(default_value = "aimm.json")]
-        manifest: String,
-
-        #[arg(short, long)]
-        #[clap(default_value = ".")]
-        target: String,
-
-        #[arg(short, long)]
-        mode: Option<InstallFromManifestMode>,
-    },
-}
-
 fn is_path_probably_git(target: &str) -> bool {
     let git_services = vec!["github.com", "gitlab.com", "huggingface.co"];
     let url = Url::parse(target).unwrap();
@@ -305,28 +276,6 @@ fn is_path_probably_git(target: &str) -> bool {
         } else {
             true // no extension, likely git repo, not a file
         };
-    }
-}
-
-#[derive(Debug, Eq, PartialEq, Clone)]
-enum InstallFromManifestMode {
-    Keep,
-    Update,
-}
-
-impl From<String> for InstallFromManifestMode {
-    fn from(s: String) -> Self {
-        match s.as_str() {
-            "keep" => InstallFromManifestMode::Keep,
-            "update" => InstallFromManifestMode::Update,
-            _ => panic!("Unknown install mode {}", s),
-        }
-    }
-}
-
-impl Default for InstallFromManifestMode {
-    fn default() -> Self {
-        return InstallFromManifestMode::Keep;
     }
 }
 
