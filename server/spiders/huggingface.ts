@@ -6,7 +6,7 @@ import {
     HuggingfaceCommitJson_FromList,
     HuggingfaceCommitJson_Full,
     HuggingFaceFilePointer,
-} from "../huggingfaceTypes";
+} from "../../data/huggingfaceTypes";
 import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer, sleep } from "./utils";
 
 type HuggingfaceCommitResponse = HuggingfaceCommitJson_FromList[]

@@ -1,7 +1,7 @@
 import { getSpiderType, parseQuery, Query, SpiderType } from "./utils";
-import { reindexCivitaiModels } from "../../data/spiders/civitai";
-import { reindexHuggingFaceRepos } from "../../data/spiders/huggingface";
-import { obtainFiles } from "../../data/spiders/obtain";
+import { reindexCivitaiModels } from "../spiders/civitai";
+import { reindexHuggingFaceRepos } from "../spiders/huggingface";
+import { obtainFiles } from "../spiders/obtain";
 import Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 

@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import { obtainFiles } from "./obtain";
-import { prisma } from "../prismaClient";
+import { prisma } from "../../data/prismaClient";
 import { uploadToB2 } from "./s3like";
 
 async function main() {

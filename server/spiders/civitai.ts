@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { Prisma, PrismaClient } from "@prisma/client";
 import RepositoryCreateInput = Prisma.RepositoryCreateInput;
 import RevisionCreateInput = Prisma.RevisionCreateInput;
-import { CivitaiModelFileJson, CivitaiModelJson, CivitaiModelVersionJson } from "../civitaiTypes";
+import { CivitaiModelFileJson, CivitaiModelJson, CivitaiModelVersionJson } from "../../data/civitaiTypes";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "./utils";
 
 export interface CivitaiModelPayload {

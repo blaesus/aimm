@@ -1,4 +1,4 @@
-import { prisma } from "../prismaClient";
+import { prisma } from "../../data/prismaClient";
 import { hashLocalFile, makeRequester, sleep } from "./utils";
 import { promises as fs } from "fs";
 import { ServiceUplaodParams, uploadToB2 } from "./s3like";
