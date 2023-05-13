@@ -42,6 +42,7 @@ export async function startSpider(ctx: Koa.Context) {
             status: "Running",
             label: processNumber,
             created: Date.now(),
+            data: ctx.params,
         }
     })
     await spiders[type](job.id, requestBody);
