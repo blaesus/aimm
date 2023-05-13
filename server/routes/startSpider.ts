@@ -55,5 +55,5 @@ export async function startSpider(ctx: Koa.Context) {
         }
     })
     ctx.status = 201;
-    ctx.body = JSON.stringify({started: true});
+    ctx.body = JSON.stringify({ok: true, job: job.id});
 }
