@@ -8,6 +8,7 @@ import {
     HuggingFaceFilePointer,
 } from "../../data/huggingfaceTypes";
 import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer, sleep } from "./utils";
+import { HuggingFaceReindexParams, HuggingfaceRepoType } from "../../data/aimmApi";
 
 type HuggingfaceCommitResponse = HuggingfaceCommitJson_FromList[]
 
@@ -226,14 +227,7 @@ function parseLinkHeader(s: string): { link: string, relation: string } | null {
     }
 }
 
-export type HuggingfaceRepoType = "datasets" | "models";
 
-interface HuggingFaceReindexParams {
-    pageSize?: number;
-    initialPage?: string;
-    requestWaitMs?: number;
-    repoType?: HuggingfaceRepoType;
-}
 
 export async function reindexHuggingFaceRepos(jobId: string, params?: HuggingFaceReindexParams) {
 

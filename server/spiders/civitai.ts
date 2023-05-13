@@ -4,6 +4,7 @@ import RepositoryCreateInput = Prisma.RepositoryCreateInput;
 import RevisionCreateInput = Prisma.RevisionCreateInput;
 import { CivitaiModelFileJson, CivitaiModelJson, CivitaiModelVersionJson } from "../../data/civitaiTypes";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "./utils";
+import { CivitaiIndexingParams } from "../../data/aimmApi";
 
 export interface CivitaiModelPayload {
     metadata: {
@@ -188,10 +189,6 @@ export async function saveCivitaiModelPayload(prisma: PrismaClient, data: Civita
     }
 }
 
-interface CivitaiIndexingParams {
-    pageSize?: number,
-    requestWaitMs?: number
-}
 
 export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexingParams) {
     const pageSize = params?.pageSize ?? 100;
