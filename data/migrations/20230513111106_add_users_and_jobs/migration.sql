@@ -84,9 +84,10 @@ CREATE TABLE "PrivilegePermission" (
 CREATE TABLE "Job" (
     "id" UUID NOT NULL,
     "status" "JobStatus" NOT NULL,
+    "type" TEXT NOT NULL,
     "label" TEXT NOT NULL,
     "created" BIGINT NOT NULL,
-    "stopped" BIGINT NOT NULL,
+    "stopped" BIGINT,
     "total" INTEGER,
     "processed" INTEGER,
     "data" JSONB,
