@@ -3,18 +3,12 @@ mod manifest;
 mod subcommands;
 mod utils;
 
-
-use std::path::{Path};
+use std::path::Path;
 
 use clap::Parser;
 
-
-
-
 use crate::args::{Cli, SubCommands};
-
 use crate::subcommands::{install, scan};
-
 
 fn git_clone(url: &str) {
     // set the path where the cloned repository will be created
