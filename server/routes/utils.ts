@@ -54,3 +54,21 @@ export function getSpiderType(s?: string): SpiderType | null {
     }
     return null;
 }
+
+export function jsonReplacerWithBigint(this: any, key: string, value: any) {
+    if (typeof value === "bigint") {
+        if (key === "time" || key === "updated") {
+            return new Date(Number(value)).toISOString();
+        }
+        else if (value < Number.MAX_SAFE_INTEGER) {
+            return Number(value);
+        }
+        else {
+            return value.toString();
+        }
+    }
+    else {
+        return value;
+    }
+}
+

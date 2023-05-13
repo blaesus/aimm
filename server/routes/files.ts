@@ -1,7 +1,7 @@
 import Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 import { Registry } from ".prisma/client";
-import { parseQuery, Query } from "./utils";
+import { jsonReplacerWithBigint, parseQuery, Query } from "./utils";
 
 export type FileRecordApiItem<BIGINT = bigint> = {
     id: string,
@@ -42,23 +42,6 @@ const fileRecordOutputSelect = {
     },
 
 };
-
-function fileRecordOutputReplacer(this: any, key: string, value: any) {
-    if (typeof value === "bigint") {
-        if (key === "time" || key === "updated") {
-            return new Date(Number(value)).toISOString();
-        }
-        else if (value < Number.MAX_SAFE_INTEGER) {
-            return Number(value);
-        }
-        else {
-            return value.toString();
-        }
-    }
-    else {
-        return value;
-    }
-}
 
 
 export async function files(ctx: Koa.Context) {
@@ -102,5 +85,5 @@ export async function files(ctx: Koa.Context) {
         }
         const jsonSpace = query.pretty ? 4 : undefined;
         ctx.set("Content-Type", "application/json");
-        ctx.body = JSON.stringify(files, fileRecordOutputReplacer, jsonSpace);
+        ctx.body = JSON.stringify(files, jsonReplacerWithBigint, jsonSpace);
 }

@@ -1,5 +1,5 @@
 import Koa from "koa";
-import { getSpiderType } from "./utils";
+import { getSpiderType, jsonReplacerWithBigint } from "./utils";
 import { prisma } from "../../data/prismaClient";
 
 export async function getSpider(ctx: Koa.Context) {
@@ -17,7 +17,7 @@ export async function getSpider(ctx: Koa.Context) {
     const type = getSpiderType(ctx.params.type);
     if (type) {
         ctx.status = 200;
-        ctx.body = await prisma.job.findMany({
+        const jobs = await prisma.job.findMany({
             where: {
                 type,
             },
@@ -25,6 +25,7 @@ export async function getSpider(ctx: Koa.Context) {
                 created: "desc",
             }
         });
+        ctx.body = JSON.stringify(jobs, jsonReplacerWithBigint, 4);
         return;
     }
     else {
