@@ -12,7 +12,8 @@ const spiders: { [key in SpiderType]: (jobId: string, params: {}) => Promise<voi
 };
 
 // For spider labels; changed each time this process is re-started
-const processNumber = Date.now().toString()
+const processNumber = Date.now().toString();
+
 export async function startSpider(ctx: Koa.Context) {
     const type = getSpiderType(ctx.params.type.toLowerCase());
     const query: Query = parseQuery(ctx.request.querystring);
@@ -23,17 +24,19 @@ export async function startSpider(ctx: Koa.Context) {
         return;
     }
     if (!force) {
-        const existingJobs = await prisma.job.findMany({where: {
-            type,
-            status: "Running",
-        }});
+        const existingJobs = await prisma.job.findMany({
+            where: {
+                type,
+                status: "Running",
+            },
+        });
         if (existingJobs.length >= 1) {
             ctx.status = 409;
             ctx.body = {
                 ok: false,
                 reason: "a spider of label is already running",
-            }
-            return
+            };
+            return;
         }
     }
     const requestBody = ctx.request.body || {};
@@ -44,8 +47,8 @@ export async function startSpider(ctx: Koa.Context) {
             label: processNumber,
             created: Date.now(),
             data: ctx.params,
-        }
-    })
+        },
+    });
     spiders[type](job.id, requestBody)
         .then(() => {
             prisma.job.update({
@@ -54,9 +57,9 @@ export async function startSpider(ctx: Koa.Context) {
                 },
                 data: {
                     status: "Success",
-                    stopped: Date.now()
-                }
-            })
+                    stopped: Date.now(),
+                },
+            });
         })
         .catch(console.error);
 
@@ -67,9 +70,9 @@ export async function startSpider(ctx: Koa.Context) {
             },
             data: {
                 status: "Interrupted",
-                stopped: Date.now()
-            }
-        })
+                stopped: Date.now(),
+            },
+        });
     }
 
     process.once("SIGINT", cleanup);
