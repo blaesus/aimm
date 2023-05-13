@@ -3,8 +3,8 @@ use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use git2::{Repository};
-use serde::{Deserialize};
+use git2::Repository;
+use serde::Deserialize;
 
 use crate::args::ScanArgs;
 use crate::manifest::{AimmModuleManifest, ModuleManifestItem};
@@ -73,11 +73,12 @@ pub fn scan(args: &ScanArgs) {
 
     let ai_files = {
         let mut files = Vec::new();
-        let mut directories = vec![root];
+        let mut directories = vec![root.clone()];
         while let Some(dir) = directories.pop() {
             // Check if dir is a git repo
-            let git_dir = dir.join(".git");
-            if git_dir.exists() {
+            let is_git = dir.join(".git").exists();
+            let is_git_submodule = is_git && (dir != root);
+            if is_git_submodule {
                 let repo = match Repository::open(dir) {
                     Ok(repo) => repo,
                     Err(e) => panic!("failed to init: {}", e),

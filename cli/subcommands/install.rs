@@ -26,7 +26,7 @@ fn get_filename_in_header(response: &reqwest::blocking::Response) -> Option<Stri
     )
 }
 
-fn is_path_probably_git(target: &str) -> bool {
+fn is_remote_path_probably_git(target: &str) -> bool {
     let git_services = vec!["github.com", "gitlab.com", "huggingface.co"];
     let url = Url::parse(target).unwrap();
     let ext = Path::new(url.path()).extension();
@@ -60,7 +60,7 @@ fn install_new_package(args: &NewPackageArgs) {
     let remote_path = &args.remote_path;
     let local_path = &args.local_path;
 
-    let probably_git = is_path_probably_git(remote_path);
+    let probably_git = is_remote_path_probably_git(remote_path);
     println!("probably git: {} {}", remote_path, probably_git);
     if probably_git {
         unimplemented!()
