@@ -75,7 +75,6 @@ pub fn scan(args: &ScanArgs) {
         let mut files = Vec::new();
         let mut directories = vec![root.clone()];
         while let Some(dir) = directories.pop() {
-            // Check if dir is a git repo
             let is_git = dir.join(".git").exists();
             let is_git_submodule = is_git && (dir != root);
             if is_git_submodule {
