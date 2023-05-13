@@ -4,17 +4,10 @@ import { promises as fs } from "fs";
 import { ServiceUplaodParams, uploadToB2 } from "./s3like";
 import { StorageService } from "@prisma/client";
 import { Registry } from ".prisma/client";
+import { ObtainFilesParams } from "../../data/aimmApi";
 
 const MULTIPART_UPLOAD_LIMIT = 1_000_000;
 
-export interface ObtainFilesParams {
-    id?: string,
-    service?: StorageService,
-    registry?: string,
-    batchSize?: number;
-    // Minimal favour for a repo to be obtained
-    favourThreshold?: number;
-}
 
 async function dummyUploaders(params: ServiceUplaodParams) {
     console.error("NOT IMPLEMENTED UPLOADER");
