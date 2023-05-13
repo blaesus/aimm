@@ -37,7 +37,7 @@ function getRegistry(intendedRegistry?: string): Registry | undefined {
     }
 }
 
-export async function obtainFiles(props: ObtainFilesParams = {}) {
+export async function obtainFiles(jobId: string, props: ObtainFilesParams = {}) {
     console.info("Obtain files loaded with params", props);
     const {id, service = "BackBlaze_B2", registry, batchSize = 100, favourThreshold = 10_000} = props;
     const targetRegistry = getRegistry(registry);
@@ -54,7 +54,16 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
         },
         take: batchSize,
     });
-    console.info(`Obtaining ${repos.length} repos...`)
+    await prisma.job.update({
+        where: {
+            id: jobId,
+        },
+        data: {
+            total: repos.length,
+        }
+    })
+    console.info(`Obtaining ${repos.length} repos...`);
+    let processed = 0;
     for (const repo of repos) {
         const fileRecords = await prisma.fileRecord.findMany({
             where: {
@@ -121,7 +130,7 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
                 const response = await upload({
                     localPath,
                     remotePath,
-                    multipart
+                    multipart,
                 });
                 if (response) {
                     console.info(`Uploaded ${fileRecord.downloadUrl} to ${remotePath} on ${service}`);
@@ -157,7 +166,16 @@ export async function obtainFiles(props: ObtainFilesParams = {}) {
             await fs.rm(localPath);
             await sleep(1000);
         }
-        console.info(`Finished processing ${repo.name}`)
+        console.info(`Finished processing ${repo.name}`);
+        await prisma.job.update({
+            where: {
+                id: jobId,
+            },
+            data: {
+                processed,
+            }
+        })
+        processed += 1;
     }
-    console.info("Obtain finished.")
+    console.info("Obtain finished.");
 }

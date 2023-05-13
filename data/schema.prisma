@@ -220,17 +220,22 @@ model PrivilegePermission {
 }
 
 enum JobStatus {
-  Pending
   Running
   Success
   Failure
+  Scheduled
   Cancelled
-  Timeout
-  Unknown
+  Interrupted
 }
 
 model Job {
-  id      String @id @default(uuid()) @db.Uuid
-  created BigInt
-  data    Json?
+  id        String    @id @default(uuid()) @db.Uuid
+  status    JobStatus
+  type      String
+  label     String
+  created   BigInt
+  stopped   BigInt?
+  total     Int?
+  processed Int?
+  data      Json?
 }

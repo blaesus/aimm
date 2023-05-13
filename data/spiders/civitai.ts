@@ -193,7 +193,7 @@ interface CivitaiIndexingParams {
     requestWaitMs?: number
 }
 
-export async function reindexCivitaiModels(params?: CivitaiIndexingParams) {
+export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexingParams) {
     const pageSize = params?.pageSize ?? 100;
     const requestWaitMs = params?.requestWaitMs ?? 10_000;
 
@@ -230,6 +230,14 @@ export async function reindexCivitaiModels(params?: CivitaiIndexingParams) {
         } catch (err: any) {
             console.log("Error: ", err);
         }
+        await prisma.job.update({
+            where: {
+                id: jobId,
+            },
+            data: {
+                processed: page
+            }
+        })
         await sleep(requestWaitMs);
         page += 1;
         if (page >= 10000) {

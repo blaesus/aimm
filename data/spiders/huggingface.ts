@@ -7,7 +7,7 @@ import {
     HuggingfaceCommitJson_Full,
     HuggingFaceFilePointer,
 } from "../huggingfaceTypes";
-import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer } from "./utils";
+import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer, sleep } from "./utils";
 
 type HuggingfaceCommitResponse = HuggingfaceCommitJson_FromList[]
 
@@ -235,7 +235,7 @@ interface HuggingFaceReindexParams {
     repoType?: HuggingfaceRepoType;
 }
 
-export async function reindexHuggingFaceRepos(params?: HuggingFaceReindexParams) {
+export async function reindexHuggingFaceRepos(jobId: string, params?: HuggingFaceReindexParams) {
 
     const pageSize = params?.pageSize ?? 10000;
     const repoType = params?.repoType ?? "models";
@@ -314,7 +314,15 @@ export async function reindexHuggingFaceRepos(params?: HuggingFaceReindexParams)
         } catch (err: any) {
             console.error("Error: ", err);
         }
-        await new Promise(resolve => setTimeout(resolve, requestWaitMs));
+        await prisma.job.update({
+            where: {
+                id: jobId,
+            },
+            data: {
+                processed: page
+            }
+        })
+        await sleep(requestWaitMs);
         page += 1;
         if (page >= 10000) {
             break;
