@@ -25,12 +25,17 @@ aimm install https://civitai.com/api/download/models/46137
 aimm install https://civitai.com/api/download/models/46137 models/Stable-diffusion
 ```
 
-## To be implemented
+## To be implemented for MVP
+
+### Cli
 
 ```sh
 
-# Smart install (install to appropriate place, e.g. models/Lora)
-aimm install https://civitai.com/models/13213
+# Smart install (install to appropriate place, e.g. models/Lora, download previews, etc.)
+aimm si https://civitai.com/models/13213
+
+# Or, in short:
+aimm install --smart https://civitai.com/models/13213
 
 # Initialize a new project
 aimm init
@@ -57,6 +62,8 @@ aimm install -r non-default-named.amm.json
 # Move packages under aimm management:
 aimm mv a b
 ```
+
+
 
 ## The API service
 

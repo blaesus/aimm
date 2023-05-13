@@ -63,7 +63,7 @@ async function completeFileHashes(
                             category_key: {
                                 category: CATEGORY,
                                 key: f.downloadUrl,
-                            }
+                            },
                         },
                         create: data,
                         update: data,
@@ -183,26 +183,28 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
     }
 }
 
-export async function saveCivitaiModelPayload(prisma: PrismaClient, data: CivitaiModelPayload) {
-    for (const model of data.items) {
-        await updateCivitaiModel(prisma, model);
-    }
-}
-
-
+const HARD_PAGE_LIMIT = 10_000; // Prevent infinite loop
 export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexingParams) {
     const pageSize = params?.pageSize ?? 100;
     const requestWaitMs = params?.requestWaitMs ?? 10_000;
 
     const prisma = new PrismaClient();
 
-    let page = 1;
-
     const batch = Date.now().toString();
 
-    while (true) {
+    let total = 1;
+
+    for (let page = 1; page <= HARD_PAGE_LIMIT; page += 1) {
         const url = `https://civitai.com/api/v1/models?page=${page}&limit=${pageSize}`;
-        console.info(`Civitai: fetching ${url}`)
+        console.info(`Civitai: fetching ${url}`);
+        await prisma.job.update({
+            where: {
+                id: jobId,
+            },
+            data: {
+                processed: page,
+            },
+        });
 
         try {
             const response = await requester.getData<CivitaiModelPayload>(url);
@@ -218,35 +220,27 @@ export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexi
                     batch,
                 },
             });
+            const {data} = response;
+            total = data.metadata.totalPages;
             await prisma.job.update({
                 where: {
                     id: jobId,
                 },
                 data: {
-                    total: response.data.metadata.totalPages
-                }
-            })
-
-            const {data} = response;
-            await saveCivitaiModelPayload(prisma, data);
-            if (page >= data.metadata.totalPages) {
-                return;
+                    total,
+                },
+            });
+            total = data.metadata.totalPages;
+            for (const model of data.items) {
+                await updateCivitaiModel(prisma, model);
             }
         } catch (err: any) {
             console.log("Error: ", err);
         }
-        await prisma.job.update({
-            where: {
-                id: jobId,
-            },
-            data: {
-                processed: page
-            }
-        })
-        await sleep(requestWaitMs);
-        page += 1;
-        if (page >= 10000) {
-            return;
+        if (page > total) {
+            console.info("Civitai reindex finished");
+            break;
         }
+        await sleep(requestWaitMs);
     }
 }
