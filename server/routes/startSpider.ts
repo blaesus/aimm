@@ -59,6 +59,22 @@ export async function startSpider(ctx: Koa.Context) {
             })
         })
         .catch(console.error);
+
+    async function cleanup() {
+        await prisma.job.update({
+            where: {
+                id: job.id,
+            },
+            data: {
+                status: "Interrupted",
+                stopped: Date.now()
+            }
+        })
+    }
+
+    process.once("SIGINT", cleanup);
+    process.once("SIGTERM", cleanup);
+
     ctx.status = 201;
     ctx.body = JSON.stringify({ok: true, job: job.id});
 }
