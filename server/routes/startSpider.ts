@@ -45,7 +45,7 @@ export async function startSpider(ctx: Koa.Context) {
             data: ctx.params,
         }
     })
-    await spiders[type](job.id, requestBody);
+    spiders[type](job.id, requestBody).catch(console.error);
     await prisma.job.update({
         where: {
             id: job.id,
