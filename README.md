@@ -17,22 +17,29 @@ aimm scan
 
 # Install packages from aimm.json
 aimm install
+
+# Install a package from a download link (to `.`)
+aimm install https://civitai.com/api/download/models/46137
+
+# Install a package from a download link (to a specific place)
+aimm install https://civitai.com/api/download/models/46137 models/Stable-diffusion
 ```
 
 ## To be implemented
 
 ```sh
+
+# Smart install (install to appropriate place, e.g. models/Lora)
+aimm install https://civitai.com/models/13213
+
 # Initialize a new project
 aimm init
 
 # Install from Git
 aimm install https://github.com/AUTOMATIC1111/stable-diffusion-webui
 
-# Install a model from Civitai
+# Install a model from Civitai web page
 aimm install https://civitai.com/models/7240/meinamix 
-
-# Install a model to a specific place
-aimm install https://civitai.com/models/7240/meinamix ./models/meinamix
 
 # Install a Lora from Civitai, and automatically pair it with previews
 aimm install https://civitai.com/models/13213
@@ -46,6 +53,9 @@ aimm install bloom
 # Install from an existing amm.json
 aimm install
 aimm install -r non-default-named.amm.json
+
+# Move packages under aimm management:
+aimm mv a b
 ```
 
 ## The API service
