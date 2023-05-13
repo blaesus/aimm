@@ -218,3 +218,25 @@ pub fn install(args: &InstallArgs) {
         install_from_manifest(parsed, mode)
     }
 }
+
+fn git_clone(url: &str) {
+    // set the path where the cloned repository will be created
+    let local_path = Path::new("./test");
+
+    // perform the clone operation
+    let _repo = git2::build::RepoBuilder::new()
+        .fetch_options({
+            let mut fetch_options = git2::FetchOptions::new();
+            fetch_options
+                .download_tags(git2::AutotagOption::All)
+                .proxy_options({
+                    let mut proxy_options = git2::ProxyOptions::new();
+                    proxy_options.auto();
+                    proxy_options
+                })
+                .update_fetchhead(true);
+            fetch_options
+        })
+        .clone(url, local_path)
+        .unwrap();
+}
