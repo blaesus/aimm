@@ -35,6 +35,8 @@ pub struct InstallArgs {
 pub enum SubCommands {
     /// does testing things
     Scan(ScanArgs),
+
+    #[clap(name = "install", alias = "i")]
     Install(InstallArgs),
 }
 
