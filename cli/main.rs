@@ -5,8 +5,6 @@ mod utils;
 
 use std::path::Path;
 
-use clap::Parser;
-
 use crate::args::{Cli, SubCommands};
 use crate::subcommands::{install, scan};
 
