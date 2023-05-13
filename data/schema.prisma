@@ -133,8 +133,10 @@ model Account {
   name     String  @unique
   disabled BigInt?
 
-  credential Credential?
-  sessions   Session[]
+  credential     Credential?
+  sessions       Session[]
+  roles          Role[]
+  RoleAssignment RoleAssignment[]
 }
 
 model Credential {
@@ -157,9 +159,78 @@ model Session {
 }
 
 model Role {
-  id String @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  account   Account? @relation(fields: [accountId], references: [id])
+  accountId String?  @db.Uuid
+
+  roleAssignments      RoleAssignment[]
+  privilegePermissions PrivilegePermission[]
+}
+
+model RoleAssignment {
+  id        String  @id @default(uuid()) @db.Uuid
+  role      Role    @relation(fields: [roleId], references: [id])
+  roleId    String  @db.Uuid
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId String  @db.Uuid
+  created   BigInt
+}
+
+enum ResourceType {
+  Repository
+  Revision
+  FileRecord
+  FileStorageRecord
+  FetchRecord
+  KeyValueCache
+  Account
+  Role
+  RoleAssignment
+  Privilege
+  Other
+}
+
+enum Action {
+  Create
+  Read
+  Update
+  Delete
 }
 
 model Privilege {
-  id String @id @default(uuid()) @db.Uuid
+  id      String       @id @default(uuid()) @db.Uuid
+  name    String
+  type    ResourceType
+  target  String?      @db.Uuid
+  action  Action
+  data    Json?
+  created BigInt
+
+  privilegePermissions PrivilegePermission[]
+}
+
+model PrivilegePermission {
+  id          String    @id @default(uuid()) @db.Uuid
+  privilege   Privilege @relation(fields: [privilegeId], references: [id])
+  privilegeId String    @db.Uuid
+  role        Role      @relation(fields: [roleId], references: [id])
+  roleId      String    @db.Uuid
+  created     BigInt
+}
+
+enum JobStatus {
+  Pending
+  Running
+  Success
+  Failure
+  Cancelled
+  Timeout
+  Unknown
+}
+
+model Job {
+  id      String @id @default(uuid()) @db.Uuid
+  created BigInt
+  data    Json?
 }
