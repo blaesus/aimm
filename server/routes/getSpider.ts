@@ -14,7 +14,7 @@ export async function getSpider(ctx: Koa.Context) {
         };
         return;
     }
-    const type = getSpiderType(ctx.params.label.toLowerCase());
+    const type = getSpiderType(ctx.params.label);
     if (type) {
         ctx.status = 200;
         ctx.body = await prisma.job.findMany({

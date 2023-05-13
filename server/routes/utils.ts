@@ -46,7 +46,7 @@ const spiders: { [key in SpiderType]: SpiderType } = {
     "obtain-files": "obtain-files",
 };
 
-export function getSpiderType(s: string): SpiderType | null {
+export function getSpiderType(s?: string): SpiderType | null {
     for (const spider of Object.values(spiders)) {
         if (spider === s) {
             return spider;
