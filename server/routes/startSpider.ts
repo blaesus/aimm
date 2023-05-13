@@ -73,6 +73,7 @@ export async function startSpider(ctx: Koa.Context) {
                 stopped: Date.now(),
             },
         });
+        process.exit();
     }
 
     process.once("SIGINT", cleanup);
