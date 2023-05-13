@@ -221,6 +221,14 @@ export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexi
                     batch,
                 },
             });
+            await prisma.job.update({
+                where: {
+                    id: jobId,
+                },
+                data: {
+                    total: response.data.metadata.totalPages
+                }
+            })
 
             const {data} = response;
             await saveCivitaiModelPayload(prisma, data);
