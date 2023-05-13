@@ -1,18 +1,20 @@
-export type FileQuery = "filename" | "sha256" | "pretty" | "case-insensitive"
+export type QueryKey =
+    "filename" | "sha256" | "pretty" | "case-insensitive" | "force"
 
 export type Query = {
-    [key in FileQuery]?: string
+    [key in QueryKey]?: string
 }
 
-export const fileQueries: { [key in FileQuery]: FileQuery } = {
+export const queryKeys: { [key in QueryKey]: QueryKey } = {
     filename: "filename",
     sha256: "sha256",
     pretty: "pretty",
     "case-insensitive": "case-insensitive",
+    force: "force",
 };
 
-export function checkQueryKey(key: string): FileQuery | null {
-    for (const queryKey of Object.values(fileQueries)) {
+export function checkQueryKey(key: string): QueryKey | null {
+    for (const queryKey of Object.values(queryKeys)) {
         if (queryKey === key) {
             return queryKey;
         }
@@ -42,7 +44,7 @@ const spiders: { [key in SpiderType]: SpiderType } = {
     civitai: "civitai",
     huggingface: "huggingface",
     "obtain-files": "obtain-files",
-}
+};
 
 export function getSpiderType(s: string): SpiderType | null {
     for (const spider of Object.values(spiders)) {
@@ -50,5 +52,5 @@ export function getSpiderType(s: string): SpiderType | null {
             return spider;
         }
     }
-    return null
+    return null;
 }

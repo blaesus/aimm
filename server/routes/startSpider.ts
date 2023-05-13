@@ -1,4 +1,4 @@
-import { getSpiderType, SpiderType } from "./utils";
+import { getSpiderType, parseQuery, Query, SpiderType } from "./utils";
 import { reindexCivitaiModels } from "../../data/spiders/civitai";
 import { reindexHuggingFaceRepos } from "../../data/spiders/huggingface";
 import { obtainFiles } from "../../data/spiders/obtain";
@@ -15,7 +15,8 @@ const spiders: { [key in SpiderType]: (jobId: string, params: {}) => Promise<voi
 const processNumber = Date.now().toString()
 export async function startSpider(ctx: Koa.Context) {
     const type = getSpiderType(ctx.params.type.toLowerCase());
-    const force = !!ctx.params.force;
+    const query: Query = parseQuery(ctx.request.querystring);
+    const force = !!query.force;
 
     if (!type) {
         ctx.status = 404;
@@ -45,16 +46,19 @@ export async function startSpider(ctx: Koa.Context) {
             data: ctx.params,
         }
     })
-    spiders[type](job.id, requestBody).catch(console.error);
-    await prisma.job.update({
-        where: {
-            id: job.id,
-        },
-        data: {
-            status: "Success",
-            stopped: Date.now()
-        }
-    })
+    spiders[type](job.id, requestBody)
+        .then(() => {
+            prisma.job.update({
+                where: {
+                    id: job.id,
+                },
+                data: {
+                    status: "Success",
+                    stopped: Date.now()
+                }
+            })
+        })
+        .catch(console.error);
     ctx.status = 201;
     ctx.body = JSON.stringify({ok: true, job: job.id});
 }
