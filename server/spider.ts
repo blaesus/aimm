@@ -10,8 +10,6 @@ import { spiderAdminAuth } from "./routes/spiderAdminAuth";
 
 dotenv.config();
 
-console.info(process.env)
-
 const app = new Koa();
 const router = new Router();
 
