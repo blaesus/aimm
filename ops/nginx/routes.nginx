@@ -29,6 +29,15 @@ server {
         proxy_pass http://localhost:3000;
     }
 
+    location ~ \.(js|css)$ {
+        include /etc/nginx/headers.nginx;
+        expires 1000d;
+        add_header Pragma public;
+        limit_req zone=static burst=5 nodelay;
+        add_header Cache-Control "public";
+        proxy_pass http://localhost:3000;
+    }
+
     location /api {
         include /etc/nginx/headers.nginx;
         expires off;
@@ -43,14 +52,6 @@ server {
         proxy_pass http://localhost:4100;
     }
 
-    location ~ \.(js|css)$ {
-        include /etc/nginx/headers.nginx;
-        expires 1000d;
-        add_header Pragma public;
-        limit_req zone=static burst=5 nodelay;
-        add_header Cache-Control "public";
-        proxy_pass http://localhost:3000;
-    }
 
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
