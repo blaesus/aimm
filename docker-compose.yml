@@ -4,11 +4,10 @@ services:
   web:
     build:
       context: .
-      dockerfile: ops/api.dockerfile
+      dockerfile: ops/web.dockerfile
     env_file:
       - ./ops/.env.prod
     network_mode: "host"
-    command: http-server buld --port 3000
 
   api:
     build:
