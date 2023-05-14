@@ -3,6 +3,7 @@ localtest/*
 .idea
 node_modules
 .env*
+ops/certs
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
