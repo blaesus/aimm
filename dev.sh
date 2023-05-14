@@ -1,5 +1,5 @@
-ts-node server/api.ts &;
-ts-node server/spider.ts &;
+nodemon server/api.ts &;
+nodemon server/spider.ts &;
 cd client/web
 npm start
 
