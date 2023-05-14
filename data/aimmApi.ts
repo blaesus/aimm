@@ -1,4 +1,4 @@
-import { StorageService } from "@prisma/client";
+import { Job, StorageService } from "@prisma/client";
 
 export type HuggingfaceRepoType = "datasets" | "models";
 
@@ -19,4 +19,14 @@ export interface ObtainFilesParams {
     batchSize?: number;
     // Minimal favour for a repo to be obtained
     favourThreshold?: number;
+}
+
+export interface JobJson extends Omit<Job, "created" | "stopped"> {
+    created: string;
+    stopped: string;
+}
+
+export interface GetJobsSuccess {
+    ok: true;
+    jobs: JobJson[];
 }

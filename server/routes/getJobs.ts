@@ -2,7 +2,7 @@ import * as Koa from "koa";
 import { getSpiderType, jsonReplacerWithBigint } from "./utils";
 import { prisma } from "../../data/prismaClient";
 
-export async function getSpider(ctx: Koa.Context) {
+export async function getJobs(ctx: Koa.Context) {
     const authorizationHeader = ctx.request.headers.authorization || "";
     const token = authorizationHeader.replace("Bearer ", "");
     const adminToken = process.env["ADMIN_TOKEN"] || "12321c8sd3";
@@ -26,7 +26,11 @@ export async function getSpider(ctx: Koa.Context) {
             }
         });
         ctx.set("Content-Type", "application/json");
-        ctx.body = JSON.stringify(jobs, jsonReplacerWithBigint, 4);
+        const data = {
+            ok: true,
+            jobs,
+        }
+        ctx.body = JSON.stringify(data, jsonReplacerWithBigint, 4);
         return;
     }
     else {

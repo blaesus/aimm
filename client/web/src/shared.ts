@@ -1,0 +1,1 @@
+export const ADMIN_TOKEN_KEY = "ADMIN_TOKEN"

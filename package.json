@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "start": "sh dev/dev.sh",
+        "start": "sh dev.sh",
         "deploy": "sh ops/deploy.sh",
         "deploy_nginx": "sh ops/deploy_nginx.sh",
         "mirror": "ts-node -r tsconfig-paths/register src/server/data/mirror.ts",

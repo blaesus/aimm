@@ -4,7 +4,7 @@ import bodyParser from "koa-bodyparser";
 import * as dotenv from "dotenv";
 
 import { hello } from "./routes/hello";
-import { getSpider } from "./routes/getSpider";
+import { getJobs } from "./routes/getJobs";
 import { startSpider } from "./routes/startSpider";
 import { spiderAdminAuth } from "./routes/spiderAdminAuth";
 
@@ -18,7 +18,7 @@ app.use(spiderAdminAuth);
 
 router.prefix("/admin-api")
 router.get("/hello", hello);
-router.get("/jobs/:type", getSpider);
+router.get("/jobs/:type", getJobs);
 router.post("/jobs/:type", startSpider);
 
 app.use(router.routes());
