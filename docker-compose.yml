@@ -1,5 +1,17 @@
 version: '3'
 services:
+
+  balancer:
+    image: nginx:1.24-alpine-slim
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./ops/nginx:/etc/nginx:ro
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/html:/var/www/html
+    command: nginx
+
   api:
     build:
       context: .
@@ -8,6 +20,7 @@ services:
       - ./ops/.env.prod
     network_mode: "host"
     command: node server/api.js
+
   spider:
     build:
       context: .

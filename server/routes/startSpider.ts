@@ -2,7 +2,7 @@ import { getSpiderType, parseQuery, Query, SpiderType } from "./utils";
 import { reindexCivitaiModels } from "../spiders/civitai";
 import { reindexHuggingFaceRepos } from "../spiders/huggingface";
 import { obtainFiles } from "../spiders/obtain";
-import Koa from "koa";
+import * as Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 
 const spiders: { [key in SpiderType]: (jobId: string, params: {}) => Promise<void> } = {
@@ -50,8 +50,8 @@ export async function startSpider(ctx: Koa.Context) {
         },
     });
     spiders[type](job.id, requestBody)
-        .then(() => {
-            prisma.job.update({
+        .then(async () => {
+            await prisma.job.update({
                 where: {
                     id: job.id,
                 },
@@ -61,7 +61,18 @@ export async function startSpider(ctx: Koa.Context) {
                 },
             });
         })
-        .catch(console.error);
+        .catch(async error => {
+            await prisma.job.update({
+                where: {
+                    id: job.id,
+                },
+                data: {
+                    status: "Failure",
+                    stopped: Date.now(),
+                },
+            });
+            console.error(error)
+        });
 
     async function cleanup() {
         await prisma.job.update({
