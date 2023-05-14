@@ -1,7 +1,5 @@
-killall node
-nginx -s stop
-
-nginx -p ${process.cwd()} -c ${process.cwd()}/dev/dev.nginx &
+nginx -p $(pwd) -c $(pwd)/dev/dev.nginx
 cd client/web
 npm start &
+cd ../..
 ts-node server/api.ts &
