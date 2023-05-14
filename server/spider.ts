@@ -18,8 +18,8 @@ app.use(spiderAdminAuth);
 
 router.prefix("/admin-api")
 router.get("/hello", hello);
-router.get("/_spiders/:type", getSpider);
-router.post("/_spiders/:type", startSpider);
+router.get("/jobs/:type", getSpider);
+router.post("/jobs/:type", startSpider);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
