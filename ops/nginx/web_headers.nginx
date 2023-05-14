@@ -1,6 +1,7 @@
 include /etc/nginx/headers.nginx;
-#add_header Content-Security-Policy "default-src 'self';
+add_header Content-Security-Policy "default-src 'self'; object-src 'none'; frame-ancestors 'none'; upgrade-insecure-requests; block-all-mixed-content";
 add_header X-XSS-Protection "1; mode=block" always;
 add_header X-Content-Type-Options "nosniff" always;
 add_header Referrer-Policy no-referrer;
+add_header X-Permitted-Cross-Domain-Policies none;
 add_header Feature-Policy "microphone 'none'; geolocation 'none'; camera 'none'";
