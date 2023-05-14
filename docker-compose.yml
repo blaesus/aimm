@@ -20,7 +20,7 @@ services:
     command: >-
       certonly --reinstall --webroot --webroot-path=/var/www/certbot
       --email shu@immux.com --agree-tos --no-eff-email
-      -d aimm.dev -d admin.aimm.dev
+      -d aimm.dev -d *.aimm.dev
 
   api:
     build:
