@@ -33,7 +33,6 @@ server {
         limit_req zone=static burst=5 nodelay;
         try_files $uri $uri/ /index.html;
     }
-
     location /api {
         include /etc/nginx/headers.nginx;
         expires off;
