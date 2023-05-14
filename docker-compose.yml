@@ -7,7 +7,7 @@ services:
     volumes:
       - ./ops/nginx:/etc/nginx:ro
       - /var/www/html:/var/www/html:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./ops/certs:/etc/letsencrypt:ro
 
   api:
     build:
