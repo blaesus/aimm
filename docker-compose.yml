@@ -7,20 +7,7 @@ services:
     volumes:
       - ./ops/nginx:/etc/nginx:ro
       - /var/www/html:/var/www/html:ro
-      - ./ops/certs:/var/www/certbot:ro
-      - ./ops/certs:/etc/letsencrypt:ro
-
-  certbot:
-    image: certbot/certbot:latest
-    volumes:
-      - ./ops/certs:/var/www/certbot:rw
-      - ./ops/certs:/etc/letsencrypt:rw
-    depends_on:
-      - balancer
-    command: >-
-      certonly --reinstall --webroot --webroot-path=/var/www/certbot
-      --email shu@immux.com --agree-tos --no-eff-email
-      -d aimm.dev -d admin.aimm.dev
+      - /etc/letsencrypt:/etc/letsencrypt:ro
 
   api:
     build:
