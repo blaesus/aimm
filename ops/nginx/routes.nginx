@@ -19,8 +19,13 @@ limit_req_zone $binary_remote_addr zone=static:4m rate=4r/s;
 limit_req_zone $binary_remote_addr zone=api:4m rate=4r/s;
 
 server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl ipv6only=on;
     server_name aimm.dev;
     root /var/www/html;
+
+    ssl_certificate /etc/letsencrypt/live/aimm.dev/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/aimm.dev/privkey.pem;
 
     location / {
         include /etc/nginx/web_headers.nginx;
@@ -28,6 +33,7 @@ server {
         limit_req zone=static burst=5 nodelay;
         try_files $uri $uri/ /index.html;
     }
+
     location /api {
         include /etc/nginx/headers.nginx;
         expires off;
@@ -43,10 +49,6 @@ server {
         add_header Cache-Control "public";
     }
 
-    listen [::]:443 ssl ipv6only=on;
-    listen 443 ssl;
-    ssl_certificate /etc/letsencrypt/live/aimm.dev/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/aimm.dev/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 }
