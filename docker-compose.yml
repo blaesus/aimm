@@ -8,6 +8,7 @@ services:
     env_file:
       - ./ops/.env.prod
     network_mode: "host"
+    command: http-server build --port 3000
 
   api:
     build:
