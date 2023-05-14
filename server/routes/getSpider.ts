@@ -1,4 +1,4 @@
-import Koa from "koa";
+import * as Koa from "koa";
 import { getSpiderType, jsonReplacerWithBigint } from "./utils";
 import { prisma } from "../../data/prismaClient";
 

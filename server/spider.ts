@@ -1,6 +1,6 @@
-import Koa from "koa";
-import Router from "koa-router";
-import bodyParser from "koa-bodyparser";
+import * as Koa from "koa";
+import * as Router from "koa-router";
+import * as bodyParser from "koa-bodyparser";
 import * as dotenv from "dotenv";
 
 import { hello } from "./routes/hello";
