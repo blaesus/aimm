@@ -49,6 +49,7 @@ server {
         add_header Pragma public;
         limit_req zone=static burst=5 nodelay;
         add_header Cache-Control "public";
+        proxy_pass http://localhost:3000;
     }
 
     include /etc/letsencrypt/options-ssl-nginx.conf;
