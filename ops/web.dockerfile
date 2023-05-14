@@ -13,5 +13,3 @@ ENV PORT 3000
 
 EXPOSE 3000
 CMD [ "http-server", "build", "--port", "3000" ]
-
-
