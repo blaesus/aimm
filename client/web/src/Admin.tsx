@@ -54,7 +54,7 @@ export function Admin() {
                 {
                     jobs.map(job => (
                         <div key={job.id}>
-                            {job.id}
+                            {job.id} {job.label} {job.status}
                         </div>
                     ))
                 }

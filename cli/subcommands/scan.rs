@@ -49,7 +49,7 @@ fn pick_file_records(file_records: &[FileRecordApiItem]) -> Option<&FileRecordAp
 
 fn download_file_records(sha256: &str) -> Vec<FileRecordApiItem> {
     // let api_url = format!("http://localhost:4000/files?sha256={}", sha256);
-    let api_url = format!("https://api.aimm.dev/files?sha256={}", sha256);
+    let api_url = format!("https://aimm.dev/api/files?sha256={}", sha256);
     println!("Getting {}", api_url);
     let Ok(response) = reqwest::blocking::get(&api_url) else {return vec![]};
     let Ok(json)= response.json::<FileResponse>() else {return vec![]};
