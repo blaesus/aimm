@@ -1,14 +1,6 @@
 version: '3'
 services:
 
-  balancer:
-    image: nginx:1.24-alpine-slim
-    network_mode: "host"
-    volumes:
-      - ./ops/nginx:/etc/nginx:ro
-      - /var/www/html:/var/www/html:ro
-      - ./ops/certs:/etc/letsencrypt:ro
-
   api:
     build:
       context: .
