@@ -4,6 +4,11 @@ server {
     return 301 https://aimm.dev$request_uri;
 }
 
+server {
+    listen 80;
+    server_name www.aimm.dev;
+    return 301 https://aimm.dev$request_uri;
+}
 
 limit_req_zone $binary_remote_addr zone=static:4m rate=4r/s;
 limit_req_zone $binary_remote_addr zone=api:4m rate=4r/s;
