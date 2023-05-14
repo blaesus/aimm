@@ -25,6 +25,7 @@ export async function getSpider(ctx: Koa.Context) {
                 created: "desc",
             }
         });
+        ctx.set("Content-Type", "application/json");
         ctx.body = JSON.stringify(jobs, jsonReplacerWithBigint, 4);
         return;
     }
