@@ -1,6 +1,6 @@
-import Koa from "koa";
-import Router from "koa-router";
-import bodyParser from "koa-bodyparser";
+import * as Koa from "koa";
+import * as Router from "koa-router";
+import * as bodyParser from "koa-bodyparser";
 import * as dotenv from "dotenv";
 
 import { hello } from "./routes/hello";
@@ -16,15 +16,15 @@ const router = new Router();
 app.use(bodyParser());
 app.use(spiderAdminAuth);
 
+router.prefix("/admin-api")
 router.get("/hello", hello);
-
 router.get("/_spiders/:type", getSpider);
 router.post("/_spiders/:type", startSpider);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-const PORT = 4010;
+const PORT = 4100;
 app.listen(PORT, () => {
-    console.log(`Spider controller running on port ${PORT}`);
+    console.log(`Admin controller running on port ${PORT}`);
 });

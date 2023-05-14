@@ -28,11 +28,19 @@ server {
         limit_req zone=static burst=5 nodelay;
         try_files $uri $uri/ /index.html;
     }
+
     location /api {
         include /etc/nginx/headers.nginx;
         expires off;
         limit_req zone=api burst=10 delay=5;
         proxy_pass http://localhost:4000;
+    }
+
+    location /admin-api {
+        include /etc/nginx/headers.nginx;
+        expires off;
+        limit_req zone=api burst=10 delay=5;
+        proxy_pass http://localhost:4100;
     }
 
     location ~ \.(js|css)$ {
