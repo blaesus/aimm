@@ -13,6 +13,8 @@ const router = new Router();
 
 app.use(bodyParser());
 
+
+router.prefix("/api");
 router.get("/hello", hello);
 router.get("/files", files);
 
