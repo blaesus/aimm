@@ -1,19 +1,9 @@
 server {
     listen 80 default_server;
-    server_name www.aimm.dev aimm.dev;
+    server_name aimm.dev;
     return 301 https://aimm.dev$request_uri;
 }
 
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    server_name www.aimm.dev;
-
-    ssl_certificate /etc/letsencrypt/live/www.aimm.dev/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/www.aimm.dev/privkey.pem;
-
-    return 301 https://aimm.dev$request_uri;
-}
 
 limit_req_zone $binary_remote_addr zone=static:4m rate=4r/s;
 limit_req_zone $binary_remote_addr zone=api:4m rate=4r/s;
