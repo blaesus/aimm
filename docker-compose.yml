@@ -10,7 +10,6 @@ services:
       - ./ops/nginx:/etc/nginx:ro
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/html:/var/www/html
-    command: nginx
 
   api:
     build:
