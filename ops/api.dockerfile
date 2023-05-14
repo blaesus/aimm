@@ -6,7 +6,7 @@ RUN npm install
 COPY . .
 COPY ./ops/.env.prod .env
 RUN ./node_modules/.bin/prisma generate
-RUN ./node_modules/.bin/tsc --project server/tsconfig.json
+RUN ./node_modules/.bin/tsc --project server/tsconfig.api.json
 
 ENV NODE_ENV production
 ENV PORT 4000

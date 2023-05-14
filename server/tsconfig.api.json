@@ -7,6 +7,7 @@
         "module": "Node16"
     },
     "include": [
-        "api.ts"
+        "api.ts",
+        "./*.ts"
     ]
 }
