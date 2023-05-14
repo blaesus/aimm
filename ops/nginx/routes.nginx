@@ -26,7 +26,7 @@ server {
         include /etc/nginx/web_headers.nginx;
         expires off;
         limit_req zone=static burst=5 nodelay;
-        try_files $uri $uri/ /index.html;
+        proxy_pass http://localhost:3000;
     }
 
     location /api {
