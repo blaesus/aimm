@@ -11,7 +11,7 @@ server {
 }
 
 limit_req_zone $binary_remote_addr zone=static:4m rate=4r/s;
-limit_req_zone $binary_remote_addr zone=api:4m rate=4r/s;
+limit_req_zone $binary_remote_addr zone=api:4m rate=2r/s;
 
 server {
     listen 443 ssl default_server;

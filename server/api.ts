@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 
 import { files } from "./routes/files";
 import { hello } from "./routes/hello";
+import { search } from "./routes/search";
 
 dotenv.config()
 
@@ -17,6 +18,7 @@ app.use(bodyParser());
 router.prefix("/api");
 router.get("/hello", hello);
 router.get("/files", files);
+router.get("/search/:keyword", search);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
