@@ -15,7 +15,8 @@ Todos
 - [ ] Combine web package.json and project package.json
 
 ## DevOps
-- [ ] Fix Let's encrypt auto-renewal
+- [x] Fix Let's encrypt auto-renewal
+- [ ] Periodical database backup
 
 ## Mirror
 - [ ] Routinely re-index

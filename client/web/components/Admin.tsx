@@ -16,6 +16,10 @@ export function Admin() {
         await setJobs(data.jobs as any[] as Job[])
     }
 
+    useEffect(() => {
+        Object.values(jobTypes).forEach(jobType => getJobs(jobType))
+    }, [])
+
     const [jobs, setJobs] = React.useState<Job[]>([])
 
     const [adminToken, setAdminToken] = React.useState<string>("")

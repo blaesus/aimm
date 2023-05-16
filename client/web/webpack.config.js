@@ -43,6 +43,10 @@ module.exports = {
             "/api": {
                 target: "http://localhost:4000",
                 changeOrigin: true,
+            },
+            "/admin-api": {
+                target: "http://localhost:4100",
+                changeOrigin: true,
             }
         },
     },
