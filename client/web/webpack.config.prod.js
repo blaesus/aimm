@@ -37,7 +37,7 @@ module.exports = {
                 },
             },
         },
-        moduleIds: 'hashed',
+        moduleIds: "deterministic",
         chunkIds: 'named',
     },
 
