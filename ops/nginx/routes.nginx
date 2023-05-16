@@ -53,6 +53,7 @@ server {
     }
 
     location /remote {
+        rewrite ^/remote(.*)$ $1 break;
         root /var/www/html;
         try_files $uri =404;
     }
