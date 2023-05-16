@@ -1,4 +1,4 @@
-import { getJobType, parseQuery, Query } from "./utils";
+import { getJobType, jsonReplacerWithBigint, parseQuery, Query } from "./utils";
 import { reindexCivitaiModels } from "../spiders/civitai";
 import { reindexHuggingFaceRepos } from "../spiders/huggingface";
 import { obtainFiles } from "../spiders/obtain";
@@ -97,5 +97,5 @@ export async function startJob(ctx: Koa.Context) {
         job,
     }
     ctx.set("Content-Type", "application/json")
-    ctx.body = JSON.stringify(data);
+    ctx.body = JSON.stringify(data, jsonReplacerWithBigint, 4);
 }
