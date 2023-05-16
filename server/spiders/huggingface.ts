@@ -355,14 +355,16 @@ interface State extends SpiderStats {
 export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
     name: "huggingface-indexer",
     async init(params) {
-        const {repoType, pageSize} = params;
+        const repoType = params.repoType ?? "models";
+        const pageSize = params.pageSize ?? 10_000;
+
         const defaultInitPage = `https://huggingface.co/api/${repoType}?limit=${pageSize}&full=true&sort=downloads&direction=-1`;
         const initialPage = params?.initialPage ?? defaultInitPage;
 
         return {
-            repoType: params?.repoType ?? "models",
+            repoType,
             url: initialPage,
-            pageSize: params.pageSize ?? 10_000,
+            pageSize,
             requestWaitMs: params?.requestWaitMs ?? 60_000,
             prisma: new PrismaClient(),
             batch: Date.now().toString(),
