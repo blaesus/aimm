@@ -58,6 +58,24 @@ export async function obtainFiles(jobId: string, props: ObtainFilesParams = {}) 
     console.info(`Obtaining ${repos.length} repos...`);
     let processed = 0;
     for (const repo of repos) {
+
+        const job = await prisma.job.findUnique({
+            where: {
+                id: jobId,
+            }
+        })
+        if (job && job.status === "Cancelled") {
+            await prisma.job.update({
+                where: {
+                    id: jobId,
+                },
+                data: {
+                    stopped: Date.now()
+                }
+            })
+            break;
+        }
+
         const fileRecords = await prisma.fileRecord.findMany({
             where: {
                 revision: {

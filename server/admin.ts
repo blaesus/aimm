@@ -7,6 +7,7 @@ import { hello } from "./routes/hello";
 import { getJobs } from "./routes/getJobs";
 import { startJob } from "./routes/startJob";
 import { spiderAdminAuth } from "./routes/spiderAdminAuth";
+import { stopJob } from "./routes/stopJob";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ router.get("/hello", hello);
 router.get("/jobs", getJobs);
 router.get("/jobs/:type", getJobs);
 router.post("/jobs/:type", startJob);
+router.del("/jobs/:id", stopJob);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
