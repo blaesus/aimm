@@ -4,7 +4,7 @@ import { reindexHuggingFaceRepos } from "../spiders/huggingface";
 import { obtainFiles } from "../spiders/obtain";
 import * as Koa from "koa";
 import { prisma } from "../../data/prismaClient";
-import { JobType } from "../../data/aimmApi";
+import { JobType, StartJobSuccess } from "../../data/aimmApi";
 
 const spiders: { [key in JobType]: (jobId: string, params: {}) => Promise<void> } = {
     "civitai-index": reindexCivitaiModels,
@@ -92,5 +92,10 @@ export async function startJob(ctx: Koa.Context) {
     process.once("SIGTERM", cleanup);
 
     ctx.status = 201;
-    ctx.body = JSON.stringify({ok: true, job: job.id});
+    const data: StartJobSuccess = {
+        ok: true,
+        job,
+    }
+    ctx.set("Content-Type", "application/json")
+    ctx.body = JSON.stringify(data);
 }

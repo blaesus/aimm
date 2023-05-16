@@ -74,12 +74,23 @@ export function Admin() {
                 </div>
                 <table>
                     <tbody>
+                        <tr>
+                            <th>id</th>
+                            <th>type</th>
+                            <th>status</th>
+                            <th>total</th>
+                            <th>processed</th>
+                            <th>start</th>
+                        </tr>
                         {
                             jobs.map(job => (
                                 <tr key={job.id}>
                                     <td>{job.id}</td>
                                     <td>{job.type}</td>
                                     <td>{job.status}</td>
+                                    <td>{job.total}</td>
+                                    <td>{job.processed}</td>
+                                    <td>{job.created.toString()}</td>
                                 </tr>
                             ))
                         }

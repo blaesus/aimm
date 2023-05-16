@@ -49,3 +49,8 @@ export const jobTypes: { [key in JobType]: JobType } = {
     "huggingface-index": "huggingface-index",
     "obtain-files": "obtain-files",
 };
+
+export interface StartJobSuccess {
+    ok: true,
+    job: Job,
+}
