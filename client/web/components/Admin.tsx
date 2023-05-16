@@ -7,7 +7,7 @@ import { AnchorButton } from "./AnchorButton/AnchorButton";
 export function Admin() {
 
     async function getJobs(type: JobType) {
-        const response = await fetch(`/admin-api/jobs/${type}`, {
+        const response = await fetch(`/admin/jobs/${type}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY)}`,
             }
