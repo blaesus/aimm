@@ -353,6 +353,7 @@ interface State extends SpiderStats {
 }
 
 export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
+    name: "huggingface-indexer",
     async init(params) {
         const {repoType, pageSize} = params;
         const defaultInitPage = `https://huggingface.co/api/${repoType}?limit=${pageSize}&full=true&sort=downloads&direction=-1`;

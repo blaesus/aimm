@@ -274,6 +274,7 @@ interface State extends SpiderStats {
 }
 
 export const civitaiReindexer: Spider<CivitaiIndexingParams, State> = {
+    name: "civitai-indexer",
     async init(params) {
         return {
             pageSize: params.pageSize ?? 100,

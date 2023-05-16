@@ -265,6 +265,7 @@ interface State {
 }
 
 export const fileObtainer: Spider<ObtainFilesParams, State> = {
+    name: "file-obtainer",
     async init(props) {
         const {id, registry, batchSize = 100, favourThreshold = 10_000, service = "BackBlaze_B2"} = props;
         const targetRegistry = getRegistry(registry);
