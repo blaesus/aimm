@@ -1,0 +1,11 @@
+.RepoCard {
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid black;
+}
+
+.TagLabel {
+    display: inline-block;
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+}
