@@ -6,6 +6,7 @@ RUN npm ci
 RUN npm install http-server
 COPY . .
 COPY ./ops/.env.prod .env
+RUN ./node_modules/.bin/prisma generate
 RUN npm run build:web
 
 ENV NODE_ENV production
