@@ -1,0 +1,19 @@
+.AnchorButton {
+    border-bottom: 1px solid transparent;
+    cursor: pointer;
+    font-weight: bolder;
+}
+
+.AnchorButton.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media only screen and (min-width: 769px) {
+    .AnchorButton:not(.disabled):hover {
+        border-bottom-color: #333;
+    }
+    .AnchorButton:not(.disabled):active {
+        border-bottom-color: black;
+    }
+}

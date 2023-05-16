@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { Job, JobStatus } from "@prisma/client";
 import { GetJobsSuccess, JobType, jobTypes } from "../../../data/aimmApi";
-import { Button } from "./Button";
 import { ADMIN_TOKEN_KEY } from "../shared";
+import { AnchorButton } from "./AnchorButton/AnchorButton";
 
 export function Admin() {
 
@@ -36,13 +36,13 @@ export function Admin() {
                     value={adminToken}
                     onChange={e => setAdminToken(e.target.value)}
                 />
-                <Button
+                <AnchorButton
                     onClick={() => {
                         localStorage.setItem(ADMIN_TOKEN_KEY, adminToken)
                     }}
                 >
                     Set admin token
-                </Button>
+                </AnchorButton>
             </div>
 
             <main>
@@ -53,6 +53,7 @@ export function Admin() {
                             Object.values(jobTypes).map(jobType => (
                                 <tr key={jobType}>
                                     <td>{jobType}</td>
+                                    <td><AnchorButton>Start</AnchorButton></td>
                                 </tr>
                             ))
                         }

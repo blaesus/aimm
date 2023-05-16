@@ -1,9 +1,9 @@
 import React from "react";
-import { Button } from "./Button";
 import { FileRecord, Registry, Repository, Revision } from "@prisma/client";
 import "./Search.css";
 import { SearchSuccess } from "../../../data/aimmApi";
 import { getRepoUrl } from "../utils";
+import { AnchorButton } from "./AnchorButton/AnchorButton";
 
 interface RepoMetaInfo {
     tags: string[];
@@ -110,11 +110,11 @@ export function Search() {
                     }
                 }}
             />
-            <Button
+            <AnchorButton
                 onClick={getRepos}
             >
                 Search
-            </Button>
+            </AnchorButton>
 
             <div>
                 {
