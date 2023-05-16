@@ -195,6 +195,23 @@ export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexi
     let total = 1;
 
     for (let page = 1; page <= HARD_PAGE_LIMIT; page += 1) {
+        const job = await prisma.job.findUnique({
+            where: {
+                id: jobId,
+            }
+        })
+        if (job && job.status === "Cancelled") {
+            await prisma.job.update({
+                where: {
+                    id: jobId,
+                },
+                data: {
+                    stopped: Date.now()
+                }
+            })
+            break;
+        }
+
         const url = `https://civitai.com/api/v1/models?page=${page}&limit=${pageSize}`;
         console.info(`Civitai: fetching ${url}`);
         await prisma.job.update({

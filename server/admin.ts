@@ -22,7 +22,7 @@ router.get("/hello", hello);
 router.get("/jobs", getJobs);
 router.get("/jobs/:type", getJobs);
 router.post("/jobs/:type", startJob);
-router.del("/jobs/:id", stopJob);
+router.delete("/jobs/:id", stopJob);
 
 app.use(router.routes());
 app.use(router.allowedMethods());

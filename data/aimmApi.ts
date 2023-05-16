@@ -54,3 +54,8 @@ export interface StartJobSuccess {
     ok: true,
     job: Job,
 }
+
+export interface StopJobSuccess {
+    ok: true,
+    job: Job
+}

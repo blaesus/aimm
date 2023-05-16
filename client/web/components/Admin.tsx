@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Job, JobStatus } from "@prisma/client";
-import { GetJobsSuccess, JobType, jobTypes } from "../../../data/aimmApi";
+import { GetJobsSuccess, JobType, jobTypes, StopJobSuccess } from "../../../data/aimmApi";
 import { ADMIN_TOKEN_KEY } from "../shared";
 import { AnchorButton } from "./AnchorButton/AnchorButton";
 
@@ -21,12 +21,13 @@ export function Admin() {
 
     async function startNewJob(type: JobType) {
         const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-        const response = await fetch(`/admin/jobs/${type}`, {
+        await fetch(`/admin/jobs/${type}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
             method: "POST",
         });
+        await getJobs();
     }
 
     useEffect(() => {
@@ -91,6 +92,22 @@ export function Admin() {
                                     <td>{job.total}</td>
                                     <td>{job.processed}</td>
                                     <td>{job.created.toString()}</td>
+                                    <td>
+                                        <AnchorButton
+                                            onClick={async () => {
+                                                const response = await fetch(`/admin/jobs/${job.id}`, {
+                                                    headers: {
+                                                        Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY)}`,
+                                                    },
+                                                    method: "DELETE",
+                                                });
+                                                const data: StopJobSuccess = await response.json();
+                                                await getJobs();
+                                            }}
+                                        >
+                                            Cancel
+                                        </AnchorButton>
+                                    </td>
                                 </tr>
                             ))
                         }

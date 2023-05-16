@@ -9,6 +9,7 @@ import {
 } from "../../data/huggingfaceTypes";
 import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer, sleep } from "./utils";
 import { HuggingFaceReindexParams, HuggingfaceRepoType } from "../../data/aimmApi";
+import { prisma } from "../../data/prismaClient";
 
 type HuggingfaceCommitResponse = HuggingfaceCommitJson_FromList[]
 
@@ -246,6 +247,22 @@ export async function reindexHuggingFaceRepos(jobId: string, params?: HuggingFac
     const batch = Date.now().toString();
 
     while (true) {
+        const job = await prisma.job.findUnique({
+            where: {
+                id: jobId,
+            }
+        })
+        if (job && job.status === "Cancelled") {
+            await prisma.job.update({
+                where: {
+                    id: jobId,
+                },
+                data: {
+                    stopped: Date.now()
+                }
+            })
+            break;
+        }
         console.info(`Loading Huggingface model index page ${url}`);
         try {
             const response = await requester.getData<HuggingfaceCommitResponse>(url);
