@@ -53,7 +53,8 @@ server {
     }
 
     location /remote {
-        proxy_pass http://localhost:8000;
+        root /var/www/html;
+        try_files $uri =404;
     }
 
     include /etc/letsencrypt/options-ssl-nginx.conf;
