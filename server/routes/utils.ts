@@ -1,3 +1,5 @@
+import { JobType, jobTypes } from "../../data/aimmApi";
+
 export type QueryKey =
     "filename" | "sha256" | "pretty" | "case-insensitive" | "force"
 
@@ -38,16 +40,8 @@ export function parseQuery(queryString: string | undefined): Query {
     return query;
 }
 
-export type SpiderType = "civitai" | "huggingface" | "obtain-files"
-
-const spiders: { [key in SpiderType]: SpiderType } = {
-    civitai: "civitai",
-    huggingface: "huggingface",
-    "obtain-files": "obtain-files",
-};
-
-export function getSpiderType(s?: string): SpiderType | null {
-    for (const spider of Object.values(spiders)) {
+export function getSpiderType(s?: string): JobType | null {
+    for (const spider of Object.values(jobTypes)) {
         if (spider === s) {
             return spider;
         }

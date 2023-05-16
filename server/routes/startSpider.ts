@@ -1,13 +1,14 @@
-import { getSpiderType, parseQuery, Query, SpiderType } from "./utils";
+import { getSpiderType, parseQuery, Query} from "./utils";
 import { reindexCivitaiModels } from "../spiders/civitai";
 import { reindexHuggingFaceRepos } from "../spiders/huggingface";
 import { obtainFiles } from "../spiders/obtain";
 import * as Koa from "koa";
 import { prisma } from "../../data/prismaClient";
+import { JobType } from "../../data/aimmApi";
 
-const spiders: { [key in SpiderType]: (jobId: string, params: {}) => Promise<void> } = {
-    civitai: reindexCivitaiModels,
-    huggingface: reindexHuggingFaceRepos,
+const spiders: { [key in JobType]: (jobId: string, params: {}) => Promise<void> } = {
+    "civitai-index": reindexCivitaiModels,
+    "huggingface-index": reindexHuggingFaceRepos,
     "obtain-files": obtainFiles,
 };
 

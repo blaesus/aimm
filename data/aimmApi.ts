@@ -38,3 +38,14 @@ export interface SearchSuccess {
     revisions: Revision[],
     fileRecords: FileRecord[],
 }
+
+export type JobType =
+    "civitai-index"
+    | "huggingface-index"
+    | "obtain-files"
+
+export const jobTypes: { [key in JobType]: JobType } = {
+    "civitai-index": "civitai-index",
+    "huggingface-index": "huggingface-index",
+    "obtain-files": "obtain-files",
+};

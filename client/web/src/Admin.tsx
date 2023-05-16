@@ -1,13 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "./Button";
 import { ADMIN_TOKEN_KEY } from "./shared";
-import { SpiderType } from "../../../server/routes/utils";
 import { Job, JobStatus } from "@prisma/client";
-import { GetJobsSuccess } from "../../../data/aimmApi";
+import { GetJobsSuccess, JobType, jobTypes } from "../../../data/aimmApi";
 
 export function Admin() {
 
-    async function getJobs(type: SpiderType) {
+    async function getJobs(type: JobType) {
         const response = await fetch(`/admin-api/jobs/${type}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY)}`,
@@ -21,11 +20,15 @@ export function Admin() {
 
     const [adminToken, setAdminToken] = React.useState<string>("")
 
+    useEffect(() => {
+        setAdminToken(localStorage.getItem(ADMIN_TOKEN_KEY) || "")
+    }, [])
+
     return (
         <div className="Admin">
             <div>
                 <input
-                    type="text"
+                    type="password"
                     value={adminToken}
                     onChange={e => setAdminToken(e.target.value)}
                 />
@@ -38,18 +41,21 @@ export function Admin() {
                 </Button>
             </div>
 
-            <div>
-                <Button onClick={() => getJobs("civitai")}>
-                    Get civitai
-                </Button>
-                {
-                    jobs.map(job => (
-                        <div key={job.id}>
-                            {job.id} {job.label} {job.status}
-                        </div>
-                    ))
-                }
-            </div>
+            <main>
+                <h2>Jobs</h2>
+                <table>
+                    <tbody>
+                        {
+                            Object.values(jobTypes).map(jobType => (
+                                <tr>
+                                    <td>{jobType}</td>
+                                </tr>
+                            ))
+                        }
+                    </tbody>
+                </table>
+            </main>
+
 
         </div>
     )
