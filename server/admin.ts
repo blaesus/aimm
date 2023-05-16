@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 import { hello } from "./routes/hello";
 import { getJobs } from "./routes/getJobs";
-import { startSpider } from "./routes/startSpider";
+import { startJob } from "./routes/startJob";
 import { spiderAdminAuth } from "./routes/spiderAdminAuth";
 
 dotenv.config();
@@ -18,8 +18,9 @@ app.use(spiderAdminAuth);
 
 router.prefix("/admin")
 router.get("/hello", hello);
+router.get("/jobs", getJobs);
 router.get("/jobs/:type", getJobs);
-router.post("/jobs/:type", startSpider);
+router.post("/jobs/:type", startJob);
 
 app.use(router.routes());
 app.use(router.allowedMethods());

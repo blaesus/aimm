@@ -1,5 +1,5 @@
 import * as Koa from "koa";
-import { getSpiderType, jsonReplacerWithBigint } from "./utils";
+import { getJobType, jsonReplacerWithBigint } from "./utils";
 import { prisma } from "../../data/prismaClient";
 
 export async function getJobs(ctx: Koa.Context) {
@@ -14,7 +14,21 @@ export async function getJobs(ctx: Koa.Context) {
         };
         return;
     }
-    const type = getSpiderType(ctx.params.type);
+    if (!ctx.params.type) {
+        const jobs = await prisma.job.findMany({
+            orderBy: {
+                created: "desc",
+            }
+        });
+        ctx.set("Content-Type", "application/json");
+        const data = {
+            ok: true,
+            jobs,
+        }
+        ctx.body = JSON.stringify(data, jsonReplacerWithBigint, 4);
+        return;
+    }
+    const type = getJobType(ctx.params.type);
     if (type) {
         ctx.status = 200;
         const jobs = await prisma.job.findMany({

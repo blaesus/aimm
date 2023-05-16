@@ -1,4 +1,4 @@
-import { getSpiderType, parseQuery, Query} from "./utils";
+import { getJobType, parseQuery, Query } from "./utils";
 import { reindexCivitaiModels } from "../spiders/civitai";
 import { reindexHuggingFaceRepos } from "../spiders/huggingface";
 import { obtainFiles } from "../spiders/obtain";
@@ -15,15 +15,15 @@ const spiders: { [key in JobType]: (jobId: string, params: {}) => Promise<void> 
 // For spider labels; changed each time this process is re-started
 const processNumber = Date.now().toString();
 
-export async function startSpider(ctx: Koa.Context) {
-    const type = getSpiderType(ctx.params.type.toLowerCase());
-    const query: Query = parseQuery(ctx.request.querystring);
-    const force = !!query.force;
-
+export async function startJob(ctx: Koa.Context) {
+    const type = getJobType(ctx.params.type.toLowerCase());
     if (!type) {
         ctx.status = 404;
         return;
     }
+    const query: Query = parseQuery(ctx.request.querystring);
+    const force = !!query.force;
+
     if (!force) {
         const existingJobs = await prisma.job.findMany({
             where: {
@@ -72,7 +72,7 @@ export async function startSpider(ctx: Koa.Context) {
                     stopped: Date.now(),
                 },
             });
-            console.error(error)
+            console.error(error);
         });
 
     async function cleanup() {

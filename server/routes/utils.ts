@@ -40,7 +40,7 @@ export function parseQuery(queryString: string | undefined): Query {
     return query;
 }
 
-export function getSpiderType(s?: string): JobType | null {
+export function getJobType(s?: string): JobType | null {
     for (const spider of Object.values(jobTypes)) {
         if (spider === s) {
             return spider;

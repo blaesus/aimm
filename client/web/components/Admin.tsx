@@ -6,27 +6,38 @@ import { AnchorButton } from "./AnchorButton/AnchorButton";
 
 export function Admin() {
 
-    async function getJobs(type: JobType) {
+    const [adminToken, setAdminToken] = React.useState<string>("");
+    async function getJobs() {
+        const response = await fetch(`/admin/jobs/`, {
+            headers: {
+                Authorization: `Bearer ${adminToken}`,
+            },
+        });
+        const data: GetJobsSuccess = await response.json();
+        await setJobs(data.jobs as any[] as Job[]);
+    }
+
+    async function startNewJob(type: JobType) {
         const response = await fetch(`/admin/jobs/${type}`, {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY)}`,
-            }
-        })
-        const data: GetJobsSuccess = await response.json()
-        await setJobs(data.jobs as any[] as Job[])
+                Authorization: `Bearer ${adminToken}`,
+            },
+            method: "POST",
+        });
+        const data: GetJobsSuccess = await response.json();
+        await setJobs(data.jobs as any[] as Job[]);
     }
 
     useEffect(() => {
-        Object.values(jobTypes).forEach(jobType => getJobs(jobType))
-    }, [])
+        getJobs();
+    }, []);
 
-    const [jobs, setJobs] = React.useState<Job[]>([])
+    const [jobs, setJobs] = React.useState<Job[]>([]);
 
-    const [adminToken, setAdminToken] = React.useState<string>("")
 
     useEffect(() => {
-        setAdminToken(localStorage.getItem(ADMIN_TOKEN_KEY) || "")
-    }, [])
+        setAdminToken(localStorage.getItem(ADMIN_TOKEN_KEY) || "");
+    }, []);
 
     return (
         <div className="Admin">
@@ -38,7 +49,7 @@ export function Admin() {
                 />
                 <AnchorButton
                     onClick={() => {
-                        localStorage.setItem(ADMIN_TOKEN_KEY, adminToken)
+                        localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
                     }}
                 >
                     Set admin token
@@ -47,13 +58,24 @@ export function Admin() {
 
             <main>
                 <h2>Jobs</h2>
+                <div>
+                    {
+                        Object.values(jobTypes).map(jobType => (
+                            <AnchorButton
+                            >
+                                Start {jobType}
+                            </AnchorButton>
+                        ))
+                    }
+                </div>
                 <table>
                     <tbody>
                         {
-                            Object.values(jobTypes).map(jobType => (
-                                <tr key={jobType}>
-                                    <td>{jobType}</td>
-                                    <td><AnchorButton>Start</AnchorButton></td>
+                            jobs.map(job => (
+                                <tr>
+                                    <td>{job.id}</td>
+                                    <td>{job.type}</td>
+                                    <td>{job.status}</td>
                                 </tr>
                             ))
                         }
@@ -63,6 +85,6 @@ export function Admin() {
 
 
         </div>
-    )
+    );
 
 }
