@@ -4,7 +4,7 @@ WORKDIR /usr/client/web
 COPY ./package*.json ./
 RUN npm ci
 RUN npm install http-server
-COPY ./client/web .
+COPY . .
 COPY ./ops/.env.prod .env
 RUN npm run build:web
 
