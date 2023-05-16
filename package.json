@@ -5,7 +5,7 @@
     "scripts": {
         "start": "sh dev.sh",
         "deploy": "sh ops/deploy.sh",
-        "deploy_nginx": "sh ops/deploy_nginx.sh",
+        "deploy:nginx": "sh ops/deploy_nginx.sh",
         "build:web": "node_modules/.bin/webpack --config client/web/webpack.config.prod.js",
         "mirror": "ts-node -r tsconfig-paths/register src/server/data/mirror.ts",
         "genprisma": "./node_modules/.bin/prisma generate",
