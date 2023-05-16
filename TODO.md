@@ -21,3 +21,5 @@ Todos
 ## Mirror
 - [ ] Routinely re-index
 - [ ] Index GitHub
+- [ ] Sign in to Civitai for pre-release models
+- [ ] Sign in to Huggingface for TOS models (e.g. https://huggingface.co/pyannote/embedding)
