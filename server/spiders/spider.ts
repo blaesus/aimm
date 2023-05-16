@@ -35,6 +35,7 @@ export async function runSpider<P, T extends SpiderStats>(spider: Spider<P, T>, 
                         }
                     })
                     earlyExit = true;
+                    console.info(`Spider ${spider.name} (job ${jobId}) cancelled`);
                     break;
                 }
                 await prisma.job.update({
