@@ -19,11 +19,11 @@ services:
     network_mode: "host"
     command: node server/api.js
 
-  spider:
+  admin:
     build:
       context: .
-      dockerfile: ops/spider.dockerfile
+      dockerfile: ops/admin.dockerfile
     network_mode: "host"
     env_file:
       - ./ops/.env.prod
-    command: node server/spider.js
+    command: node server/admin.js
