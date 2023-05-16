@@ -16,3 +16,7 @@ Todos
 
 ## DevOps
 - [ ] Fix Let's encrypt auto-renewal
+
+## Mirror
+- [ ] Routinely re-index
+- [ ] Index GitHub

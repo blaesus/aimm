@@ -6,11 +6,6 @@ import { Job, JobStatus } from "@prisma/client";
 import { GetJobsSuccess } from "../../../data/aimmApi";
 
 export function Admin() {
-    async function get() {
-        const response = await fetch("/api/hello")
-        const data = await response.json()
-        console.info(data)
-    }
 
     async function getJobs(type: SpiderType) {
         const response = await fetch(`/admin-api/jobs/${type}`, {
@@ -21,10 +16,6 @@ export function Admin() {
         const data: GetJobsSuccess = await response.json()
         await setJobs(data.jobs as any[] as Job[])
     }
-
-    React.useEffect(() => {
-        get().catch(console.error)
-    }, [])
 
     const [jobs, setJobs] = React.useState<Job[]>([])
 

@@ -1,4 +1,4 @@
-import { Job, StorageService } from "@prisma/client";
+import type { FileRecord, Job, Repository, Revision, StorageService } from "@prisma/client";
 
 export type HuggingfaceRepoType = "datasets" | "models";
 
@@ -29,4 +29,12 @@ export interface JobJson extends Omit<Job, "created" | "stopped"> {
 export interface GetJobsSuccess {
     ok: true;
     jobs: JobJson[];
+}
+
+export interface SearchSuccess {
+    ok: true,
+    keyword: string,
+    repos: Repository[],
+    revisions: Revision[],
+    fileRecords: FileRecord[],
 }
