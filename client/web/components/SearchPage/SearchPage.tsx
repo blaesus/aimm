@@ -1,9 +1,9 @@
 import React from "react";
 import { FileRecord, Registry, Repository, Revision } from "@prisma/client";
-import "./Search.css";
-import { SearchSuccess } from "../../../data/aimmApi";
-import { getRepoUrl } from "../utils";
-import { AnchorButton } from "./AnchorButton/AnchorButton";
+import "./SearchPage.css";
+import { SearchSuccess } from "../../../../data/aimmApi";
+import { getRepoUrl } from "../../utils";
+import { AnchorButton } from "../AnchorButton/AnchorButton";
 
 interface RepoMetaInfo {
     tags: string[];
@@ -84,7 +84,7 @@ function RepoCard(props: {
     );
 }
 
-export function Search() {
+export function SearchPage() {
     const [search, setSearch] = React.useState("");
     const [repos, setRepos] = React.useState<Repository[]>([]);
     const [revisions, setRevisions] = React.useState<Revision[]>([]);

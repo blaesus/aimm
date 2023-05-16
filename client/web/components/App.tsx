@@ -1,12 +1,12 @@
 import React from "react";
 import "./App.css";
-import { Search } from "./Search";
+import { SearchPage } from "./SearchPage/SearchPage";
 import { Admin } from "./Admin";
 
 function App() {
     return (
         <div className="App">
-            <Search />
+            <SearchPage />
             <Admin />
         </div>
     );
