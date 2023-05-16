@@ -56,29 +56,6 @@ export async function startJob(ctx: Koa.Context) {
         },
     });
     runSpider(spiders[type], requestBody, job.id)
-        .then(async () => {
-            await prisma.job.update({
-                where: {
-                    id: job.id,
-                },
-                data: {
-                    status: "Success",
-                    stopped: Date.now(),
-                },
-            });
-        })
-        .catch(async error => {
-            await prisma.job.update({
-                where: {
-                    id: job.id,
-                },
-                data: {
-                    status: "Failure",
-                    stopped: Date.now(),
-                },
-            });
-            console.error(error);
-        });
 
     async function cleanup() {
         await prisma.job.update({
