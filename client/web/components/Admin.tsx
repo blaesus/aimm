@@ -8,9 +8,11 @@ export function Admin() {
 
     const [adminToken, setAdminToken] = React.useState<string>("");
     async function getJobs() {
+        const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+
         const response = await fetch(`/admin/jobs/`, {
             headers: {
-                Authorization: `Bearer ${adminToken}`,
+                Authorization: `Bearer ${token}`,
             },
         });
         const data: GetJobsSuccess = await response.json();
@@ -18,14 +20,13 @@ export function Admin() {
     }
 
     async function startNewJob(type: JobType) {
+        const token = localStorage.getItem(ADMIN_TOKEN_KEY);
         const response = await fetch(`/admin/jobs/${type}`, {
             headers: {
-                Authorization: `Bearer ${adminToken}`,
+                Authorization: `Bearer ${token}`,
             },
             method: "POST",
         });
-        const data: GetJobsSuccess = await response.json();
-        await setJobs(data.jobs as any[] as Job[]);
     }
 
     useEffect(() => {
@@ -62,6 +63,9 @@ export function Admin() {
                     {
                         Object.values(jobTypes).map(jobType => (
                             <AnchorButton
+                                key={jobType}
+                                newLine={true}
+                                onClick={() => startNewJob(jobType)}
                             >
                                 Start {jobType}
                             </AnchorButton>
@@ -72,7 +76,7 @@ export function Admin() {
                     <tbody>
                         {
                             jobs.map(job => (
-                                <tr>
+                                <tr key={job.id}>
                                     <td>{job.id}</td>
                                     <td>{job.type}</td>
                                     <td>{job.status}</td>

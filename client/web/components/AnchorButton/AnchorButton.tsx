@@ -7,16 +7,26 @@ export function AnchorButton(props: {
     href?: string
     onClick?: React.MouseEventHandler<HTMLAnchorElement>
     disabled?: boolean,
+    newLine?: boolean,
 }) {
+    const className = `
+    AnchorButton
+    ${props.className || ""}
+    ${props.disabled ? "disabled" : "none"}
+    ${props.newLine ? "new-line" : ""}
+    `;
     return (
         <a
-            className={`AnchorButton ${props.className || ""} ${props.disabled ? "disabled" : "none"}`}
-            onClick={props.onClick}
+            className={className}
+            onClick={(event) => {
+                event.preventDefault();
+                props.onClick && props.onClick(event);
+            }}
             role="button"
             href={props.href}
         >
             {props.children}
         </a>
-    )
+    );
 
 }
