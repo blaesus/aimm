@@ -437,7 +437,7 @@ export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
         }
         state.processed += 1;
         await sleep(requestWaitMs);
-        return state.processed >= 10000;
+        return state.processed <= 10000;
     }
 
 }

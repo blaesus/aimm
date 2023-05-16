@@ -5,7 +5,7 @@ import RevisionCreateInput = Prisma.RevisionCreateInput;
 import { CivitaiModelFileJson, CivitaiModelJson, CivitaiModelVersionJson } from "../../data/civitaiTypes";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "./utils";
 import { CivitaiIndexingParams } from "../../data/aimmApi";
-import { Spider } from "./spider";
+import { Spider, SpiderStats } from "./spider";
 
 export interface CivitaiModelPayload {
     metadata: {
@@ -199,17 +199,17 @@ export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexi
         const job = await prisma.job.findUnique({
             where: {
                 id: jobId,
-            }
-        })
+            },
+        });
         if (job && job.status === "Cancelled") {
             await prisma.job.update({
                 where: {
                     id: jobId,
                 },
                 data: {
-                    stopped: Date.now()
-                }
-            })
+                    stopped: Date.now(),
+                },
+            });
             break;
         }
 
@@ -263,13 +263,14 @@ export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexi
     }
 }
 
-interface State {
+interface State extends SpiderStats {
     pageSize: number
     requestWaitMs: number
     prisma: PrismaClient,
     batch: string
     total: number,
     page: number,
+    processed: number,
 }
 
 export const civitaiReindexer: Spider<CivitaiIndexingParams, State> = {
@@ -281,7 +282,8 @@ export const civitaiReindexer: Spider<CivitaiIndexingParams, State> = {
             batch: Date.now().toString(),
             total: 1,
             page: 1,
-        }
+            processed: 0,
+        };
     },
     async iterate(state: State): Promise<boolean> {
         const {pageSize, prisma, page, batch, requestWaitMs} = state;
@@ -312,10 +314,11 @@ export const civitaiReindexer: Spider<CivitaiIndexingParams, State> = {
             console.log("Error: ", err);
         }
         if (page > state.total || page > HARD_PAGE_LIMIT) {
-            return true
+            return false;
         }
+        state.processed = page;
+        state.page += 1;
         await sleep(requestWaitMs);
-        return false
-    }
-
-}
+        return true;
+    },
+};

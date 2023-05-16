@@ -20,6 +20,10 @@ export async function startJob(ctx: Koa.Context) {
     const type = getJobType(ctx.params.type.toLowerCase());
     if (!type) {
         ctx.status = 404;
+        ctx.body = {
+            ok: false,
+            reason: `unknown job type ${type}`,
+        }
         return;
     }
     const query: Query = parseQuery(ctx.request.querystring);
