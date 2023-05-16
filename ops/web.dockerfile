@@ -1,12 +1,12 @@
 FROM node:18.16.0-bullseye-slim
 
 WORKDIR /usr/client/web
-COPY client/web/package*.json ./
+COPY ./package*.json ./
 RUN npm ci
 RUN npm install http-server
 COPY ./client/web .
 COPY ./ops/.env.prod .env
-RUN npm run build
+RUN npm run build:web
 
 ENV NODE_ENV production
 ENV PORT 3000
