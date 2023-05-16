@@ -6,11 +6,13 @@ export interface SpiderStats {
 }
 
 export interface Spider<P, S extends SpiderStats> {
+    name?: string,
     init(params: P): Promise<S>;
     iterate(state: S): Promise<boolean>;
 }
 
 export async function runSpider<P, T extends SpiderStats>(spider: Spider<P, T>, params: P, jobId?: string) {
+    console.info(`Spider ${spider.name} starting...`)
     try {
         let state = await spider.init(params);
         let earlyExit = false;
@@ -70,7 +72,7 @@ export async function runSpider<P, T extends SpiderStats>(spider: Spider<P, T>, 
                 },
             });
         }
-        console.error(error);
+        console.error(`Spider ${spider.name} (job ${jobId}) failed: ${error}`)
     }
 
 }
