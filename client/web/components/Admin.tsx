@@ -61,6 +61,9 @@ export function Admin() {
             <main>
                 <h2>Jobs</h2>
                 <div>
+                    <div>
+                        <AnchorButton>Launch civitai</AnchorButton>
+                    </div>
                     {
                         Object.values(jobTypes).map(jobType => (
                             <AnchorButton
