@@ -5,6 +5,7 @@ import RevisionCreateInput = Prisma.RevisionCreateInput;
 import { CivitaiModelFileJson, CivitaiModelJson, CivitaiModelVersionJson } from "../../data/civitaiTypes";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "./utils";
 import { CivitaiIndexingParams } from "../../data/aimmApi";
+import { Spider } from "./spider";
 
 export interface CivitaiModelPayload {
     metadata: {
@@ -260,4 +261,61 @@ export async function reindexCivitaiModels(jobId: string, params?: CivitaiIndexi
         }
         await sleep(requestWaitMs);
     }
+}
+
+interface State {
+    pageSize: number
+    requestWaitMs: number
+    prisma: PrismaClient,
+    batch: string
+    total: number,
+    page: number,
+}
+
+export const civitaiReindexer: Spider<CivitaiIndexingParams, State> = {
+    async init(params) {
+        return {
+            pageSize: params.pageSize ?? 100,
+            requestWaitMs: params?.requestWaitMs ?? 10_000,
+            prisma: new PrismaClient(),
+            batch: Date.now().toString(),
+            total: 1,
+            page: 1,
+        }
+    },
+    async iterate(state: State): Promise<boolean> {
+        const {pageSize, prisma, page, batch, requestWaitMs} = state;
+
+        const url = `https://civitai.com/api/v1/models?page=${page}&limit=${pageSize}`;
+        console.info(`Civitai: fetching ${url}`);
+
+        try {
+            const response = await requester.getData<CivitaiModelPayload>(url);
+            await prisma.fetchRecord.create({
+                data: {
+                    fetcher: "civitai-fetcher",
+                    remotePath: url,
+                    time: Date.now(),
+                    headers: JSON.stringify(response.headers),
+                    data: JSON.stringify(response.data),
+                    status: response.status,
+                    successful: response.status >= 200 && response.status < 300,
+                    batch,
+                },
+            });
+            const {data} = response;
+            state.total = data.metadata.totalPages;
+            for (const model of data.items) {
+                await updateCivitaiModel(prisma, model);
+            }
+        } catch (err: any) {
+            console.log("Error: ", err);
+        }
+        if (page > state.total || page > HARD_PAGE_LIMIT) {
+            return true
+        }
+        await sleep(requestWaitMs);
+        return false
+    }
+
 }

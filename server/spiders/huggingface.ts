@@ -9,7 +9,7 @@ import {
 } from "../../data/huggingfaceTypes";
 import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer, sleep } from "./utils";
 import { HuggingFaceReindexParams, HuggingfaceRepoType } from "../../data/aimmApi";
-import { prisma } from "../../data/prismaClient";
+import { Spider, SpiderStats } from "./spider";
 
 type HuggingfaceCommitResponse = HuggingfaceCommitJson_FromList[]
 
@@ -341,4 +341,103 @@ export async function reindexHuggingFaceRepos(jobId: string, params?: HuggingFac
     }
 
     console.info(`Huggingface model index reindexing finished with ${page} pages, last url: ${url}`)
+}
+
+interface State extends SpiderStats {
+    url: string,
+    requestWaitMs: number,
+    repoType: HuggingfaceRepoType,
+    batch: string,
+    prisma: PrismaClient,
+    processed: number,
+}
+
+export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
+    async init(params) {
+        const {repoType, pageSize} = params;
+        const defaultInitPage = `https://huggingface.co/api/${repoType}?limit=${pageSize}&full=true&sort=downloads&direction=-1`;
+        const initialPage = params?.initialPage ?? defaultInitPage;
+
+        return {
+            repoType: params?.repoType ?? "models",
+            url: initialPage,
+            pageSize: params.pageSize ?? 10_000,
+            requestWaitMs: params?.requestWaitMs ?? 60_000,
+            prisma: new PrismaClient(),
+            batch: Date.now().toString(),
+            page: 1,
+            total: undefined,
+            processed: 0,
+        }
+    },
+    async iterate(state: State): Promise<boolean> {
+        const {batch, url, repoType, prisma, requestWaitMs} = state;
+
+        console.info(`Loading Huggingface model index page ${url}`);
+        try {
+            const response = await requester.getData<HuggingfaceCommitResponse>(url);
+            // TODO: mark batch
+            await prisma.fetchRecord.create({
+                data: {
+                    fetcher: "huggingface-index-fetcher",
+                    remotePath: url,
+                    time: Date.now(),
+                    headers: JSON.stringify(response.headers),
+                    data: JSON.stringify(response.data),
+                    status: response.status,
+                    successful: response.status >= 200 && response.status < 300,
+                    batch,
+                },
+            });
+
+            const {data} = response;
+
+            for (const item of data) {
+                // full returns from /api/models has "siblings" field, so we just need the index
+                // however, full returns from /api/datasets doesn't have such field, and we need to manually download
+                // each item for the file list.
+                if (repoType === "models") {
+                    await updateHuggingfaceCommit(prisma, item as HuggingfaceCommitJson_Full, repoType, "model");
+                }
+                else {
+                    const itemUrl = `https://huggingface.co/api/${repoType}/${item.id}/revision/${item.sha}`;
+                    const response = await requester.getData<HuggingfaceCommitJson_Full>(itemUrl);
+                    await prisma.fetchRecord.create({
+                        data: {
+                            fetcher: "huggingface-item-fetcher",
+                            remotePath: itemUrl,
+                            time: Date.now(),
+                            headers: JSON.stringify(response.headers),
+                            data: JSON.stringify(response.data),
+                            status: response.status,
+                            successful: response.status >= 200 && response.status < 300,
+                            batch,
+                        },
+                    });
+                    await updateHuggingfaceCommit(prisma, response.data, repoType, "dataset");
+                }
+            }
+
+            if (!response.headers.link) {
+                console.info("No more pages for Huggingface", url);
+                return false;
+            }
+            const nextPageInstruction = parseLinkHeader(response.headers.link);
+            if (nextPageInstruction && nextPageInstruction.relation === "next") {
+                state.url = nextPageInstruction.link;
+                console.info("Switching to next page", url);
+            }
+            else {
+                console.error("Cannot find proper link header", response.headers.link);
+                return false;
+            }
+
+        } catch (err: any) {
+            console.error("Error: ", err);
+        }
+        state.processed += 1;
+        await sleep(requestWaitMs);
+        return state.processed >= 10000;
+    }
+
 }

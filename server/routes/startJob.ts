@@ -1,15 +1,16 @@
 import { getJobType, jsonReplacerWithBigint, parseQuery, Query } from "./utils";
-import { reindexCivitaiModels } from "../spiders/civitai";
-import { reindexHuggingFaceRepos } from "../spiders/huggingface";
-import { obtainFiles } from "../spiders/obtain";
+import { civitaiReindexer, reindexCivitaiModels } from "../spiders/civitai";
+import { huggingfaceIndexer, reindexHuggingFaceRepos } from "../spiders/huggingface";
+import { fileObtainer, obtainFiles } from "../spiders/obtain";
 import * as Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 import { JobType, StartJobSuccess } from "../../data/aimmApi";
+import { runSpider, Spider } from "../spiders/spider";
 
-const spiders: { [key in JobType]: (jobId: string, params: {}) => Promise<void> } = {
-    "civitai-index": reindexCivitaiModels,
-    "huggingface-index": reindexHuggingFaceRepos,
-    "obtain-files": obtainFiles,
+const spiders: { [key in JobType]: Spider<any, any> } = {
+    "civitai-index": civitaiReindexer,
+    "huggingface-index": huggingfaceIndexer,
+    "obtain-files": fileObtainer,
 };
 
 // For spider labels; changed each time this process is re-started
@@ -50,7 +51,7 @@ export async function startJob(ctx: Koa.Context) {
             data: ctx.params,
         },
     });
-    spiders[type](job.id, requestBody)
+    runSpider(spiders[type], requestBody, job.id)
         .then(async () => {
             await prisma.job.update({
                 where: {
@@ -95,7 +96,7 @@ export async function startJob(ctx: Koa.Context) {
     const data: StartJobSuccess = {
         ok: true,
         job,
-    }
-    ctx.set("Content-Type", "application/json")
+    };
+    ctx.set("Content-Type", "application/json");
     ctx.body = JSON.stringify(data, jsonReplacerWithBigint, 4);
 }
