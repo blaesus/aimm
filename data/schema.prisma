@@ -62,6 +62,7 @@ model FileRecord {
   downloadUrl String
   updated     BigInt
   raw         Json?
+  size        BigInt?
 
   storageRecords FileStorageRecordOnFileRecord[]
 

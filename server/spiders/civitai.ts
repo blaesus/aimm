@@ -169,6 +169,7 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
                 downloadUrl: file.downloadUrl,
                 raw: JSON.stringify(file),
                 updated: Date.now(),
+                size: Math.round(file.sizeKB * 1024),
             };
             await prisma.fileRecord.upsert({
                 where: {

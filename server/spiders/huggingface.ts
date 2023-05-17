@@ -17,6 +17,7 @@ interface HuggingFaceFileRecord extends HuggingFaceFilePointer {
     sha256: string,
     pointerUrl: string,
     downloadUrl: string,
+    size: number,
 }
 
 const requester = makeRequester({
@@ -24,12 +25,13 @@ const requester = makeRequester({
     proxy: buildProxyConfigFromEnv(),
 });
 
-async function completeFileHashes(
+async function fetchFileMeta(
     prisma: PrismaClient,
     revision: HuggingfaceCommitJson_Full,
     repoType: HuggingfaceRepoType
 ): Promise<HuggingFaceFileRecord[]> {
     const HASH_CATEGORY = "URL-TO-SHA256";
+    const SIZE_CATEGORY = "URL-TO-SIZE";
     const CONTENT_CATEGORY = "URL-TO-RAW-CONTENT";
     const processedFiles: HuggingFaceFileRecord[] = [];
     await Promise.allSettled(revision.siblings.map(async (f) => {
@@ -42,6 +44,8 @@ async function completeFileHashes(
             downloadUrl  = `https://huggingface.co/datasets/${revision.id}/resolve/${revision.sha}/${f.rfilename}`;
         }
 
+        let size = 0;
+
         const cachedHash = await prisma.keyValueCache.findUnique({
             where: {
                 category_key: {
@@ -50,12 +54,19 @@ async function completeFileHashes(
                 },
             },
         });
-        if (cachedHash) {
-            // console.info(`Found previously seen ${rawUrl} in cache with sha256 ${cachedHash.value}`);
+        const cachedSize = await prisma.keyValueCache.findUnique({
+            where: {
+                category_key: {
+                    category: SIZE_CATEGORY,
+                    key: rawUrl,
+                },
+            },
+        });
+        if (cachedHash && cachedSize) {
             sha256 = cachedHash.value;
+            size = Number.parseInt(cachedSize.value) || 0;
         }
         else {
-            // console.info(`Downloading ${rawUrl} to calculate hash...`);
             try {
                 let content;
                 const cachedContent = await prisma.keyValueCache.findFirst({
@@ -76,11 +87,11 @@ async function completeFileHashes(
 
                 if (lfsPointer) {
                     sha256 = lfsPointer.oidSha256;
-                    // console.info(`Used pre-calculated LFS hash ${sha256} from ${rawUrl}`);
+                    size = Number.parseInt(lfsPointer.size);
                 }
                 else {
                     sha256 = crypto.createHash("sha256").update(content).digest().toString("hex");
-                    // console.info(`Calculated hash ${sha256} from content for ${rawUrl}`);
+                    size = content.length;
                 }
                 const time = Date.now();
                 // TODO: handle non-text data (binary?)
@@ -131,6 +142,7 @@ async function completeFileHashes(
             sha256,
             pointerUrl: rawUrl,
             downloadUrl,
+            size,
         });
     }));
 
@@ -166,7 +178,7 @@ async function updateHuggingfaceCommit(
     });
 
     {
-        const filesWithHash = await completeFileHashes(prisma, commit, repoType);
+        const enhancedFileRecords = await fetchFileMeta(prisma, commit, repoType);
         const revisionHashA = commit.sha;
         const fetchedRevision: RevisionCreateInput = {
             repo: {
@@ -190,7 +202,7 @@ async function updateHuggingfaceCommit(
             update: fetchedRevision,
         });
 
-        for (const file of filesWithHash) {
+        for (const file of enhancedFileRecords) {
             const fetchedFileRecord: Prisma.FileRecordCreateInput = {
                 revision: {
                     connect: {
@@ -202,6 +214,7 @@ async function updateHuggingfaceCommit(
                 downloadUrl: file.downloadUrl,
                 raw: JSON.stringify(file),
                 updated: Date.now(),
+                size: file.size,
             };
             await prisma.fileRecord.upsert({
                 where: {

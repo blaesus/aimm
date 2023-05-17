@@ -9,3 +9,16 @@
     padding: 1rem;
     border: 1px solid black;
 }
+
+.FileRecordList {
+    padding-left: 1rem;
+}
+
+.FileRecordCard {
+    margin: 0.5rem 0;
+}
+
+.FileRecordCard a {
+    color: black;
+    text-decoration: underline;
+}

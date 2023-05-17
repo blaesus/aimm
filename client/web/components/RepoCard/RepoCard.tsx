@@ -4,6 +4,7 @@ import { getRepoUrl } from "../../utils";
 
 import "./RepoCard.css";
 import { AnchorButton } from "../AnchorButton/AnchorButton";
+import { HashTag } from "../HashTag/HashTag";
 
 interface RepoMetaInfo {
     tags: string[];
@@ -32,33 +33,78 @@ function readRepoRaw(registry: Registry, rawInput?: any): Partial<RepoMetaInfo> 
     }
 }
 
+type RevisionMetaInfo = {
+    lastUpdated: Date,
+}
+
+function readRevisionRaw(registry: Registry, rawInput?: any): Partial<RevisionMetaInfo> {
+    const raw: RepoRaw = JSON.parse(rawInput ? rawInput.toString() : "{}");
+    switch (registry) {
+        case "Civitai": {
+            return {
+                lastUpdated: new Date(raw.updatedAt),
+            };
+        }
+        case "Huggingface": {
+            return {
+                lastUpdated: new Date(raw.lastModified),
+            };
+        }
+        default: {
+            return {};
+        }
+    }
+}
+
+function FileRecordCard(props: {
+    file: FileRecord
+}) {
+    const {file} = props;
+    return (
+        <div className="FileRecordCard">
+            <a
+                href={file.downloadUrl}
+            >
+                {file.filename}
+                <HashTag hash={file.hashA}/>
+            </a>
+        </div>
+    )
+}
+
 function RevisionCard(props: {
     revision: Revision,
+    registry: Registry,
     files: FileRecord[],
     defaultExpand?: boolean,
 }) {
-    const {revision, files} = props;
+    const {revision, files, registry} = props;
     const [expanded, setExpanded] = React.useState(props.defaultExpand ?? false);
+
+    const meta = readRevisionRaw(registry, revision.raw)
 
     if (expanded) {
         return (
             <div key={revision.id} className="RevisionCard">
-                {revision.hashA}
-                {new Date(revision.updated.toString()).toString()}
-                {
-                    files.map(f => (
-                        <div key={f.hashA}>
-                            <a href={f.downloadUrl}>File {f.filename} {f.hashA} </a>
-                        </div>
-                    ))
-                }
+                <h3><HashTag hash={revision.hashA} /></h3>
+                {meta.lastUpdated?.toISOString()}
+                <div className="FileRecordList">
+                    {
+                        files.map(f => (
+                            <FileRecordCard key={f.id} file={f}/>
+                        ))
+                    }
+                </div>
             </div>
         );
     }
     else {
         return (
             <div>
-                <AnchorButton onClick={() => setExpanded(true)}>Expand</AnchorButton>
+                <h3>
+                    <HashTag hash={revision.hashA} />
+                    <AnchorButton onClick={() => setExpanded(true)}>Expand</AnchorButton>
+                </h3>
             </div>
         );
     }
@@ -87,9 +133,6 @@ export function RepoCard(props: {
                 {repo.registry}
             </div>
             <div>
-                {meta.description}
-            </div>
-            <div>
                 {repo.subtype}
             </div>
             <div>
@@ -105,6 +148,7 @@ export function RepoCard(props: {
                             <RevisionCard
                                 key={revision.id}
                                 revision={revision}
+                                registry={repo.registry}
                                 defaultExpand={i === 0}
                                 files={files}
                             />
