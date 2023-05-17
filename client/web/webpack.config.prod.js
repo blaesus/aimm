@@ -49,10 +49,17 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                loader: 'ts-loader',
+                loader: "babel-loader",
                 options: {
-                    configFile: './tsconfig.json',
-                },
+                    exclude: /node_modules/,
+                    plugins: [
+                        "react-refresh/babel"
+                    ],
+                    "presets": [
+                        "@babel/preset-react",
+                        "@babel/preset-typescript"
+                    ]
+                }
             },
             {
                 test: /\.css$/i,

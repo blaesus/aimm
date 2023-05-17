@@ -26,6 +26,10 @@ module.exports = {
                     exclude: /node_modules/,
                     plugins: [
                         "react-refresh/babel"
+                    ],
+                    "presets": [
+                        "@babel/preset-react",
+                        "@babel/preset-typescript"
                     ]
                 }
             },
