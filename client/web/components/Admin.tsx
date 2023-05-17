@@ -17,27 +17,29 @@ import "./Admin.css"
 function ObtainLaunchPad(props: {
     onLaunch: (params: Partial<ObtainFilesParams>) => void
 }) {
-    const [registry, setRegistry] = React.useState<Registry | undefined>(undefined);
+    const [registry, setRegistry] = React.useState<Registry | undefined>("Huggingface");
     const [batchSize, setBatchSize] = React.useState<number>(100);
 
     return (
         <div className="ObtainLaunchPad">
             <h3>Obtain files</h3>
             <div>
-                <h4>Target</h4>
                 <Chooser
                     options={Object.values(Registry).map(r => ({ value: r, label: r }))}
                     chosen={registry}
                     onChoose={setRegistry}
                 />
             </div>
-            <input
-                type="number"
-                value={batchSize}
-                onChange={e => {
-                    setBatchSize(parseInt(e.target.value));
-                }}
-            />
+            <label>
+                Batch size:
+                <input
+                    type="number"
+                    value={batchSize}
+                    onChange={e => {
+                        setBatchSize(parseInt(e.target.value));
+                    }}
+                />
+            </label>
             <AnchorButton
                 onClick={() => {
                     props.onLaunch({
@@ -52,6 +54,20 @@ function ObtainLaunchPad(props: {
     );
 }
 
+async function startNewJob(
+    type: JobType,
+    params?: Partial<CivitaiIndexingParams | HuggingFaceReindexParams | ObtainFilesParams>,
+) {
+    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+    await fetch(`/admin-api/jobs/${type}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify(params),
+    });
+}
 export function Admin() {
 
     const [adminToken, setAdminToken] = React.useState<string>("");
@@ -68,21 +84,6 @@ export function Admin() {
         await setJobs(data.jobs as any[] as Job[]);
     }
 
-    async function startNewJob(
-        type: JobType,
-        params?: Partial<CivitaiIndexingParams | HuggingFaceReindexParams | ObtainFilesParams>,
-    ) {
-        const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-        await fetch(`/admin-api/jobs/${type}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify(params),
-        });
-        await getJobs();
-    }
 
     useEffect(() => {
         getJobs();
@@ -117,7 +118,10 @@ export function Admin() {
                 <div>
                     <div>
                         <ObtainLaunchPad
-                            onLaunch={params => startNewJob("obtain-files", params)}
+                            onLaunch={async params => {
+                                await startNewJob("obtain-files", params);
+                                await getJobs();
+                            }}
                         />
                     </div>
                     {

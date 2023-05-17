@@ -17,7 +17,7 @@ const router = new Router();
 app.use(bodyParser());
 app.use(spiderAdminAuth);
 
-router.prefix("/admin")
+router.prefix("/admin-api")
 router.get("/hello", hello);
 router.get("/jobs", getJobs);
 router.get("/jobs/:type", getJobs);

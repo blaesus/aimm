@@ -8,6 +8,6 @@
     },
     "include": [
         "api.ts",
-        "admin.ts"
+        "admin-api.ts"
     ]
 }

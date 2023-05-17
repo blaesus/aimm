@@ -12,6 +12,6 @@ ENV NODE_ENV production
 ENV PORT 4100
 
 EXPOSE 4100
-CMD [ "node", "server/admin.js" ]
+CMD [ "node", "server/admin-api.js" ]
 
 

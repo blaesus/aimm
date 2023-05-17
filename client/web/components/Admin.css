@@ -1,3 +1,8 @@
 .ObtainLaunchPad {
     background: #eee;
 }
+
+.ObtainLaunchPad .Chooser {
+    display: block;
+    margin: 1rem 0;
+}
