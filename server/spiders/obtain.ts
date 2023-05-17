@@ -131,6 +131,9 @@ export const fileObtainer: Spider<ObtainFilesParams, State> = {
     async iterate(state: State): Promise<boolean> {
         const {repos, processed, service} = state;
         const repo = repos[processed];
+        if (!repo) {
+            return false;
+        }
         const fileRecords = await prisma.fileRecord.findMany({
             where: {
                 revision: {
