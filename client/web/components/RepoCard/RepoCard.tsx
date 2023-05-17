@@ -87,6 +87,9 @@ export function RepoCard(props: {
                 {repo.registry}
             </div>
             <div>
+                {meta.description}
+            </div>
+            <div>
                 {repo.subtype}
             </div>
             <div>

@@ -1,12 +1,59 @@
 import React, { useEffect } from "react";
-import { Job, JobStatus } from "@prisma/client";
-import { GetJobsSuccess, JobType, jobTypes, StopJobSuccess } from "../../../data/aimmApi";
+import { Job, JobStatus, Registry } from "@prisma/client";
+import {
+    CivitaiIndexingParams,
+    GetJobsSuccess, HuggingFaceReindexParams,
+    JobType,
+    jobTypes,
+    ObtainFilesParams,
+    StopJobSuccess,
+} from "../../../data/aimmApi";
 import { ADMIN_TOKEN_KEY } from "../shared";
 import { AnchorButton } from "./AnchorButton/AnchorButton";
+import { Chooser } from "./Chooser/Chooser";
+
+function ObtainLaunchPad(props: {
+    onLaunch: (params: Partial<ObtainFilesParams>) => void
+}) {
+    const [registry, setRegistry] = React.useState<Registry | undefined>(undefined);
+    const [batchSize, setBatchSize] = React.useState<number>(100);
+
+    return (
+        <div>
+            <h3>Obtain files</h3>
+            <div>
+                <h4>Target</h4>
+                <Chooser
+                    options={Object.values(Registry).map(r => ({ value: r, label: r }))}
+                    chosen={registry}
+                    onChoose={setRegistry}
+                />
+            </div>
+            <input
+                type="number"
+                value={batchSize}
+                onChange={e => {
+                    setBatchSize(parseInt(e.target.value));
+                }}
+            />
+            <AnchorButton
+                onClick={() => {
+                    props.onLaunch({
+                        registry,
+                        batchSize,
+                    });
+                }}
+            >
+                Launch
+            </AnchorButton>
+        </div>
+    );
+}
 
 export function Admin() {
 
     const [adminToken, setAdminToken] = React.useState<string>("");
+
     async function getJobs() {
         const token = localStorage.getItem(ADMIN_TOKEN_KEY);
 
@@ -19,13 +66,17 @@ export function Admin() {
         await setJobs(data.jobs as any[] as Job[]);
     }
 
-    async function startNewJob(type: JobType) {
+    async function startNewJob(
+        type: JobType,
+        params?: Partial<CivitaiIndexingParams | HuggingFaceReindexParams | ObtainFilesParams>,
+    ) {
         const token = localStorage.getItem(ADMIN_TOKEN_KEY);
         await fetch(`/admin/jobs/${type}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
             method: "POST",
+            body: JSON.stringify(params),
         });
         await getJobs();
     }
@@ -62,7 +113,9 @@ export function Admin() {
                 <h2>Jobs</h2>
                 <div>
                     <div>
-                        <AnchorButton>Launch civitai</AnchorButton>
+                        <ObtainLaunchPad
+                            onLaunch={params => startNewJob("obtain-files", params)}
+                        />
                     </div>
                     {
                         Object.values(jobTypes).map(jobType => (
