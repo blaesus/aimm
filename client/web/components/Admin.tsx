@@ -74,6 +74,7 @@ export function Admin() {
         await fetch(`/admin/jobs/${type}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
             },
             method: "POST",
             body: JSON.stringify(params),
