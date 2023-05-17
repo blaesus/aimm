@@ -1,0 +1,3 @@
+.NonTopBarContent {
+    margin-top: var(--top-bar-height);
+}

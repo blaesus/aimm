@@ -1,8 +1,9 @@
-.ObtainLaunchPad {
-    background: #eee;
+.Admin {
+    background: var(--light-warning-color);
+    padding: var(--side-margin);
 }
 
-.ObtainLaunchPad .Chooser {
+.SpiderLaunchBox .Chooser {
     display: block;
     margin: 1rem 0;
 }

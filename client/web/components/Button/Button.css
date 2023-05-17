@@ -1,0 +1,44 @@
+.Button {
+    box-sizing: border-box;
+    background: var(--site-theme-color);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.5rem;
+    font-weight: bold;
+}
+
+.Button:active {
+    color: white;
+    opacity: 0.8;
+}
+
+.Button.light {
+    background: unset;
+    color: #222;
+    border: 1px solid var(--site-theme-color-light);
+}
+
+
+.Button.secondary {
+    background: unset;
+    color: var(--site-theme-color);
+}
+
+.AnchorButton {
+    text-decoration: none;
+    text-align: center;
+}
+
+@media only screen and (min-width: 800px) {
+    .Button:hover {
+        color: white;
+        background: var(--site-theme-color-light);
+    }
+    .Button.light:hover {
+        color: #555;
+    }
+    .Button.secondary:hover {
+        color: #222;
+    }
+}

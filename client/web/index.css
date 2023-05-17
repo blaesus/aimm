@@ -14,13 +14,18 @@ body {
 
     overflow: scroll;
 
+    font-smoothing: auto;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    -moz-osx-font-smoothing: auto;
 
     --top-bar-height: 36px;
     --main-max-width: 1024px;
 
     --side-margin: 1rem;
+    --light-warning-color: #fcc;
+
+    --site-theme-color: #FFAC1C;
+    --site-theme-color-light: #FAD5A5;
 }
 
 @media only screen and (max-width: 768px) {

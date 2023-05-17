@@ -1,0 +1,8 @@
+.TopBar {
+    height: var(--top-bar-height);
+    background: var(--site-theme-color);
+    position: absolute;
+    left: 0;
+    right:0;
+    top: 0;
+}

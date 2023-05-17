@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Job, JobStatus, Registry } from "@prisma/client";
 import {
     CivitaiIndexingParams,
-    GetJobsSuccess, HuggingFaceReindexParams,
+    GetJobsSuccess, HuggingFaceReindexParams, HuggingfaceRepoType,
     JobType,
     jobTypes,
     ObtainFilesParams,
@@ -12,7 +12,8 @@ import { ADMIN_TOKEN_KEY } from "../shared";
 import { AnchorButton } from "./AnchorButton/AnchorButton";
 import { Chooser } from "./Chooser/Chooser";
 
-import "./Admin.css"
+import "./Admin.css";
+import { Button } from "./Button/Button";
 
 function ObtainLaunchPad(props: {
     onLaunch: (params: Partial<ObtainFilesParams>) => void
@@ -25,7 +26,7 @@ function ObtainLaunchPad(props: {
             <h3>Obtain files</h3>
             <div>
                 <Chooser
-                    options={Object.values(Registry).map(r => ({ value: r, label: r }))}
+                    options={Object.values(Registry).map(r => ({value: r, label: r}))}
                     chosen={registry}
                     onChoose={setRegistry}
                 />
@@ -54,6 +55,79 @@ function ObtainLaunchPad(props: {
     );
 }
 
+function CivitaiIndexLaunchPad(props: {
+    onLaunch: (params: Partial<CivitaiIndexingParams>) => void
+}) {
+    const [pageSize, setPageSize] = React.useState<number>(100);
+
+    return (
+        <div className="CivitaiReindexerLaunchPad">
+            <h3>Reindex civitai</h3>
+            <label>
+                Batch size:
+                <input
+                    type="number"
+                    value={pageSize}
+                    onChange={e => {
+                        setPageSize(parseInt(e.target.value));
+                    }}
+                />
+            </label>
+            <AnchorButton
+                onClick={() => {
+                    props.onLaunch({
+                        pageSize,
+                    });
+                }}
+            >
+                Launch
+            </AnchorButton>
+        </div>
+    );
+}
+
+function HuggingfaceIndexLaunchPad(props: {
+    onLaunch: (params: Partial<HuggingFaceReindexParams>) => void
+}) {
+    const [pageSize, setPageSize] = React.useState<number>(1000);
+    const [repoType, setRepoType] = React.useState<HuggingfaceRepoType>("models");
+
+    const repoTypes: HuggingfaceRepoType[] = ["models", "datasets"];
+
+    return (
+        <div className="HuggingfaceReindexerLaunchPad">
+            <h3>Reindex Huggingface</h3>
+            <Chooser
+                options={repoTypes.map(r => ({value: r, label: r}))}
+                chosen={repoType}
+                onChoose={
+                    r => setRepoType(r)
+                }
+            />
+            <label>
+                Page size:
+                <input
+                    type="number"
+                    value={pageSize}
+                    onChange={e => {
+                        setPageSize(parseInt(e.target.value));
+                    }}
+                />
+            </label>
+            <AnchorButton
+                onClick={() => {
+                    props.onLaunch({
+                        pageSize,
+                        repoType,
+                    });
+                }}
+            >
+                Launch
+            </AnchorButton>
+        </div>
+    );
+}
+
 async function startNewJob(
     type: JobType,
     params?: Partial<CivitaiIndexingParams | HuggingFaceReindexParams | ObtainFilesParams>,
@@ -68,6 +142,7 @@ async function startNewJob(
         body: JSON.stringify(params),
     });
 }
+
 export function Admin() {
 
     const [adminToken, setAdminToken] = React.useState<string>("");
@@ -104,37 +179,38 @@ export function Admin() {
                     value={adminToken}
                     onChange={e => setAdminToken(e.target.value)}
                 />
-                <AnchorButton
+                <Button
                     onClick={() => {
                         localStorage.setItem(ADMIN_TOKEN_KEY, adminToken);
                     }}
                 >
                     Set admin token
-                </AnchorButton>
+                </Button>
             </div>
 
             <main>
                 <h2>Jobs</h2>
                 <div>
-                    <div>
+                    <div className="SpiderLaunchBox">
                         <ObtainLaunchPad
                             onLaunch={async params => {
                                 await startNewJob("obtain-files", params);
                                 await getJobs();
                             }}
                         />
+                        <CivitaiIndexLaunchPad
+                            onLaunch={async params => {
+                                await startNewJob("civitai-index", params);
+                                await getJobs();
+                            }}
+                        />
+                        <HuggingfaceIndexLaunchPad
+                            onLaunch={async params => {
+                                await startNewJob("huggingface-index", params);
+                                await getJobs();
+                            }}
+                        />
                     </div>
-                    {
-                        Object.values(jobTypes).map(jobType => (
-                            <AnchorButton
-                                key={jobType}
-                                newLine={true}
-                                onClick={() => startNewJob(jobType)}
-                            >
-                                Start {jobType}
-                            </AnchorButton>
-                        ))
-                    }
                 </div>
                 <table>
                     <tbody>

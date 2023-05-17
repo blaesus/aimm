@@ -1,7 +1,7 @@
 .Chooser .Option {
     margin-right: 0.3em;
     user-select: none;
-    --option-chosen-border: 4px solid black;
+    --option-chosen-border: 4px solid var(--site-theme-color);
 }
 
 .Chooser .Option.chosen {
