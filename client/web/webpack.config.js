@@ -1,6 +1,7 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 module.exports = {
     mode: "development",
@@ -20,10 +21,12 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                loader: "ts-loader",
+                loader: "babel-loader",
                 options: {
-                    transpileOnly: true,
-                    configFile: path.resolve(__dirname, "tsconfig.json"),
+                    exclude: /node_modules/,
+                    plugins: [
+                        "react-refresh/babel"
+                    ]
                 }
             },
             {
@@ -50,6 +53,7 @@ module.exports = {
     },
 
     plugins: [
+        new ReactRefreshWebpackPlugin(),
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: '[id].css',
