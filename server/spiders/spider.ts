@@ -60,6 +60,7 @@ export async function runSpider<P, S extends SpiderStats>(spider: Spider<P, S>, 
                 },
             });
         }
+        console.info(`Spider ${spider.name} (job ${jobId}) finished`)
     }
     catch (error) {
         if (jobId) {
