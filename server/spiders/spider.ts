@@ -12,7 +12,7 @@ export interface Spider<P, S extends SpiderStats> {
 }
 
 export async function runSpider<P, S extends SpiderStats>(spider: Spider<P, S>, params: P, jobId?: string) {
-    console.info(`Spider ${spider.name} starting...`)
+    console.info(`Spider ${spider.name} starting with params ${params} of job ${jobId}...`)
     try {
         let state = await spider.init(params);
         let earlyExit = false;
