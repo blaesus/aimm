@@ -281,7 +281,7 @@ export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
             repoType,
             url: initialPage,
             pageSize,
-            requestWaitMs: params?.requestWaitMs ?? 60_000,
+            requestWaitMs: params?.requestWaitMs || 10_000,
             prisma: new PrismaClient(),
             batch: Date.now().toString(),
             page: 1,
