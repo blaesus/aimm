@@ -1,7 +1,7 @@
 import Koa from "koa";
-import { jsonReplacerWithBigint } from "./utils";
 import { prisma } from "../../data/prismaClient";
 import { SearchSuccess } from "../../data/aimmApi";
+import { serialize } from "../../data/serialize";
 
 export async function search(ctx: Koa.Context) {
     const keyword = ctx.params.keyword;
@@ -43,5 +43,5 @@ export async function search(ctx: Koa.Context) {
     };
 
     ctx.set("Content-Type", "application/json");
-    ctx.body = JSON.stringify(result, jsonReplacerWithBigint, 4);
+    ctx.body = serialize(result);
 }

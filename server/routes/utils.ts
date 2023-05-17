@@ -49,20 +49,3 @@ export function getJobType(s?: string): JobType | null {
     return null;
 }
 
-export function jsonReplacerWithBigint(this: any, key: string, value: any) {
-    if (typeof value === "bigint") {
-        if (key === "time" || key === "updated" || key === "created" || key === "started" || key === "stopped") {
-            return new Date(Number(value)).toISOString();
-        }
-        else if (value < Number.MAX_SAFE_INTEGER) {
-            return Number(value);
-        }
-        else {
-            return value.toString();
-        }
-    }
-    else {
-        return value;
-    }
-}
-

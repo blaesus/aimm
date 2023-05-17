@@ -1,6 +1,7 @@
 import * as Koa from "koa";
-import { getJobType, jsonReplacerWithBigint } from "./utils";
+import { getJobType } from "./utils";
 import { prisma } from "../../data/prismaClient";
+import { serialize } from "../../data/serialize";
 
 export async function getJobs(ctx: Koa.Context) {
     const authorizationHeader = ctx.request.headers.authorization || "";
@@ -25,7 +26,7 @@ export async function getJobs(ctx: Koa.Context) {
             ok: true,
             jobs,
         }
-        ctx.body = JSON.stringify(data, jsonReplacerWithBigint, 4);
+        ctx.body = serialize(data);
         return;
     }
     const type = getJobType(ctx.params.type);
@@ -44,7 +45,7 @@ export async function getJobs(ctx: Koa.Context) {
             ok: true,
             jobs,
         }
-        ctx.body = JSON.stringify(data, jsonReplacerWithBigint, 4);
+        ctx.body = serialize(data);
         return;
     }
     else {

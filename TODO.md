@@ -21,9 +21,9 @@ Todos
 - [ ] Optional deploy (deploy only api, not admin, for example)
 - [ ] Deploy with customized data script
 
-## Mirror
+## Index
 - [ ] Routinely re-index
 - [ ] Index GitHub
 - [ ] Sign in to Civitai for pre-release models
 - [ ] Sign in to Huggingface for TOS models (e.g. https://huggingface.co/pyannote/embedding)
-- 
+- [ ] Index huggingface datasets

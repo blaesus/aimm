@@ -1,7 +1,7 @@
 import * as Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 import { StopJobSuccess } from "../../data/aimmApi";
-import { jsonReplacerWithBigint } from "./utils";
+import { serialize } from "../../data/serialize";
 
 export async function stopJob(ctx: Koa.Context) {
     const id = ctx.params.id.toLowerCase();
@@ -40,5 +40,5 @@ export async function stopJob(ctx: Koa.Context) {
         job: newJob,
     };
     ctx.set("Content-Type", "application/json");
-    ctx.body = JSON.stringify(data, jsonReplacerWithBigint, 4);
+    ctx.body = serialize(data);
 }

@@ -53,7 +53,6 @@ export type CivitaiModelJson = {
     allowDifferentLicense: boolean
 
     // Joined fields
-    modelVersions: CivitaiModelVersionJson[],
     "stats": {
         "downloadCount": number,
         "favoriteCount": number,
@@ -61,6 +60,12 @@ export type CivitaiModelJson = {
         "ratingCount": number,
         "rating": number,
     },
+    "creator": {
+        "username": string,
+        "image": string,
+    },
+    "tags": string[],
+    modelVersions: CivitaiModelVersionJson[],
 }
 
 export type CivitaiModelVersionJson = {
