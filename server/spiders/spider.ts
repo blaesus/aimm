@@ -11,7 +11,7 @@ export interface Spider<P, S extends SpiderStats> {
     iterate(state: S): Promise<boolean>;
 }
 
-export async function runSpider<P, T extends SpiderStats>(spider: Spider<P, T>, params: P, jobId?: string) {
+export async function runSpider<P, S extends SpiderStats>(spider: Spider<P, S>, params: P, jobId?: string) {
     console.info(`Spider ${spider.name} starting...`)
     try {
         let state = await spider.init(params);
