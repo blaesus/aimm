@@ -22,15 +22,13 @@ module.exports = {
                 test: /\.tsx?$/,
                 loader: "ts-loader",
                 options: {
+                    transpileOnly: true,
                     configFile: path.resolve(__dirname, "tsconfig.json"),
                 }
             },
             {
                 test: /\.css$/i,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    'css-loader'
-                ],
+                use: ["style-loader", "css-loader"],
             },
         ]
     },
