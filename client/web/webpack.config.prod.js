@@ -37,7 +37,7 @@ module.exports = {
                 },
             },
         },
-        moduleIds: "deterministic",
+        moduleIds: 'deterministic',
         chunkIds: 'named',
     },
 
@@ -49,17 +49,14 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                loader: "babel-loader",
+                loader: 'babel-loader',
                 options: {
                     exclude: /node_modules/,
-                    plugins: [
-                        "react-refresh/babel"
+                    'presets': [
+                        '@babel/preset-react',
+                        '@babel/preset-typescript',
                     ],
-                    "presets": [
-                        "@babel/preset-react",
-                        "@babel/preset-typescript"
-                    ]
-                }
+                },
             },
             {
                 test: /\.css$/i,
