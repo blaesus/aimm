@@ -2,7 +2,7 @@ Todos
 
 ## Web
 - [ ] User auth
-- [ ] Model search
+- [x] Model search
 
 ## Cli
 

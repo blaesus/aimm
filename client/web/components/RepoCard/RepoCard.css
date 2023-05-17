@@ -1,0 +1,11 @@
+.RepoCard {
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid black;
+}
+
+.RevisionCard {
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid black;
+}
