@@ -18,6 +18,7 @@ Todos
 - [x] Fix Let's encrypt auto-renewal
 - [ ] Periodical database backup
 - [ ] Log rotation
+- [ ] Optional deploy (deploy only api, not admin, for example)
 
 ## Mirror
 - [ ] Routinely re-index
