@@ -31,7 +31,7 @@ model Repository {
   raw               Json?
   favour            BigInt
   description       String?
-  updatedInRegistry Int?
+  updatedInRegistry BigInt?
   tags              String[]?
 
   revisions Revision[]
