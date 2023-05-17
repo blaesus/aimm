@@ -12,6 +12,8 @@ import { ADMIN_TOKEN_KEY } from "../shared";
 import { AnchorButton } from "./AnchorButton/AnchorButton";
 import { Chooser } from "./Chooser/Chooser";
 
+import "./Admin.css"
+
 function ObtainLaunchPad(props: {
     onLaunch: (params: Partial<ObtainFilesParams>) => void
 }) {
@@ -19,7 +21,7 @@ function ObtainLaunchPad(props: {
     const [batchSize, setBatchSize] = React.useState<number>(100);
 
     return (
-        <div>
+        <div className="ObtainLaunchPad">
             <h3>Obtain files</h3>
             <div>
                 <h4>Target</h4>
@@ -57,7 +59,7 @@ export function Admin() {
     async function getJobs() {
         const token = localStorage.getItem(ADMIN_TOKEN_KEY);
 
-        const response = await fetch(`/admin/jobs/`, {
+        const response = await fetch(`/admin-api/jobs/`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -71,7 +73,7 @@ export function Admin() {
         params?: Partial<CivitaiIndexingParams | HuggingFaceReindexParams | ObtainFilesParams>,
     ) {
         const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-        await fetch(`/admin/jobs/${type}`, {
+        await fetch(`/admin-api/jobs/${type}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
@@ -152,7 +154,7 @@ export function Admin() {
                                     <td>
                                         <AnchorButton
                                             onClick={async () => {
-                                                const response = await fetch(`/admin/jobs/${job.id}`, {
+                                                const response = await fetch(`/admin-api/jobs/${job.id}`, {
                                                     headers: {
                                                         Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY)}`,
                                                     },
