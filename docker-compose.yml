@@ -26,4 +26,4 @@ services:
     network_mode: "host"
     env_file:
       - ./ops/.env.prod
-    command: node server/admin.js
+    command: node server/admin-api.js
