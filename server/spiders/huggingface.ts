@@ -95,11 +95,29 @@ async function fetchFileMeta(
                 }
                 const time = Date.now();
                 // TODO: handle non-text data (binary?)
-                {
+                if (!cachedHash) {
                     const data = {
                         category: HASH_CATEGORY,
                         key: rawUrl,
                         value: sha256,
+                        updated: time,
+                    };
+                    await prisma.keyValueCache.upsert({
+                        where: {
+                            category_key: {
+                                category: data.category,
+                                key: data.key,
+                            },
+                        },
+                        create: data,
+                        update: data,
+                    });
+                }
+                if (!cachedSize) {
+                    const data = {
+                        category: SIZE_CATEGORY,
+                        key: rawUrl,
+                        value: size.toString(),
                         updated: time,
                     };
                     await prisma.keyValueCache.upsert({
