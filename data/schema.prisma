@@ -22,14 +22,17 @@ enum Registry {
 }
 
 model Repository {
-  id           String   @id @default(uuid()) @db.Uuid
-  name         String   @db.VarChar(255)
-  subtype      String?
-  registry     Registry @default(AimmHub)
-  idInRegistry String
-  updated      BigInt
-  raw          Json?
-  favour       BigInt
+  id                String    @id @default(uuid()) @db.Uuid
+  name              String    @db.VarChar(255)
+  subtype           String?
+  registry          Registry  @default(AimmHub)
+  idInRegistry      String
+  updated           BigInt
+  raw               Json?
+  favour            BigInt
+  description       String?
+  updatedInRegistry Int?
+  tags              String[]?
 
   revisions Revision[]
 

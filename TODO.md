@@ -19,6 +19,7 @@ Todos
 - [ ] Periodical database backup
 - [ ] Log rotation
 - [ ] Optional deploy (deploy only api, not admin, for example)
+- [ ] Deploy with customized data script
 
 ## Mirror
 - [ ] Routinely re-index

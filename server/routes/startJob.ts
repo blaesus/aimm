@@ -1,7 +1,7 @@
 import { getJobType, jsonReplacerWithBigint, parseQuery, Query } from "./utils";
-import { civitaiReindexer, reindexCivitaiModels } from "../spiders/civitai";
-import { huggingfaceIndexer, reindexHuggingFaceRepos } from "../spiders/huggingface";
-import { fileObtainer, obtainFiles } from "../spiders/obtain";
+import { civitaiReindexer } from "../spiders/civitai";
+import { huggingfaceIndexer } from "../spiders/huggingface";
+import { fileObtainer } from "../spiders/obtain";
 import * as Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 import { JobType, StartJobSuccess } from "../../data/aimmApi";
@@ -23,7 +23,7 @@ export async function startJob(ctx: Koa.Context) {
         ctx.body = {
             ok: false,
             reason: `unknown job type ${type}`,
-        }
+        };
         return;
     }
     const query: Query = parseQuery(ctx.request.querystring);
@@ -55,7 +55,7 @@ export async function startJob(ctx: Koa.Context) {
             data: ctx.params,
         },
     });
-    runSpider(spiders[type], requestBody, job.id)
+    runSpider(spiders[type], requestBody, job.id);
 
     async function cleanup() {
         await prisma.job.update({
