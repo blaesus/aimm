@@ -181,7 +181,6 @@ async function updateHuggingfaceCommit(
             raw: JSON.stringify(commit),
             updated: Date.now(),
             updatedInRegistry: +(new Date(commit.lastModified)),
-            name: commit.descriptions,
         };
         const targetRevision = await prisma.revision.upsert({
             where: {
