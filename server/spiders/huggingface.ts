@@ -274,7 +274,7 @@ export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
         const repoType = params.repoType ?? "models";
         const pageSize = params.pageSize || 1000;
 
-        const defaultInitPage = `https://huggingface.co/api/${repoType}?limit=${pageSize}&full=true&sort=downloads&direction=-1`;
+        const defaultInitPage = `https://huggingface.co/api/${repoType}?limit=${pageSize}&full=true`;
         const initialPage = params?.initialPage ?? defaultInitPage;
 
         return {

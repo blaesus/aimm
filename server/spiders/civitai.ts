@@ -212,7 +212,7 @@ export const civitaiReindexer: Spider<CivitaiIndexingParams, State> = {
     async iterate(state: State): Promise<boolean> {
         const {pageSize, prisma, page, batch, requestWaitMs} = state;
 
-        const url = `https://civitai.com/api/v1/models?page=${page}&limit=${pageSize}`;
+        const url = `https://civitai.com/api/v1/models?page=${page}&limit=${pageSize}&sort=Newest`;
         console.info(`Civitai: fetching ${url}`);
 
         try {
