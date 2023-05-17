@@ -7,16 +7,18 @@ import { AnchorButton } from "../AnchorButton/AnchorButton";
 
 interface RepoMetaInfo {
     tags: string[];
+    description: string,
 }
 
 type RepoRaw = { [key in string]: any };
 
-function readRepoRaw(registry: Registry, rawInput?: string): Partial<RepoMetaInfo> {
-    const raw: RepoRaw = JSON.parse(rawInput ?? "{}");
+function readRepoRaw(registry: Registry, rawInput?: any): Partial<RepoMetaInfo> {
+    const raw: RepoRaw = JSON.parse(rawInput ? rawInput.toString() : "{}");
     switch (registry) {
         case "Civitai": {
             return {
                 tags: raw.tags ?? [],
+                description: raw.description ?? "",
             };
         }
         case "Huggingface": {

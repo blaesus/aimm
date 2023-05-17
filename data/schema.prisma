@@ -22,17 +22,14 @@ enum Registry {
 }
 
 model Repository {
-  id                String   @id @default(uuid()) @db.Uuid
-  name              String   @db.VarChar(255)
-  subtype           String?
-  registry          Registry @default(AimmHub)
-  idInRegistry      String
-  updated           BigInt
-  updatedInRegistry BigInt?
-  favour            BigInt
-  description       String?
-  tags              String[]
-  raw               Json?
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String   @db.VarChar(255)
+  subtype      String?
+  registry     Registry @default(AimmHub)
+  idInRegistry String
+  updated      BigInt
+  favour       BigInt
+  raw          Json?
 
   revisions Revision[]
 
@@ -42,15 +39,13 @@ model Repository {
 }
 
 model Revision {
-  id                String     @id @default(uuid()) @db.Uuid
-  repoId            String     @db.Uuid
-  repo              Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
-  idInRegistry      String
-  hashA             String
-  updated           BigInt
-  updatedInRegistry BigInt?
-  raw               Json?
-  name              String?
+  id           String     @id @default(uuid()) @db.Uuid
+  repoId       String     @db.Uuid
+  repo         Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  idInRegistry String
+  hashA        String
+  updated      BigInt
+  raw          Json?
 
   fileRecords FileRecord[]
 
