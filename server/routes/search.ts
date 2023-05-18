@@ -45,8 +45,7 @@ export async function search(ctx: Koa.Context) {
         filesByHash = await prisma.fileRecord.findMany({
             where: {
                 hashA: {
-                    startsWith: keyword,
-                    mode: "insensitive",
+                    startsWith: keyword.toLowerCase(),
                 },
             },
         });
