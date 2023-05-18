@@ -34,7 +34,7 @@ export interface GetJobsSuccess {
 export interface SearchSuccess {
     ok: true,
     keyword: string,
-    repos: Repository[],
+    repositories: Repository[],
     revisions: Revision[],
     fileRecords: FileRecord[],
 }

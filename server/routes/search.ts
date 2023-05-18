@@ -37,7 +37,7 @@ export async function search(ctx: Koa.Context) {
     const result: SearchSuccess = {
         ok: true,
         keyword,
-        repos,
+        repositories: repos,
         revisions,
         fileRecords,
     };

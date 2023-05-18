@@ -1,9 +1,23 @@
-export interface BaseAction {
-    type: "set"
+import { FileRecord, Repository, Revision } from "@prisma/client";
+
+export interface BaseAction {}
+
+export interface SearchInput extends BaseAction {
+    type: "SearchInput"
+    keyword: string,
 }
 
-export interface SearchInput {
-    type: "search-input"
+export interface ChangePathname extends BaseAction {
+    type: "ChangePathname",
+    pathname: string,
 }
 
-export type ClientAction = SearchInput
+export interface ProvideEntities extends BaseAction {
+    type: "ProvideEntities",
+        repositories: Repository[],
+        revisions: Revision[],
+        fileRecords: FileRecord[],
+}
+
+
+export type ClientAction = SearchInput | ChangePathname | ProvideEntities

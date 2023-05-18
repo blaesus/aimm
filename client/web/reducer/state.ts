@@ -1,9 +1,20 @@
-import { ObjectMap } from "../../../data/sharedTypes";
+import { ObjectMap, ObjectWithId } from "../../../data/sharedTypes";
 import { FileRecord, Repository, Revision } from "@prisma/client";
 import { ClientAction } from "./action";
+import { PageName } from "../utils";
+
+export interface SearchPageState {
+    keyword: string,
+}
+
+export interface PagesState {
+    current: PageName,
+    search: SearchPageState,
+}
+
 
 export interface UIState {
-
+    pages: PagesState,
 }
 
 export interface EntitiesState {
@@ -26,7 +37,14 @@ function getInitialEntitiesState(): EntitiesState {
 }
 
 function getInitialUIState(): UIState {
-    return {}
+    return {
+        pages: {
+            current: "home",
+            search: {
+                keyword: "",
+            }
+        }
+    }
 }
 
 export function getInitialClientState(): ClientState {
@@ -36,16 +54,48 @@ export function getInitialClientState(): ClientState {
     }
 }
 
-function entitiesReducer(entities: EntitiesState, action: ClientAction): EntitiesState {
+function mergeArray<T extends ObjectWithId>(data: ObjectMap<T>, newData?: T[]): ObjectMap<T> {
+    if (!newData) {
+        return data;
+    }
+    const result = {...data};
+    for (const datum of newData) {
+        result[datum.id] = datum;
+    }
+    return result;
+}
+
+
+export function entitiesReducer(entities: EntitiesState, action: ClientAction): EntitiesState {
     switch (action.type) {
+        case "ProvideEntities": {
+            const nextEntities = {...entities};
+            nextEntities.repositories = mergeArray(nextEntities.repositories, action.repositories);
+            nextEntities.revisions = mergeArray(nextEntities.revisions, action.revisions);
+            nextEntities.fileRecords = mergeArray(nextEntities.fileRecords, action.fileRecords);
+            return nextEntities;
+        }
         default: {
             return entities;
         }
     }
 }
 
+
 function uiReducer(ui: UIState, action: ClientAction): UIState {
     switch (action.type) {
+        case "SearchInput": {
+            return {
+                ...ui,
+                pages: {
+                    ...ui.pages,
+                    search: {
+                        ...ui.pages.search,
+                        keyword: action.keyword,
+                    }
+                }
+            }
+        }
         default: {
             return ui;
         }

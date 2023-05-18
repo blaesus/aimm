@@ -6,6 +6,7 @@ import "./RepoCard.css";
 import { AnchorButton } from "../AnchorButton/AnchorButton";
 import { HashTag } from "../HashTag/HashTag";
 import { SizeTag } from "../SizeTag/SizeTag";
+import { ObjectMap, ObjectWithId } from "../../../../data/sharedTypes";
 
 interface RepoMetaInfo {
     tags: string[];
@@ -114,17 +115,17 @@ function RevisionCard(props: {
 
 export function RepoCard(props: {
     repoId: string,
-    repos: Repository[],
-    revisions: Revision[],
-    fileRecords: FileRecord[]
+    repositories: ObjectMap<Repository>,
+    revisions: ObjectMap<Revision>,
+    fileRecords: ObjectMap<FileRecord>,
 }) {
-    const {repoId, repos, revisions, fileRecords} = props;
-    const repo = repos.find(r => r.id === repoId);
+    const {repoId, repositories, revisions, fileRecords} = props;
+    const repo = repositories[repoId]
     if (!repo) {
         return null;
     }
 
-    const repoRevisions = revisions.filter(r => r.repoId === repoId);
+    const repoRevisions = Object.values(revisions).filter(r => r.repoId === repoId);
 
     const meta = readRepoRaw(repo.registry, repo.raw as string);
 
@@ -145,7 +146,7 @@ export function RepoCard(props: {
             <div>
                 {
                     repoRevisions.map((revision, i) => {
-                        const files = fileRecords.filter(r => r.revisionId === revision.id);
+                        const files = Object.values(fileRecords).filter(r => r.revisionId === revision.id);
                         return (
                             <RevisionCard
                                 key={revision.id}

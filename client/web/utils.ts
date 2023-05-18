@@ -19,3 +19,19 @@ export function getRepoUrl(repo: Repository): string {
         }
     }
 }
+
+export type PageName = "home" | "search" | "admin"
+export interface PathState {
+    page?: PageName
+}
+
+const SEARCH = "search";
+
+export function parsePathName(pathName: string): PathState {
+    if (pathName.startsWith(SEARCH)) {
+        return {
+            page: "search",
+        }
+    }
+    return {};
+}
