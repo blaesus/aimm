@@ -12,18 +12,24 @@ export function SearchPage(props: {
     const {state, dispatch} = props;
     const {repositories, revisions, fileRecords} = state.entities;
 
-
     return (
         <div className="Search">
             <div>
                 {
-                    Object.values(repositories).map((repo: Repository) =>
-                        <RepoCard key={repo.id} repoId={repo.id} repositories={repositories} revisions={revisions}
-                                  fileRecords={fileRecords}/>,
-                    )
+                    Object.values(repositories)
+                          .filter(r => r.name.toLowerCase().includes(state.ui.pages.search.keyword.toLowerCase()))
+                          .sort((a, b) => Number(b.favour) - Number(a.favour))
+                          .map((repo: Repository) =>
+                              <RepoCard
+                                  key={repo.id}
+                                  repoId={repo.id}
+                                  repositories={repositories}
+                                  revisions={revisions}
+                                  fileRecords={fileRecords}
+                              />,
+                          )
                 }
             </div>
-
         </div>
     );
 }

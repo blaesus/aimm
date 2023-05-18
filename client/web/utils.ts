@@ -28,10 +28,25 @@ export interface PathState {
 const SEARCH = "search";
 
 export function parsePathName(pathName: string): PathState {
+    const params = new URLSearchParams(pathName);
+    console.info(params)
     if (pathName.startsWith(SEARCH)) {
         return {
             page: "search",
         }
     }
     return {};
+}
+
+export function throttle<A>(callback: (args?: A) => void, limit: number = 500): (args?: A) => void {
+    let waiting = false;                      // Initially, we're not waiting
+    return function (args?: A) {                      // We return a throttled function
+        if (!waiting) {                       // If we're not waiting
+            callback(args);  // Execute users function
+            waiting = true;                   // Prevent future invocations
+            setTimeout(function () {          // After a period of time
+                waiting = false;              // And allow future invocations
+            }, limit);
+        }
+    }
 }

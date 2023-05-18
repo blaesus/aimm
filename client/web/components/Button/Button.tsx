@@ -7,11 +7,18 @@ export function Button(props: {
     light?: boolean,
     secondary?: boolean,
     children?: React.ReactNode,
+    disabled?: boolean
     onClick?(event: React.MouseEvent): void,
 }) {
     return (
         <button
-            className={`Button ${props.className || ""} ${props.secondary ? "secondary" : ""} ${props.light ? "light" : ""}`}
+            className={
+            `Button ${props.className || ""}
+            ${props.secondary ? "secondary" : ""}
+            ${props.light ? "light" : ""}
+            ${props.disabled ? "disabled" : ""}
+            `
+        }
             onClick={props.onClick}
         >
             {props.children}

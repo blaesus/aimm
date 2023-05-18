@@ -1,7 +1,7 @@
 import { ObjectMap, ObjectWithId } from "../../../data/sharedTypes";
 import { FileRecord, Repository, Revision } from "@prisma/client";
 import { ClientAction } from "./action";
-import { PageName } from "../utils";
+import { PageName, parsePathName } from "../utils";
 
 export interface SearchPageState {
     keyword: string,
@@ -94,6 +94,12 @@ function uiReducer(ui: UIState, action: ClientAction): UIState {
                         keyword: action.keyword,
                     }
                 }
+            }
+        }
+        case "ChangePathname": {
+            const pathState = parsePathName(action.pathname);
+            return {
+                ...ui,
             }
         }
         default: {

@@ -43,3 +43,8 @@ a {
 * {
     box-sizing: border-box;
 }
+
+input {
+    height: 2rem;
+    font-size: 1.1rem;
+}

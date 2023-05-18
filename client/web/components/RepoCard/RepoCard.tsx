@@ -129,6 +129,8 @@ export function RepoCard(props: {
 
     const meta = readRepoRaw(repo.registry, repo.raw as string);
 
+
+
     return (
         <div key={repo.id} className="RepoCard">
             <h2><a href={getRepoUrl(repo)}>{repo.name}</a></h2>
@@ -137,6 +139,9 @@ export function RepoCard(props: {
             </div>
             <div>
                 {repo.subtype}
+            </div>
+            <div>
+                {repo.favour.toString()}
             </div>
             <div>
                 {meta.tags?.map(tag => (

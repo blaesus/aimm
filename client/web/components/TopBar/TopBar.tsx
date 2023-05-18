@@ -4,18 +4,28 @@ import { ClientState } from "../../reducer/state";
 import { ClientAction } from "../../reducer/action";
 import { SearchSuccess } from "../../../../data/aimmApi";
 import { Button } from "../Button/Button";
+import { throttle } from "../../utils";
 export function TopBar(props: {
     state: ClientState,
     dispatch: React.Dispatch<ClientAction>,
 }) {
-    async function getRepos() {
-        const response = await fetch(`/api/search/${state.ui.pages.search.keyword}`);
+
+    const [loading, setLoading] = React.useState(false);
+    const [searchInput, setSearchInput] = React.useState("");
+    async function confirmSearch() {
+        if (loading) {
+            return;
+        }
+        setLoading(true);
+        const response = await fetch(`/api/search/${searchInput}`);
         const data = await response.json() as SearchSuccess;
+        setLoading(false);
         dispatch({
             type: "ProvideEntities",
             ...data,
         })
     }
+    const throttledGetSearch = throttle(confirmSearch, 1000);
 
     const { state, dispatch } = props
     return (
@@ -24,18 +34,15 @@ export function TopBar(props: {
             <div>
                 <input
                     type="text"
-                    value={state.ui.pages.search.keyword}
-                    onChange={e => dispatch({
-                        type: "SearchInput",
-                        keyword: e.target.value,
-                    })}
+                    value={searchInput}
+                    onChange={event => setSearchInput(event.target.value)}
                     onKeyDown={e => {
                         if (e.key === "Enter") {
-                            getRepos();
+                            throttledGetSearch();
                         }
                     }}
                 />
-                <Button onClick={() => getRepos()}>Search!</Button>
+                <Button onClick={() => confirmSearch()}>Search!</Button>
             </div>
             <div>
                 Menu
