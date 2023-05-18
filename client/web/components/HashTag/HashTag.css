@@ -1,3 +1,7 @@
 .HashTag {
     background: #eee;
 }
+
+.HashTag {
+    font-family: monospace;
+}

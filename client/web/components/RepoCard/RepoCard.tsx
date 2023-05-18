@@ -67,8 +67,8 @@ function FileRecordCard(props: {
             <a
                 href={file.downloadUrl}
             >
+                <HashTag hash={file.hashA} />
                 {file.filename}
-                <HashTag hash={file.hashA}/>
                 <SizeTag size={file.size} />
             </a>
         </div>
