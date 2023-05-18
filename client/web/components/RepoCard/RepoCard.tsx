@@ -37,6 +37,7 @@ function readRepoRaw(registry: Registry, rawInput?: any): Partial<RepoMetaInfo> 
 
 type RevisionMetaInfo = {
     lastUpdated: Date,
+    name: string
 }
 
 function readRevisionRaw(registry: Registry, rawInput?: any): Partial<RevisionMetaInfo> {
@@ -45,6 +46,7 @@ function readRevisionRaw(registry: Registry, rawInput?: any): Partial<RevisionMe
         case "Civitai": {
             return {
                 lastUpdated: new Date(raw.updatedAt),
+                name: raw.name,
             };
         }
         case "Huggingface": {
@@ -103,7 +105,12 @@ function RevisionCard(props: {
     if (expanded) {
         return (
             <div key={revision.id} className="RevisionCard">
-                <h3><a href={getRepoOnRevisionUrl(repository, revision.idInRegistry)}><HashTag hash={revision.hashA}/></a></h3>
+                <h3>
+                    <a href={getRepoOnRevisionUrl(repository, revision.idInRegistry)}>
+                        <HashTag hash={revision.hashA}/>
+                        {meta.name}
+                    </a>
+                </h3>
                 {meta.lastUpdated?.toISOString()}
                 <FileList files={files}/>
 
