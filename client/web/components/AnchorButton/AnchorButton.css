@@ -1,5 +1,5 @@
 .AnchorButton {
-    border-bottom: 1px solid transparent;
+    border-bottom: 2px solid transparent;
     cursor: pointer;
     font-weight: bolder;
     border-bottom-color: var(--site-theme-color-light);
@@ -17,7 +17,7 @@
 
 @media only screen and (min-width: 800px) {
     .AnchorButton:not(.disabled):hover {
-        border-bottom-color: var(--site-theme-color-light);
+        border-bottom-color: var(--site-theme-color-dark);
     }
     .AnchorButton:not(.disabled):active {
         border-bottom-color: var(--site-theme-color);

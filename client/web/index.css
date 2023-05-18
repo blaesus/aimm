@@ -22,10 +22,11 @@ body {
     --main-max-width: 1024px;
 
     --side-margin: 1rem;
-    --light-warning-color: #fcc;
+    --light-warning-color: #ffdddd;
 
     --site-theme-color: #FFAC1C;
     --site-theme-color-light: #FAD5A5;
+    --site-theme-color-dark: #CD7F32;
 }
 
 @media only screen and (max-width: 768px) {
