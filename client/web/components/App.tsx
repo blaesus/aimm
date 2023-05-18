@@ -4,11 +4,12 @@ import { SearchPage } from "./SearchPage/SearchPage";
 import { Admin } from "./Admin";
 import { TopBar } from "./TopBar/TopBar";
 import { getInitialClientState, reducer, UIState } from "../reducer/state";
+import { SEARCH } from "../utils";
 
 function serializeToPathName(state: UIState): string {
     if (state.pages.current === "home") {
         if (state.pages.search.keyword) {
-            return `/?search=${state.pages.search.keyword}`
+            return `/?${SEARCH}=${state.pages.search.keyword}`
         }
         else {
             return `/`
@@ -27,18 +28,18 @@ function App() {
 
     const [state, dispatch] = useReducer(reducer, initialState);
 
-    function updateUIStateForPathName() {
+    function updateUIStateForUrl() {
         dispatch({
-            type: "ChangePathname",
-            pathname: window.location.pathname,
+            type: "ChangeUrl",
+            url: window.location.href,
         });
     }
 
     useEffect(() => {
-        updateUIStateForPathName();
+        updateUIStateForUrl();
         window.addEventListener("popstate", (event) => {
             event.preventDefault();
-            updateUIStateForPathName();
+            updateUIStateForUrl();
         });
     }, []);
 

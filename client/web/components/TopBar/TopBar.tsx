@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./TopBar.css"
 import { ClientState } from "../../reducer/state";
 import { ClientAction } from "../../reducer/action";
@@ -10,8 +10,14 @@ export function TopBar(props: {
     dispatch: React.Dispatch<ClientAction>,
 }) {
 
+    const { state, dispatch } = props
     const [loading, setLoading] = React.useState(false);
     const [searchInput, setSearchInput] = React.useState("");
+
+    useEffect(() => {
+        setSearchInput(props.state.ui.pages.search.keyword);
+    }, [state.ui.pages.search.keyword])
+
     async function confirmSearch() {
         if (loading) {
             return;
@@ -31,7 +37,6 @@ export function TopBar(props: {
     }
     const throttledConfirm = throttle(confirmSearch, 1000);
 
-    const { state, dispatch } = props
     return (
         <nav className="TopBar">
             <span>

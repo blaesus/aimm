@@ -1,7 +1,7 @@
 import { ObjectMap, ObjectWithId } from "../../../data/sharedTypes";
 import { FileRecord, Repository, Revision } from "@prisma/client";
 import { ClientAction } from "./action";
-import { PageName, parsePathName } from "../utils";
+import { PageName, parseUrl } from "../utils";
 
 export interface SearchPageState {
     keyword: string,
@@ -18,9 +18,9 @@ export interface UIState {
 }
 
 export interface EntitiesState {
-    repositories: ObjectMap<Repository>
-    revisions: ObjectMap<Revision>
-    fileRecords: ObjectMap<FileRecord>
+    repositories: ObjectMap<Repository>;
+    revisions: ObjectMap<Revision>;
+    fileRecords: ObjectMap<FileRecord>;
 }
 
 export interface ClientState {
@@ -32,8 +32,8 @@ function getInitialEntitiesState(): EntitiesState {
     return {
         repositories: {},
         revisions: {},
-        fileRecords: {}
-    }
+        fileRecords: {},
+    };
 }
 
 function getInitialUIState(): UIState {
@@ -42,16 +42,16 @@ function getInitialUIState(): UIState {
             current: "home",
             search: {
                 keyword: "",
-            }
-        }
-    }
+            },
+        },
+    };
 }
 
 export function getInitialClientState(): ClientState {
     return {
         entities: getInitialEntitiesState(),
         ui: getInitialUIState(),
-    }
+    };
 }
 
 function mergeArray<T extends ObjectWithId>(data: ObjectMap<T>, newData?: T[]): ObjectMap<T> {
@@ -92,15 +92,17 @@ function uiReducer(ui: UIState, action: ClientAction): UIState {
                     search: {
                         ...ui.pages.search,
                         keyword: action.keyword,
-                    }
-                }
-            }
+                    },
+                },
+            };
         }
-        case "ChangePathname": {
-            const pathState = parsePathName(action.pathname);
-            return {
-                ...ui,
+        case "ChangeUrl": {
+            const result = {...ui};
+            const pathState = parseUrl(action.url);
+            if (pathState.searchKeyword) {
+                result.pages.search.keyword = pathState.searchKeyword;
             }
+            return result;
         }
         default: {
             return ui;

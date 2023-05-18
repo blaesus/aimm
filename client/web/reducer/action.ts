@@ -7,9 +7,9 @@ export interface SearchInput extends BaseAction {
     keyword: string,
 }
 
-export interface ChangePathname extends BaseAction {
-    type: "ChangePathname",
-    pathname: string,
+export interface ChangeUrl extends BaseAction {
+    type: "ChangeUrl",
+    url: string,
 }
 
 export interface ProvideEntities extends BaseAction {
@@ -20,4 +20,4 @@ export interface ProvideEntities extends BaseAction {
 }
 
 
-export type ClientAction = SearchInput | ChangePathname | ProvideEntities
+export type ClientAction = SearchInput | ChangeUrl | ProvideEntities

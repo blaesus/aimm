@@ -15,14 +15,32 @@
 }
 
 .FileRecordList {
-    padding-left: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.FileRecordList a:hover {
+    background: var(--site-theme-color-light);
 }
 
 .FileRecordCard {
+    display: inline-flex;
+    width: 100%;
     margin: 0.5rem 0;
 }
 
-.FileRecordCard a {
+.FileRecordCard .FilenameTag {
+    flex-grow: 1;
     color: black;
     text-decoration: underline;
+}
+
+.FileRecordCard .HashTag {
+    flex-grow: 0;
+}
+
+.FileRecordCard .SizeTag {
+    width: 5rem;
+    text-align: right;
+    margin-right: 1rem;
 }

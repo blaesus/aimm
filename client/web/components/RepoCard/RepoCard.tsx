@@ -63,15 +63,13 @@ function FileRecordCard(props: {
 }) {
     const {file} = props;
     return (
-        <div className="FileRecordCard">
-            <a
-                href={file.downloadUrl}
-            >
-                <HashTag hash={file.hashA}/>
-                {file.filename}
-                <SizeTag size={file.size}/>
-            </a>
-        </div>
+        <a href={file.downloadUrl}>
+            <div className="FileRecordCard">
+                    <span className="FilenameTag">{file.filename}</span>
+                    <SizeTag size={file.size}/>
+                    <HashTag hash={file.hashA}/>
+            </div>
+        </a>
     );
 }
 

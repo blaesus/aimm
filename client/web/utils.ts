@@ -22,20 +22,22 @@ export function getRepoUrl(repo: Repository): string {
 
 export type PageName = "home" | "search" | "admin"
 export interface PathState {
-    page?: PageName
+    page?: PageName,
+    searchKeyword?: string
 }
 
-const SEARCH = "search";
+export const SEARCH = "search";
 
-export function parsePathName(pathName: string): PathState {
-    const params = new URLSearchParams(pathName);
-    console.info(params)
-    if (pathName.startsWith(SEARCH)) {
-        return {
-            page: "search",
-        }
+export function parseUrl(url: string): PathState {
+    const parsed = new URL(url);
+    const params = new URLSearchParams(parsed.search);
+    const pathName = parsed.pathname;
+    const keyword = params.get(SEARCH);
+    const state: PathState = {};
+    if (keyword) {
+        state.searchKeyword = keyword;
     }
-    return {};
+    return state;
 }
 
 export function throttle<A>(callback: (args?: A) => void, limit: number = 500): (args?: A) => void {
