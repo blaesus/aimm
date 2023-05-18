@@ -24,8 +24,12 @@ export function TopBar(props: {
             type: "ProvideEntities",
             ...data,
         })
+        dispatch({
+            type: "SearchInput",
+            keyword: searchInput,
+        })
     }
-    const throttledGetSearch = throttle(confirmSearch, 1000);
+    const throttledConfirm = throttle(confirmSearch, 1000);
 
     const { state, dispatch } = props
     return (
@@ -38,11 +42,11 @@ export function TopBar(props: {
                     onChange={event => setSearchInput(event.target.value)}
                     onKeyDown={e => {
                         if (e.key === "Enter") {
-                            throttledGetSearch();
+                            throttledConfirm();
                         }
                     }}
                 />
-                <Button onClick={() => confirmSearch()}>Search!</Button>
+                <Button onClick={() => throttledConfirm()}>Search!</Button>
             </div>
             <div>
                 Menu
