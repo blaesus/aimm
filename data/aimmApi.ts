@@ -6,12 +6,14 @@ export interface CivitaiIndexingParams {
     pageSize?: number,
     requestWaitMs?: number
 }
+
 export interface HuggingFaceReindexParams {
     pageSize?: number;
     initialPage?: string;
     requestWaitMs?: number;
     repoType?: HuggingfaceRepoType;
 }
+
 export interface ObtainFilesParams {
     id?: string,
     service?: StorageService,
@@ -31,9 +33,15 @@ export interface GetJobsSuccess {
     jobs: JobJson[];
 }
 
-export interface SearchSuccess {
+export interface MatchedItems {
+    reposByName: string[],
+    filesByHash: string[],
+}
+
+export interface SearchSuccess extends MatchedItems {
     ok: true,
     keyword: string,
+
     repositories: Repository[],
     revisions: Revision[],
     fileRecords: FileRecord[],

@@ -2,9 +2,11 @@ import { ObjectMap, ObjectWithId } from "../../../data/sharedTypes";
 import { FileRecord, Repository, Revision } from "@prisma/client";
 import { ClientAction } from "./action";
 import { PageName, parseUrl } from "../utils";
+import { MatchedItems } from "../../../data/aimmApi";
 
 export interface SearchPageState {
     keyword: string,
+    matchedItems: MatchedItems,
 }
 
 export interface PagesState {
@@ -42,6 +44,10 @@ function getInitialUIState(): UIState {
             current: "home",
             search: {
                 keyword: "",
+                matchedItems: {
+                    reposByName: [],
+                    filesByHash: [],
+                }
             },
         },
     };
@@ -95,6 +101,19 @@ function uiReducer(ui: UIState, action: ClientAction): UIState {
                     },
                 },
             };
+        }
+        case "SearchSuccessAction": {
+            return {
+                ...ui,
+                pages: {
+                    ...ui.pages,
+                    search: {
+                        ...ui.pages.search,
+                        matchedItems: action.matchedItems,
+                    },
+                },
+            };
+
         }
         case "ChangeUrl": {
             const result = {...ui};

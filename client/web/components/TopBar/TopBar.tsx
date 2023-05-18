@@ -31,6 +31,10 @@ export function TopBar(props: {
             ...data,
         })
         dispatch({
+            type: "SearchSuccessAction",
+            matchedItems: data
+        })
+        dispatch({
             type: "SearchInput",
             keyword: searchInput,
         })

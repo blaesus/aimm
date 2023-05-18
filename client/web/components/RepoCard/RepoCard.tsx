@@ -60,7 +60,7 @@ function readRevisionRaw(registry: Registry, rawInput?: any): Partial<RevisionMe
     }
 }
 
-function FileRecordCard(props: {
+export function FileRecordCard(props: {
     file: FileRecord
 }) {
     const {file} = props;
@@ -75,7 +75,7 @@ function FileRecordCard(props: {
     );
 }
 
-function FileList(props: {
+export function FileList(props: {
     files: FileRecord[]
 }) {
     const {files} = props;
@@ -90,7 +90,7 @@ function FileList(props: {
     );
 }
 
-function RevisionCard(props: {
+export function RevisionCard(props: {
     revision: Revision,
     repository: Repository,
     registry: Registry,

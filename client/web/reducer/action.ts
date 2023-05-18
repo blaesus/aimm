@@ -1,6 +1,8 @@
-import { FileRecord, Repository, Revision } from "@prisma/client";
+import type { FileRecord, Repository, Revision } from "@prisma/client";
+import type { MatchedItems } from "../../../data/aimmApi";
 
-export interface BaseAction {}
+export interface BaseAction {
+}
 
 export interface SearchInput extends BaseAction {
     type: "SearchInput"
@@ -14,10 +16,15 @@ export interface ChangeUrl extends BaseAction {
 
 export interface ProvideEntities extends BaseAction {
     type: "ProvideEntities",
-        repositories: Repository[],
-        revisions: Revision[],
-        fileRecords: FileRecord[],
+    repositories: Repository[],
+    revisions: Revision[],
+    fileRecords: FileRecord[],
+}
+
+export interface SearchSuccessAction extends  BaseAction {
+    type: "SearchSuccessAction",
+    matchedItems: MatchedItems,
 }
 
 
-export type ClientAction = SearchInput | ChangeUrl | ProvideEntities
+export type ClientAction = SearchInput | ChangeUrl | ProvideEntities | SearchSuccessAction

@@ -1,4 +1,5 @@
 import { JobType, jobTypes } from "../../data/aimmApi";
+import { ObjectWithId } from "../../data/sharedTypes";
 
 export type QueryKey =
     "filename" | "sha256" | "pretty" | "case-insensitive" | "force"
@@ -49,3 +50,13 @@ export function getJobType(s?: string): JobType | null {
     return null;
 }
 
+
+export function dedupeById<T extends ObjectWithId>(list: T[]): T[] {
+    const result: T[] = [];
+    for (const item of list) {
+        if (result.every(x => x.id !== item.id)) {
+            result.push(item);
+        }
+    }
+    return result;
+}

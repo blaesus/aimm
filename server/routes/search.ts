@@ -2,11 +2,17 @@ import Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 import { SearchSuccess } from "../../data/aimmApi";
 import { serialize } from "../../data/serialize";
+import { FileRecord } from "@prisma/client";
+import { dedupeById } from "./utils";
+
+function looksLikeHashHex(s: string): boolean {
+    return /^[0-9a-fA-F]{6,64}$/.test(s);
+}
 
 export async function search(ctx: Koa.Context) {
     const keyword = ctx.params.keyword;
 
-    const repos = await prisma.repository.findMany({
+    const reposByName = await prisma.repository.findMany({
         where: {
             name: {
                 contains: keyword,
@@ -18,28 +24,55 @@ export async function search(ctx: Koa.Context) {
         },
     });
 
-    const revisions = await prisma.revision.findMany({
+    const revisionsForReposByName = await prisma.revision.findMany({
         where: {
             repoId: {
-                in: repos.map(repo => repo.id),
+                in: reposByName.map(repo => repo.id),
             },
         },
     });
 
-    const fileRecords = await prisma.fileRecord.findMany({
+    const fileRecordsFromReposByName = await prisma.fileRecord.findMany({
         where: {
             revisionId: {
-                in: revisions.map(revision => revision.id),
+                in: revisionsForReposByName.map(revision => revision.id),
             },
         },
     });
+
+    let filesByHash: FileRecord[] = [];
+    if (looksLikeHashHex(keyword)) {
+        filesByHash = await prisma.fileRecord.findMany({
+            where: {
+                hashA: {
+                    startsWith: keyword,
+                },
+            },
+        });
+    }
+
+    const revisions = [
+        ...revisionsForReposByName,
+    ];
+
+    const fileRecords = dedupeById([
+        ...fileRecordsFromReposByName,
+        ...filesByHash,
+    ]);
+
+    const repositories = dedupeById([
+        ...reposByName,
+    ]);
 
     const result: SearchSuccess = {
         ok: true,
         keyword,
-        repositories: repos,
+        repositories,
         revisions,
         fileRecords,
+
+        reposByName: reposByName.map(r => r.id),
+        filesByHash: filesByHash.map(f => f.id),
     };
 
     ctx.set("Content-Type", "application/json");
