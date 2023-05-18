@@ -1,6 +1,6 @@
 import React from "react";
 import { FileRecord, Registry, Repository, Revision } from "@prisma/client";
-import { getRepoUrl } from "../../utils";
+import { getRepoOnRevisionUrl, getRepoUrl } from "../../utils";
 
 import "./RepoCard.css";
 import { AnchorButton } from "../AnchorButton/AnchorButton";
@@ -65,9 +65,9 @@ function FileRecordCard(props: {
     return (
         <a href={file.downloadUrl}>
             <div className="FileRecordCard">
-                    <span className="FilenameTag">{file.filename}</span>
-                    <SizeTag size={file.size}/>
-                    <HashTag hash={file.hashA}/>
+                <span className="FilenameTag">{file.filename}</span>
+                <SizeTag size={file.size}/>
+                <HashTag hash={file.hashA}/>
             </div>
         </a>
     );
@@ -90,11 +90,12 @@ function FileList(props: {
 
 function RevisionCard(props: {
     revision: Revision,
+    repository: Repository,
     registry: Registry,
     files: FileRecord[],
     defaultExpand?: boolean,
 }) {
-    const {revision, files, registry} = props;
+    const {revision, files, registry, repository} = props;
     const [expanded, setExpanded] = React.useState(props.defaultExpand ?? false);
 
     const meta = readRevisionRaw(registry, revision.raw);
@@ -102,9 +103,16 @@ function RevisionCard(props: {
     if (expanded) {
         return (
             <div key={revision.id} className="RevisionCard">
-                <h3><HashTag hash={revision.hashA}/></h3>
+                <h3><a href={getRepoOnRevisionUrl(repository, revision.idInRegistry)}><HashTag hash={revision.hashA}/></a></h3>
                 {meta.lastUpdated?.toISOString()}
-                <FileList files={files} />
+                <FileList files={files}/>
+
+                <div>
+                    <h3>Install</h3>
+                    <code>
+                        aimm install {getRepoUrl(repository)}/tree/{revision.idInRegistry}
+                    </code>
+                </div>
             </div>
         );
     }
@@ -162,6 +170,7 @@ export function RepoCard(props: {
                             <RevisionCard
                                 key={revision.id}
                                 revision={revision}
+                                repository={repo}
                                 registry={repo.registry}
                                 defaultExpand={i === 0}
                                 files={files}

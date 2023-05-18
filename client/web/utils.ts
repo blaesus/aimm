@@ -20,6 +20,26 @@ export function getRepoUrl(repo: Repository): string {
     }
 }
 
+export function getRepoOnRevisionUrl(repo: Repository, revision: string): string {
+    switch (repo.registry) {
+        case "GitHub": {
+            return `https://github.com/${repo.idInRegistry}/tree/${revision}`
+        }
+        case "Civitai": {
+            return `https://civitai.com/models/${repo.idInRegistry}?modelVersionId=${revision}`
+        }
+        case "GitLab": {
+            return `https://gitlab.com/${repo.idInRegistry}/tree/${revision}`
+        }
+        case "Huggingface": {
+            return `https://huggingface.co/${repo.idInRegistry}/tree/${revision}`
+        }
+        case "AimmHub": {
+            return `https://aimm.dev/${repo.idInRegistry}/revisions/${revision}`
+        }
+    }
+}
+
 export type PageName = "home" | "search" | "admin"
 export interface PathState {
     page?: PageName,
