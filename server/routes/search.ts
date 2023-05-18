@@ -46,6 +46,7 @@ export async function search(ctx: Koa.Context) {
             where: {
                 hashA: {
                     startsWith: keyword,
+                    mode: "insensitive",
                 },
             },
         });
