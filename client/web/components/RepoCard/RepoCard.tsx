@@ -107,8 +107,9 @@ function RevisionCard(props: {
             <div key={revision.id} className="RevisionCard">
                 <h3>
                     <a href={getRepoOnRevisionUrl(repository, revision.idInRegistry)}>
-                        <HashTag hash={revision.hashA}/>
                         {meta.name}
+
+                        <HashTag hash={revision.hashA}/>
                     </a>
                 </h3>
                 {meta.lastUpdated?.toISOString()}
