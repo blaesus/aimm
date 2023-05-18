@@ -34,8 +34,10 @@ export function TopBar(props: {
     const { state, dispatch } = props
     return (
         <nav className="TopBar">
-            aimm
-            <div>
+            <span>
+                aimm
+            </span>
+            <span>
                 <input
                     type="text"
                     value={searchInput}
@@ -47,10 +49,10 @@ export function TopBar(props: {
                     }}
                 />
                 <Button onClick={() => throttledConfirm()}>Search!</Button>
-            </div>
-            <div>
+            </span>
+            <span>
                 Menu
-            </div>
+            </span>
         </nav>
     )
 }
