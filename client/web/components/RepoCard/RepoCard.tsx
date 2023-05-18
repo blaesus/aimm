@@ -76,15 +76,32 @@ export function FileRecordCard(props: {
 }
 
 export function FileList(props: {
-    files: FileRecord[]
+    files: FileRecord[],
+    repositories?: ObjectMap<Repository>,
+    revisions?: ObjectMap<Revision>,
+    showRepo?: boolean,
 }) {
-    const {files} = props;
+    const {files, repositories, revisions, showRepo} = props;
     return (
         <div className="FileRecordList">
             {
-                files.map(f => (
-                    <FileRecordCard key={f.id} file={f}/>
-                ))
+                files.map(f => {
+                    if (showRepo && repositories && revisions) {
+                        const rev = Object.values(revisions).find(r => r.id === f.revisionId);
+                        if (rev) {
+                            const repo = repositories[rev.repoId];
+                            if (repo) {
+                                return (
+                                    <div key={f.id}>
+                                        <h3>{repo.name} {repo.favour.toString()}</h3>
+                                        <FileRecordCard key={f.id} file={f}/>
+                                    </div>
+                                );
+                            }
+                        }
+                    }
+                    return <FileRecordCard key={f.id} file={f}/>;
+                })
             }
         </div>
     );

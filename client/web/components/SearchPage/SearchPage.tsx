@@ -24,7 +24,7 @@ export function SearchPage(props: {
                     matchedItems.reposByName.map(id => {
                         const repo = repositories[id];
                         if (!repo) {
-                            console.warn(`Missing repo ${id}`)
+                            console.warn(`Missing repo ${id}`);
                             return null;
                         }
                         return (
@@ -40,6 +40,9 @@ export function SearchPage(props: {
                 }
                 <FileList
                     files={matchedItems.filesByHash.map(id => fileRecords[id]).filter(Boolean)}
+                    showRepo={true}
+                    repositories={repositories}
+                    revisions={revisions}
                 />
                 {
                     Object.keys(repositories).length >= itemLimit &&

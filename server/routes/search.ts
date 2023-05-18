@@ -2,7 +2,7 @@ import Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 import { SearchSuccess } from "../../data/aimmApi";
 import { serialize } from "../../data/serialize";
-import { FileRecord } from "@prisma/client";
+import { FileRecord, Repository, Revision } from "@prisma/client";
 import { dedupeById } from "./utils";
 
 function looksLikeHashHex(s: string): boolean {
@@ -50,9 +50,31 @@ export async function search(ctx: Koa.Context) {
             },
         });
     }
+    let revisionsFromFilesByHash: Revision[] = [];
+    if (filesByHash.length) {
+        revisionsFromFilesByHash = await prisma.revision.findMany({
+            where: {
+                id: {
+                    in: filesByHash.map(f => f.revisionId),
+                },
+            },
+        });
+    }
+    let reposForFilesByHash: Repository[] = [];
+    if (filesByHash.length) {
+        reposForFilesByHash = await prisma.repository.findMany({
+            where: {
+                id: {
+                    in: revisionsFromFilesByHash.map(f => f.repoId),
+                },
+            },
+        });
+
+    }
 
     const revisions = [
         ...revisionsForReposByName,
+        ...revisionsFromFilesByHash,
     ];
 
     const fileRecords = dedupeById([
@@ -62,6 +84,7 @@ export async function search(ctx: Koa.Context) {
 
     const repositories = dedupeById([
         ...reposByName,
+        ...reposForFilesByHash,
     ]);
 
     const result: SearchSuccess = {
