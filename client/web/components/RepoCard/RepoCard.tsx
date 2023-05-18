@@ -67,12 +67,27 @@ function FileRecordCard(props: {
             <a
                 href={file.downloadUrl}
             >
-                <HashTag hash={file.hashA} />
+                <HashTag hash={file.hashA}/>
                 {file.filename}
-                <SizeTag size={file.size} />
+                <SizeTag size={file.size}/>
             </a>
         </div>
-    )
+    );
+}
+
+function FileList(props: {
+    files: FileRecord[]
+}) {
+    const {files} = props;
+    return (
+        <div className="FileRecordList">
+            {
+                files.map(f => (
+                    <FileRecordCard key={f.id} file={f}/>
+                ))
+            }
+        </div>
+    );
 }
 
 function RevisionCard(props: {
@@ -84,20 +99,14 @@ function RevisionCard(props: {
     const {revision, files, registry} = props;
     const [expanded, setExpanded] = React.useState(props.defaultExpand ?? false);
 
-    const meta = readRevisionRaw(registry, revision.raw)
+    const meta = readRevisionRaw(registry, revision.raw);
 
     if (expanded) {
         return (
             <div key={revision.id} className="RevisionCard">
-                <h3><HashTag hash={revision.hashA} /></h3>
+                <h3><HashTag hash={revision.hashA}/></h3>
                 {meta.lastUpdated?.toISOString()}
-                <div className="FileRecordList">
-                    {
-                        files.map(f => (
-                            <FileRecordCard key={f.id} file={f}/>
-                        ))
-                    }
-                </div>
+                <FileList files={files} />
             </div>
         );
     }
@@ -105,7 +114,7 @@ function RevisionCard(props: {
         return (
             <div>
                 <h3>
-                    <HashTag hash={revision.hashA} />
+                    <HashTag hash={revision.hashA}/>
                     <AnchorButton onClick={() => setExpanded(true)}>Expand</AnchorButton>
                 </h3>
             </div>
@@ -120,7 +129,7 @@ export function RepoCard(props: {
     fileRecords: ObjectMap<FileRecord>,
 }) {
     const {repoId, repositories, revisions, fileRecords} = props;
-    const repo = repositories[repoId]
+    const repo = repositories[repoId];
     if (!repo) {
         return null;
     }
@@ -128,7 +137,6 @@ export function RepoCard(props: {
     const repoRevisions = Object.values(revisions).filter(r => r.repoId === repoId);
 
     const meta = readRepoRaw(repo.registry, repo.raw as string);
-
 
 
     return (
