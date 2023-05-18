@@ -1,3 +1,4 @@
+import React from "react";
 import "./HashTag.css"
 export function HashTag(props: {hash: string}) {
     const {hash} = props;

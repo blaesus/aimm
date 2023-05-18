@@ -5,6 +5,7 @@ import { getRepoUrl } from "../../utils";
 import "./RepoCard.css";
 import { AnchorButton } from "../AnchorButton/AnchorButton";
 import { HashTag } from "../HashTag/HashTag";
+import { SizeTag } from "../SizeTag/SizeTag";
 
 interface RepoMetaInfo {
     tags: string[];
@@ -67,6 +68,7 @@ function FileRecordCard(props: {
             >
                 {file.filename}
                 <HashTag hash={file.hashA}/>
+                <SizeTag size={file.size} />
             </a>
         </div>
     )
