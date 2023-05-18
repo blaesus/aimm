@@ -59,15 +59,22 @@ export async function startJob(ctx: Koa.Context) {
     runSpider(spiders[type], requestBody, job.id);
 
     async function cleanup() {
-        await prisma.job.update({
+        const runningJob = await prisma.job.findUnique({
             where: {
                 id: job.id,
             },
-            data: {
-                status: "Interrupted",
-                stopped: Date.now(),
-            },
-        });
+        })
+        if (runningJob && runningJob.status === "Running") {
+            await prisma.job.update({
+                where: {
+                    id: job.id,
+                },
+                data: {
+                    status: "Interrupted",
+                    stopped: Date.now(),
+                },
+            });
+        }
         process.exit();
     }
 
