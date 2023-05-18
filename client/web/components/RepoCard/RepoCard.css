@@ -4,6 +4,10 @@
     border: 1px solid black;
 }
 
+.RepoCard h2 a {
+    text-decoration: underline;
+}
+
 .RevisionCard {
     margin: 1rem;
     padding: 1rem;

@@ -130,7 +130,7 @@ export function RepoCard(props: {
 
     return (
         <div key={repo.id} className="RepoCard">
-            <a href={getRepoUrl(repo)}>{repo.name}</a>
+            <h2><a href={getRepoUrl(repo)}>{repo.name}</a></h2>
             <div>
                 {repo.registry}
             </div>
