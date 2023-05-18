@@ -1,3 +1,4 @@
+import React from "react";
 export function SizeTag(props: {
     size: number | bigint | null | undefined
 }) {
@@ -20,8 +21,8 @@ export function SizeTag(props: {
         unit = "GB"
     }
     return (
-        <span>
-            {sizeDisplay.toFixed(2)} {unit}
+        <span title={`${size}B`}>
+            {sizeDisplay.toFixed(1)} {unit}
         </span>
     )
 }
