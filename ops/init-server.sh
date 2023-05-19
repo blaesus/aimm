@@ -50,3 +50,9 @@ sudo apt update
 
 # Install nginx
 sudo apt install -y nginx
+
+# prisma
+cd ~/aimm/
+
+vim ops/.env # Add params for APIs
+ln -s ops/.env.remote .env
