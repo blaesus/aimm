@@ -103,6 +103,6 @@ function getFileName(url) {
     return path.basename(parsedUrl.pathname);
 }
 
-server.listen(1234, 'localhost', () => {
+server.listen(1234, () => {
     console.log('Server is running on http://localhost:1234');
 });
