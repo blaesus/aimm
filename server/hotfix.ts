@@ -2,6 +2,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { makeRequester } from "./spiders/utils";
 import * as dotenv from "dotenv";
 
+const CONTENT_CATEGORY = "URL-TO-RAW-CONTENT";
 async function main() {
     dotenv.config();
     const prisma = new PrismaClient({});
@@ -19,27 +20,44 @@ async function main() {
         }
         for (const file of unsizedFileRecords) {
             console.info(`Checking size of file ${file.id}(${file.hashA}) from ${file.downloadUrl}`);
-            const similarFileWithSize = await prisma.fileRecord.findFirst({
+            const cachedContent = await prisma.keyValueCache.findFirst({
                 where: {
-                    hashA: file.hashA,
-                    size: {
-                        not: null,
-                    }
+                    category: CONTENT_CATEGORY,
+                    key: file.downloadUrl,
                 },
             });
-            if (similarFileWithSize) {
-                console.info(`Found ${similarFileWithSize.hashA} whose size is ${similarFileWithSize.size}`);
+            if (cachedContent) {
                 await prisma.fileRecord.update({
                     where: {
                         id: file.id,
                     },
                     data: {
-                        size: similarFileWithSize.size,
+                        size: cachedContent.value.length
                     },
                 });
+                console.info(`Found ${file.hashA} in content cahce, whose size is ${cachedContent.value.length}`);
             }
             else {
-                console.info(`Not size found in database for ${file.hashA}`)
+                const similarFileWithSize = await prisma.fileRecord.findFirst({
+                    where: {
+                        hashA: file.hashA,
+                        size: {
+                            not: null,
+                        }
+                    },
+                });
+                if (similarFileWithSize) {
+                    console.info(`Found ${similarFileWithSize.hashA} in db whose size is ${similarFileWithSize.size}`);
+                    await prisma.fileRecord.update({
+                        where: {
+                            id: file.id,
+                        },
+                        data: {
+                            size: similarFileWithSize.size,
+                        },
+                    });
+                }
+
             }
         }
 
