@@ -21,6 +21,9 @@ async function main() {
             const similarFiles = await prisma.fileRecord.findMany({
                 where: {
                     hashA: file.hashA,
+                    size: {
+                        not: null,
+                    }
                 },
             });
             for (const alt of similarFiles) {
