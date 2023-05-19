@@ -35,17 +35,26 @@ const server = http.createServer((req, res) => {
                 res.end('Invalid JSON payload');
             }
         });
-    } else if (method === 'GET' && pathname === '/api/ready') {
-        const query = new URL(url, `http://${req.headers.host}`).searchParams;
-        const fileName = query.get('file');
-        const filePath = path.join(downloadDir, fileName);
-
-        fs.access(filePath, fs.constants.F_OK, (error) => {
-            res.setHeader('Content-Type', 'application/json');
-            if (error) {
-                res.end(JSON.stringify({ ready: false }));
-            } else {
-                res.end(JSON.stringify({ ready: true }));
+    } else if (method === 'POST' && pathname === '/api/ready') {
+        let body = '';
+        req.on('data', (chunk) => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const readyStatus = data.map((filename) => {
+                    const filePath = path.join(downloadDir, filename);
+                    return {
+                        filename,
+                        ready: fs.existsSync(filePath),
+                    };
+                });
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify(readyStatus));
+            } catch (error) {
+                res.writeHead(400, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify({error: 'Invalid JSON data'}));
             }
         });
     } else if (method === 'POST' && pathname === '/api/clear') {
