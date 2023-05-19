@@ -7,7 +7,7 @@ sudo apt install nginx
 
 # docker
 sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usro/share/keyrings/docker-archive-keyring.gpg
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt update
 apt-cache policy docker-ce
@@ -28,3 +28,10 @@ sudo -u postgres psql
 # CREATE USER [Username] WITH ENCRYPTED PASSWORD '[Password]';
 # CREATE DATABASE [DatabaseName];
 # GRANT ALL PRIVILEGES ON DATABASE [DatabaseName] TO [Username];
+
+# Node.js
+curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
+sudo bash nodesource_setup.sh
+sudo apt install nodejs
+
+# Nginx

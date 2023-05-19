@@ -4,8 +4,10 @@
     "private": true,
     "scripts": {
         "start": "sh dev.sh",
-        "deploy": "sh ops/deploy.sh",
-        "deploy:nginx": "sh ops/deploy_nginx.sh",
+        "deploy:production": "sh ops/deploy.sh production",
+        "deploy:nginx_production": "sh ops/deploy_nginx.sh production",
+        "deploy:stage": "sh ops/deploy.sh stage",
+        "deploy:nginx_stage": "sh ops/deploy_nginx.sh stage",
         "build:web": "node_modules/.bin/webpack --config client/web/webpack.config.prod.js",
         "mirror": "ts-node -r tsconfig-paths/register src/server/data/mirror.ts",
         "genprisma": "./node_modules/.bin/prisma generate",
