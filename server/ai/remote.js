@@ -22,7 +22,7 @@ const server = http.createServer((req, res) => {
 
                 downloadList.forEach((item, index) => {
                     const { downloadUrl } = item;
-                    const fileName = getFileName(downloadUrl);
+                    const fileName = getFileName(req.headers, downloadUrl);
                     downloadFile(downloadUrl, fileName)
                     downloadRecords.push({
                         downloadUrl,
@@ -83,10 +83,8 @@ function downloadFile(url, fileName, callback) {
     });
 }
 
-function getFileName(url) {
-    const parsedUrl = new URL(url);
-    const contentDisposition = parsedUrl.searchParams.get('response-content-disposition');
-
+function getFileName(headers, url) {
+    const contentDisposition = headers['content-disposition'];
     if (contentDisposition) {
         const matches = contentDisposition.match(/filename="([^"]+)"/);
         if (matches) {
@@ -94,7 +92,7 @@ function getFileName(url) {
         }
     }
 
-    return path.basename(parsedUrl.pathname);
+    return path.basename(new URL(url).pathname);
 }
 
 server.listen(1234, () => {
