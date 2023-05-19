@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ops/web.dockerfile
     env_file:
-      - ./ops/.env.prod
+      - ./ops/.env.remote
     network_mode: "host"
     command: node node_modules/.bin/http-server build/web --port 3000
 
@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: ops/api.dockerfile
     env_file:
-      - ./ops/.env.prod
+      - ./ops/.env.remote
     network_mode: "host"
     command: node server/api.js
 
