@@ -8,7 +8,7 @@ if [[ $1 == *"stage"* ]]
 then
   target=${AIMM_STAGE_SERVER}
 fi
-echo "target${target}"
+echo "deploy target: ${target}"
 
 ssh ${target} 'bash -s' < ops/update-remote.sh
 
