@@ -25,13 +25,17 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type', 'text/plain')
                 self.end_headers()
 
+                headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
                 for url in urls:
                     download_url = url['downloadUrl']
                     file_name = os.path.basename(download_url)
                     file_path = os.path.join('stable-diffusion-webui', 'models', 'Stable-diffusion', 'test', file_name)
 
                     try:
-                        urllib.request.urlretrieve(download_url, file_path)
+                        req = urllib.request.Request(download_url, headers=headers)
+                        with urllib.request.urlopen(req) as response, open(file_path, 'wb') as out_file:
+                            data = response.read()
+                            out_file.write(data)
                     except Exception as e:
                         self.send_error(500, f"Failed to download {download_url}: {e}")
                         return
