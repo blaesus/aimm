@@ -1,0 +1,58 @@
+server {
+    listen 80 default_server;
+    server_name stage.aimm.dev;
+    return 301 https://stage.aimm.dev$request_uri;
+}
+
+limit_req_zone $binary_remote_addr zone=static:4m rate=4r/s;
+limit_req_zone $binary_remote_addr zone=api:4m rate=2r/s;
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl ipv6only=on;
+    server_name stage.aimm.dev;
+    root /var/www/html;
+
+    ssl_certificate /etc/letsencrypt/live/stage.aimm.dev/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/stage.aimm.dev/privkey.pem;
+
+    location / {
+        include /etc/nginx/web_headers.nginx;
+        expires off;
+        limit_req zone=static burst=5 nodelay;
+        proxy_pass http://localhost:3000;
+    }
+
+    location ~ \.(js|css)$ {
+        include /etc/nginx/headers.nginx;
+        expires 1000d;
+        add_header Pragma public;
+        limit_req zone=static burst=5 nodelay;
+        add_header Cache-Control "public";
+        proxy_pass http://localhost:3000;
+    }
+
+    location /api {
+        include /etc/nginx/headers.nginx;
+        expires off;
+        limit_req zone=api burst=10 delay=5;
+        proxy_pass http://localhost:4000;
+    }
+
+    location /admin-api {
+        include /etc/nginx/headers.nginx;
+        expires off;
+        limit_req zone=api burst=10 delay=5;
+        proxy_pass http://localhost:4100;
+    }
+
+    location /remote {
+        rewrite ^/remote(.*)$ $1 break;
+        root /var/www/html;
+        try_files $uri =404;
+    }
+
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
