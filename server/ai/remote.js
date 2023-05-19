@@ -21,12 +21,11 @@ const server = http.createServer((req, res) => {
                 const downloadRecords = [];
 
                 downloadList.forEach((item, index) => {
-                    const { downloadUrl } = item;
-                    const fileName = getFileName(req.headers, downloadUrl);
-                    downloadFile(downloadUrl, fileName)
+                    const { downloadUrl, filename } = item;
+                    downloadFile(downloadUrl, filename)
                     downloadRecords.push({
                         downloadUrl,
-                        fileName,
+                        filename,
                     })
                 });
                 res.setHeader('Content-Type', 'application/json');
@@ -72,7 +71,8 @@ const server = http.createServer((req, res) => {
 });
 
 function downloadFile(url, fileName) {
-    const command = `curl -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -L -o "${path.join(downloadDir, fileName)}" "${url}"`;
+    const command = `
+        wget --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -O "${path.join(downloadDir, fileName)}" "${url}"`
 
     exec(command, (error) => {
         if (error) {
@@ -84,7 +84,7 @@ function downloadFile(url, fileName) {
     });
 }
 
-function getFileName(headers, url) {
+function getFileName(url) {
     const contentDisposition = headers['content-disposition'];
     if (contentDisposition) {
         const matches = contentDisposition.match(/filename="([^"]+)"/);
