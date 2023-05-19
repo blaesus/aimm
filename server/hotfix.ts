@@ -24,7 +24,7 @@ async function main() {
                 },
             });
             for (const alt of similarFiles) {
-                if (alt.size) {
+                if (alt.size !== null) {
                     console.info(`Found ${alt.hashA} whose size is ${alt.size}`);
                     await prisma.fileRecord.update({
                         where: {
