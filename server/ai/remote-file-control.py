@@ -3,6 +3,7 @@ import os
 import urllib.request
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+local_base = 'stable-diffusion-webui/models/Stable-diffusion/test'
 
 class RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -31,7 +32,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             for url in urls:
                 download_url = url['downloadUrl']
                 file_name = os.path.basename(download_url)
-                file_path = os.path.join('stable-diffusion-webui/models/Stable-diffusion/test', file_name)
+                file_path = os.path.join(local_base, file_name)
 
                 try:
                     req = urllib.request.Request(download_url, headers=headers)
@@ -39,7 +40,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                         content_disposition = response.headers.get('Content-Disposition')
                         if content_disposition:
                             file_name = content_disposition.split('filename=')[1].strip('"')
-                            file_path = os.path.join('models', file_name)
+                            file_path = os.path.join(local_base, file_name)
 
                         with open(file_path, 'wb') as out_file:
                             data = response.read()
@@ -67,8 +68,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
 
-            for file_name in os.listdir('stable-diffusion-webui/models/Stable-diffusion/test'):
-                file_path = os.path.join('stable-diffusion-webui/models/Stable-diffusion/test', file_name)
+            for file_name in os.listdir(local_base):
+                file_path = os.path.join(local_base, file_name)
                 try:
                     if os.path.isfile(file_path):
                         os.remove(file_path)
