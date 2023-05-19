@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { makeRequester } from "./spiders/utils";
+import { makeRequester } from "./jobs/utils";
 import * as dotenv from "dotenv";
 
 const CONTENT_CATEGORY = "URL-TO-RAW-CONTENT";

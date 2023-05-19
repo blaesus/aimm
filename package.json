@@ -34,7 +34,8 @@
         "prisma": "^4.13.0",
         "react": "18.2.0",
         "react-dom": "18.2.0",
-        "source-map-loader": "^4.0.1"
+        "source-map-loader": "^4.0.1",
+        "stable-diffusion-api": "^0.0.7"
     },
     "devDependencies": {
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",

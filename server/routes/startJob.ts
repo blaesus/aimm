@@ -1,11 +1,11 @@
 import { getJobType, parseQuery, Query } from "./utils";
-import { civitaiReindexer } from "../spiders/civitai";
-import { huggingfaceIndexer } from "../spiders/huggingface";
-import { fileObtainer } from "../spiders/obtain";
+import { civitaiReindexer } from "../jobs/civitai";
+import { huggingfaceIndexer } from "../jobs/huggingface";
+import { fileObtainer } from "../jobs/obtain";
 import * as Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 import { JobType, StartJobSuccess } from "../../data/aimmApi";
-import { runSpider, Spider } from "../spiders/spider";
+import { runSpider, Spider } from "../jobs/spider";
 import { serialize } from "../../data/serialize";
 
 const spiders: { [key in JobType]: Spider<any, any> } = {
