@@ -5,7 +5,7 @@ COPY ./package*.json ./
 RUN npm ci
 RUN npm install http-server
 COPY . .
-COPY ./ops/.env.prod .env
+COPY ./ops/.env.remote .env
 RUN ./node_modules/.bin/prisma generate
 RUN npm run build:web
 

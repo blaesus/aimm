@@ -4,7 +4,7 @@ WORKDIR /usr/server/api
 COPY package*.json ./
 RUN npm install
 COPY . .
-COPY ./ops/.env.prod .env
+COPY ./ops/.env.remote .env
 RUN ./node_modules/.bin/prisma generate
 RUN ./node_modules/.bin/tsc --project server/tsconfig.json
 

@@ -35,3 +35,18 @@ sudo bash nodesource_setup.sh
 sudo apt install nodejs
 
 # Nginx
+# Get the Ubuntu version
+UBUNTU_VERSION=$(lsb_release -cs)
+
+# Add the nginx repository
+echo "deb https://nginx.org/packages/ubuntu/ $UBUNTU_VERSION nginx" | sudo tee /etc/apt/sources.list.d/nginx.list
+echo "deb-src https://nginx.org/packages/ubuntu/ $UBUNTU_VERSION nginx" | sudo tee -a /etc/apt/sources.list.d/nginx.list
+
+# Fetch the NGINX signing key
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
+
+# Update the package list
+sudo apt update
+
+# Install nginx
+sudo apt install -y nginx
