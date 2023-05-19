@@ -25,5 +25,5 @@ services:
       dockerfile: ops/admin.dockerfile
     network_mode: "host"
     env_file:
-      - ./ops/.env.prod
+      - ./ops/.env.remote
     command: node server/admin-api.js
