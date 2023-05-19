@@ -1,37 +1,39 @@
 import { getWebuiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
+import { serialize } from "../../data/serialize";
 
 interface BenchJobProps {
-    benchId: string,
+    benchIds: string[],
 }
 
 async function bench(props: BenchJobProps) {
 
-    const bench = await prisma.benchmark.findUnique({
+    const benches = await prisma.benchmark.findMany({
         where: {
-            id: props.benchId,
-        }
+            id: {
+                in: props.benchIds,
+            },
+        },
     });
 
-    if (!bench) {
+    if (!benches) {
         return;
     }
 
-    if (bench.type === "txt2img") {
-        const base = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
-        const requester = getWebuiApiRequester(base);
-        await requester.setCheckpointWithTitle("anime/ghostmix_v12.safetensors [f20c91bd27]");
-        const data = await requester.txt2img({
-            prompt: "1girl",
-            negative_prompt: "",
-            seed: 12345678,
-            steps: 20,
-            sampler_name: "DPM++ 2M Karras",
-        }, "teapot.png")
-
+    if (benches.some(bench => bench.type !== "txt2img")) {
+        console.error("unknown benchmark type");
+        return;
     }
-    else {
-        console.error("unknown benchmark type", bench.type)
+
+    const base = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
+    const requester = getWebuiApiRequester(base);
+    const models = await requester.getCheckpoints();
+    for (const model of models) {
+        await requester.setCheckpointWithTitle(model.title);
+        for (const bench of benches) {
+            const params = JSON.parse(JSON.stringify((bench.parameters)))
+            await requester.txt2img(params, `${bench.name}-${model.model_name}.png`);
+        }
     }
 
 
