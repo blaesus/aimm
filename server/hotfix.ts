@@ -35,7 +35,7 @@ async function main() {
                         size: cachedContent.value.length
                     },
                 });
-                console.info(`Found ${file.hashA} in content cahce, whose size is ${cachedContent.value.length}`);
+                console.info(`Found ${file.hashA} in content cache, whose size is ${cachedContent.value.length}`);
             }
             else {
                 const similarFileWithSize = await prisma.fileRecord.findFirst({
