@@ -28,7 +28,7 @@ class RequestHandler(BaseHTTPRequestHandler):
                 for url in urls:
                     download_url = url['downloadUrl']
                     file_name = os.path.basename(download_url)
-                    file_path = os.path.join('models', file_name)
+                    file_path = os.path.join('stable-diffusion-webui', 'models', 'Stable-diffusion', 'test', file_name)
 
                     try:
                         urllib.request.urlretrieve(download_url, file_path)
@@ -45,7 +45,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
                 for url in urls:
                     file_name = os.path.basename(url['downloadUrl'])
-                    file_path = os.path.join('models', file_name)
+                    file_path = os.path.join('stable-diffusion-webui', 'models', 'Stable-diffusion', 'test', file_name)
 
                     try:
                         os.remove(file_path)
@@ -60,7 +60,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def run():
-    server_address = ('localhost', 1234)
+    server_address = ('', 1234)
     httpd = HTTPServer(server_address, RequestHandler)
     print(f"Server running on {server_address[0]}:{server_address[1]}")
     httpd.serve_forever()
