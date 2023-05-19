@@ -8,6 +8,7 @@ import { getJobs } from "./routes/getJobs";
 import { startJob } from "./routes/startJob";
 import { spiderAdminAuth } from "./routes/spiderAdminAuth";
 import { stopJob } from "./routes/stopJob";
+import { addBench } from "./routes/addBench";
 
 dotenv.config();
 
@@ -18,11 +19,15 @@ app.use(bodyParser());
 app.use(spiderAdminAuth);
 
 router.prefix("/admin-api")
+
 router.get("/hello", hello);
+
 router.get("/jobs", getJobs);
 router.get("/jobs/:type", getJobs);
 router.post("/jobs/:type", startJob);
 router.delete("/jobs/:id", stopJob);
+
+router.post("/benchmarks", addBench);
 
 app.use(router.routes());
 app.use(router.allowedMethods());

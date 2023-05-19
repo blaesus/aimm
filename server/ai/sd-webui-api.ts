@@ -212,7 +212,7 @@ const defaultOptions: WebuiOptions = {
     "sd_checkpoint_hash": "c0d1994c73d784a17a5b335ae8bda02dcc8dd2fc5f5dbf55169d5aab385e53f2",
 };
 
-function getWebuiApiRequester(base: string): WebUiApiRequester {
+export function getWebuiApiRequester(base: string): WebUiApiRequester {
     const requester: WebUiApiRequester = {
         async txt2img(params: Partial<Txt2ImgParams>, outputPath?: string): Promise<Txt2ImgResult> {
             const url = `${base}/sdapi/v1/txt2img`;
@@ -268,18 +268,4 @@ interface Txt2ImgResult {
     images: string[],
     parameters: Txt2ImgParams
     info: string,
-}
-
-
-async function get() {
-    const base = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
-    const requester = getWebuiApiRequester(base);
-    await requester.setCheckpointWithTitle("anime/ghostmix_v12.safetensors [f20c91bd27]");
-    await requester.txt2img({
-        prompt: "1girl",
-        negative_prompt: "",
-        seed: 12345678,
-        steps: 20,
-        sampler_name: "DPM++ 2M Karras",
-    }, "teapot.png")
 }

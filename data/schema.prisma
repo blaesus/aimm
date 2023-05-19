@@ -64,8 +64,9 @@ model FileRecord {
   raw         Json?
   size        BigInt?
 
-  storageRecords    FileStorageRecordOnFileRecord[]
-  evaluationResults BenchmarkResult[]
+  storageRecords   FileStorageRecordOnFileRecord[]
+  benchmarkResults BenchmarkResult[]               @relation("BenchmarkResult_ResultFile")
+  benchmarkTargets BenchmarkResult[]               @relation("BenchmarkResult_TargetFile")
 
   @@unique([revisionId, hashA])
   @@index([filename])
@@ -251,7 +252,7 @@ model Benchmark {
   id         String            @id @default(uuid()) @db.Uuid
   type       BenchmarkType
   subtype    String
-  name       String
+  name       String            @unique
   parameters Json
   created    BigInt
   results    BenchmarkResult[]
@@ -262,7 +263,7 @@ model BenchmarkResult {
   benchmarkId  String     @db.Uuid
   benchmark    Benchmark  @relation(fields: [benchmarkId], references: [id])
   targetFileId String     @db.Uuid
-  targetFile   FileRecord @relation(fields: [targetFileId], references: [id])
+  targetFile   FileRecord @relation("BenchmarkResult_TargetFile", fields: [targetFileId], references: [id])
   resultFileId String     @db.Uuid
-  resultFile   FileRecord @relation(fields: [resultFileId], references: [id])
+  resultFile   FileRecord @relation("BenchmarkResult_ResultFile", fields: [resultFileId], references: [id])
 }

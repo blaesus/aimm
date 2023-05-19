@@ -1,4 +1,4 @@
-import type { FileRecord, Job, Repository, Revision, StorageService } from "@prisma/client";
+import type { Benchmark, FileRecord, Job, Repository, Revision, StorageService } from "@prisma/client";
 
 export type HuggingfaceRepoType = "datasets" | "models";
 
@@ -66,4 +66,7 @@ export interface StartJobSuccess {
 export interface StopJobSuccess {
     ok: true,
     job: Job
+}
+
+export interface CreateBenchmarkRequest extends Pick<Benchmark, "type" | "subtype" | "name" | "parameters"> {
 }
