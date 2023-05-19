@@ -81,7 +81,7 @@ const server = http.createServer((req, res) => {
 
 function downloadFile(url, fileName) {
     const command = `
-        wget --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -O "${path.join(downloadDir, fileName)}" "${url}"`
+        wget --quiet --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -O "${path.join(downloadDir, fileName)}" "${url}"`
 
     exec(command, (error) => {
         if (error) {

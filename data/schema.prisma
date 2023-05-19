@@ -248,13 +248,13 @@ enum BenchmarkType {
 }
 
 model Benchmark {
-  id      String            @id @default(uuid()) @db.Uuid
-  type    BenchmarkType
-  subtype String
-  name    String
-  data    Json
-  created BigInt
-  results BenchmarkResult[]
+  id         String            @id @default(uuid()) @db.Uuid
+  type       BenchmarkType
+  subtype    String
+  name       String
+  parameters Json
+  created    BigInt
+  results    BenchmarkResult[]
 }
 
 model BenchmarkResult {
