@@ -212,6 +212,10 @@ const defaultOptions: WebuiOptions = {
     "sd_checkpoint_hash": "c0d1994c73d784a17a5b335ae8bda02dcc8dd2fc5f5dbf55169d5aab385e53f2",
 };
 
+function resultSuccessful(result: Txt2ImgResult): result is Txt2ImgSuccess {
+    return !!(result as Txt2ImgSuccess).images;
+}
+
 export function getWebuiApiRequester(base: string): WebUiApiRequester {
     const requester: WebUiApiRequester = {
         async txt2img(params: Partial<Txt2ImgParams>, outputPath?: string): Promise<Txt2ImgResult> {
@@ -228,7 +232,8 @@ export function getWebuiApiRequester(base: string): WebUiApiRequester {
             });
 
             const data: Txt2ImgResult = await response.json();
-            if (outputPath) {
+            console.info(data)
+            if (outputPath && resultSuccessful(data)) {
                 const imageBase64 = data.images[0];
                 const imageBinary = Buffer.from(imageBase64, "base64");
                 await fs.writeFile(outputPath, imageBinary);
@@ -264,8 +269,17 @@ export function getWebuiApiRequester(base: string): WebUiApiRequester {
     return requester;
 }
 
-interface Txt2ImgResult {
+interface Txt2ImgSuccess {
     images: string[],
     parameters: Txt2ImgParams
     info: string,
 }
+
+interface Txt2ImgError {
+    error: string,
+    detail: string,
+    body: string,
+    errors: string,
+}
+
+export type Txt2ImgResult = Txt2ImgSuccess | Txt2ImgError;
