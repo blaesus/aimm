@@ -283,5 +283,3 @@ async function get() {
         sampler_name: "DPM++ 2M Karras",
     }, "teapot.png")
 }
-
-get();

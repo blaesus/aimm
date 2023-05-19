@@ -64,7 +64,8 @@ model FileRecord {
   raw         Json?
   size        BigInt?
 
-  storageRecords FileStorageRecordOnFileRecord[]
+  storageRecords    FileStorageRecordOnFileRecord[]
+  evaluationResults BenchmarkResult[]
 
   @@unique([revisionId, hashA])
   @@index([filename])
@@ -239,4 +240,27 @@ model Job {
   total     Int?
   processed Int?
   data      Json?
+}
+
+// See https://huggingface.co/tasks
+enum BenchmarkType {
+  txt2img
+}
+
+model Benchmark {
+  id      String            @id @default(uuid()) @db.Uuid
+  type    BenchmarkType
+  subtype String
+  name    String
+  data    Json
+  created BigInt
+  results BenchmarkResult[]
+}
+
+model BenchmarkResult {
+  id           String     @id @default(uuid()) @db.Uuid
+  benchmarkId  String     @db.Uuid
+  benchmark    Benchmark  @relation(fields: [benchmarkId], references: [id])
+  targetFileId String     @db.Uuid
+  targetFile   FileRecord @relation(fields: [targetFileId], references: [id])
 }
