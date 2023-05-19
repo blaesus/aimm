@@ -112,7 +112,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
 
 
 def run_server():
-    server_address = ('localhost', 1234)
+    server_address = ('', 1234)
     httpd = HTTPServer(server_address, MyRequestHandler)
     print('Server running on localhost:1234')
     httpd.serve_forever()
