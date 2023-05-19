@@ -263,4 +263,6 @@ model BenchmarkResult {
   benchmark    Benchmark  @relation(fields: [benchmarkId], references: [id])
   targetFileId String     @db.Uuid
   targetFile   FileRecord @relation(fields: [targetFileId], references: [id])
+  resultFileId String     @db.Uuid
+  resultFile   FileRecord @relation(fields: [resultFileId], references: [id])
 }
