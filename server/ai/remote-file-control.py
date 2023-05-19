@@ -60,7 +60,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 
 
 def run():
-    server_address = ('localhost', 3000)
+    server_address = ('localhost', 1234)
     httpd = HTTPServer(server_address, RequestHandler)
     print(f"Server running on {server_address[0]}:{server_address[1]}")
     httpd.serve_forever()
