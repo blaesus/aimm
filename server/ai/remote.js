@@ -23,20 +23,14 @@ const server = http.createServer((req, res) => {
                 downloadList.forEach((item, index) => {
                     const { downloadUrl } = item;
                     const fileName = getFileName(downloadUrl);
-
-                    downloadFile(downloadUrl, fileName, (error, savedFilePath) => {
-                        if (error) {
-                            downloadRecords.push({ downloadUrl, error: error.message });
-                        } else {
-                            downloadRecords.push({ downloadUrl, savedFilePath, fileName });
-                        }
-
-                        if (downloadRecords.length === downloadList.length) {
-                            res.setHeader('Content-Type', 'application/json');
-                            res.end(JSON.stringify(downloadRecords));
-                        }
-                    });
+                    downloadFile(downloadUrl, fileName)
+                    downloadRecords.push({
+                        downloadUrl,
+                        fileName,
+                    })
                 });
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify(downloadRecords));
             } catch (error) {
                 res.statusCode = 400;
                 res.end('Invalid JSON payload');
