@@ -31,7 +31,7 @@ class RequestHandler(BaseHTTPRequestHandler):
             for url in urls:
                 download_url = url['downloadUrl']
                 file_name = os.path.basename(download_url)
-                file_path = os.path.join('models', file_name)
+                file_path = os.path.join('stable-diffusion-webui/models/Stable-diffusion/test', file_name)
 
                 try:
                     req = urllib.request.Request(download_url, headers=headers)
@@ -67,8 +67,8 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
 
-            for file_name in os.listdir('models'):
-                file_path = os.path.join('models', file_name)
+            for file_name in os.listdir('stable-diffusion-webui/models/Stable-diffusion/test'):
+                file_path = os.path.join('stable-diffusion-webui/models/Stable-diffusion/test', file_name)
                 try:
                     if os.path.isfile(file_path):
                         os.remove(file_path)
