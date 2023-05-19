@@ -32,9 +32,17 @@ async function bench(props: BenchJobProps) {
         await requester.setCheckpointWithTitle(model.title);
         for (const bench of benches) {
             const params = JSON.parse(JSON.stringify((bench.parameters)))
-            await requester.txt2img(params, `${bench.name}-${model.model_name}.png`);
+            await requester.txt2img(params, `/tmp/${bench.name}-${model.model_name}.png`);
         }
     }
-
-
 }
+
+async function test() {
+    await bench({
+        benchIds: [
+            "2edb3f3d-e6cb-443c-95ea-0a1b4a4c62ae"
+        ]
+    })
+}
+
+test().catch(console.error)
