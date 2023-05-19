@@ -6,6 +6,7 @@ async function main() {
     dotenv.config();
     const prisma = new PrismaClient({});
     for (let page = 1; page < 1000; page += 1) {
+        console.info(`page ${page}`)
         const unsizedFileRecords = await prisma.fileRecord.findMany({
             where: {
                 size: null,
@@ -17,7 +18,7 @@ async function main() {
             break;
         }
         for (const file of unsizedFileRecords) {
-            console.info(`Checking size of file ${file.id} from ${file.downloadUrl}`);
+            console.info(`Checking size of file ${file.id}(${file.hashA}) from ${file.downloadUrl}`);
             const similarFileWithSize = await prisma.fileRecord.findFirst({
                 where: {
                     hashA: file.hashA,
@@ -36,6 +37,9 @@ async function main() {
                         size: similarFileWithSize.size,
                     },
                 });
+            }
+            else {
+                console.info(`Not size found in database for ${file.hashA}`)
             }
         }
 
