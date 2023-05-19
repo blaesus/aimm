@@ -79,7 +79,7 @@ function downloadFile(url, fileName) {
             console.error(error);
         }
         else {
-            console.log(`Downloaded ${fileName}}`)
+            console.log(`Downloaded ${fileName}`)
         }
     });
 }
