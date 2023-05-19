@@ -18,7 +18,7 @@ async function main() {
         }
         for (const file of unsizedFileRecords) {
             console.info(`Checking size of file ${file.id} from ${file.downloadUrl}`);
-            const similarFiles = await prisma.fileRecord.findMany({
+            const similarFileWithSize = await prisma.fileRecord.findFirst({
                 where: {
                     hashA: file.hashA,
                     size: {
@@ -26,19 +26,16 @@ async function main() {
                     }
                 },
             });
-            for (const alt of similarFiles) {
-                if (alt.size !== null) {
-                    console.info(`Found ${alt.hashA} whose size is ${alt.size}`);
-                    await prisma.fileRecord.update({
-                        where: {
-                            id: file.id,
-                        },
-                        data: {
-                            size: alt.size,
-                        },
-                    });
-                    break;
-                }
+            if (similarFileWithSize) {
+                console.info(`Found ${similarFileWithSize.hashA} whose size is ${similarFileWithSize.size}`);
+                await prisma.fileRecord.update({
+                    where: {
+                        id: file.id,
+                    },
+                    data: {
+                        size: similarFileWithSize.size,
+                    },
+                });
             }
         }
 
