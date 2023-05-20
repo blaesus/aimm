@@ -6,6 +6,8 @@ interface BenchJobProps {
     benchIds: string[],
 }
 
+const BENCH_DIR_NAME = "for_bench";
+
 async function bench(props: BenchJobProps) {
 
     const benches = await prisma.benchmark.findMany({
@@ -28,10 +30,11 @@ async function bench(props: BenchJobProps) {
     const base = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
     const requester = getWebuiApiRequester(base);
     const models = await requester.getCheckpoints();
-    for (const model of models) {
+    const benchModels = models.filter(model => model.filename.includes(BENCH_DIR_NAME));
+    for (const model of benchModels) {
         await requester.setCheckpointWithTitle(model.title);
         for (const bench of benches) {
-            const params = JSON.parse(JSON.stringify((bench.parameters)))
+            const params = JSON.parse(JSON.stringify((bench.parameters)));
             await requester.txt2img(params, `/tmp/${bench.name}-${model.model_name}.png`);
         }
     }
@@ -40,9 +43,9 @@ async function bench(props: BenchJobProps) {
 async function test() {
     await bench({
         benchIds: [
-            "2edb3f3d-e6cb-443c-95ea-0a1b4a4c62ae"
-        ]
-    })
+            "2edb3f3d-e6cb-443c-95ea-0a1b4a4c62ae",
+        ],
+    });
 }
 
-test().catch(console.error)
+test().catch(console.error);

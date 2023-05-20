@@ -4,7 +4,9 @@ const path = require('path');
 const { URL } = require('url');
 const { exec } = require('child_process');
 
-const downloadDir = path.join(__dirname, 'stable-diffusion-webui/models/Stable-diffusion/test');
+const SUB_DIR = "for_bench"
+
+const downloadDir = path.join(__dirname, `stable-diffusion-webui/models/Stable-diffusion/${SUB_DIR}`);
 
 const server = http.createServer((req, res) => {
     const { method, url } = req;
