@@ -82,17 +82,30 @@ const server = http.createServer((req, res) => {
 });
 
 function downloadFile(url, fileName) {
-    const command = `
-        wget --quiet --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -O "${path.join(downloadDir, fileName)}" "${url}"`
+    const tempFileName = fileName + '.part';
+    const tempFilePath = path.join(downloadDir, tempFileName);
+    const finalFilePath = path.join(downloadDir, fileName);
+    const downloadCommand = `
+        wget --quiet --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -O "${tempFilePath}" "${url}"`
 
-    exec(command, (error) => {
+    exec(downloadCommand, (error) => {
         if (error) {
             console.error(error);
         }
         else {
-            console.log(`Downloaded ${fileName}`)
+            console.log(`Downloaded ${fileName} to ${tempFilePath}`)
         }
     });
+
+    const renameCommand = `mv "${tempFilePath}" "${finalFilePath}"`;
+    exec(renameCommand, (error) => {
+        if (error) {
+            console.error(error);
+        }
+        else {
+            console.log(`Renamed ${tempFilePath} to ${finalFilePath}`)
+        }
+    })
 }
 
 function getFileName(url) {
