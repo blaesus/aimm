@@ -1,68 +1,68 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { makeRequester } from "./jobs/utils";
-import * as dotenv from "dotenv";
+import { PrismaClient, FileRecord } from '@prisma/client';
 
-const CONTENT_CATEGORY = "URL-TO-RAW-CONTENT";
-async function main() {
-    dotenv.config();
-    const prisma = new PrismaClient({});
-    for (let page = 1; page < 1000; page += 1) {
-        console.info(`page ${page}`)
-        const unsizedFileRecords = await prisma.fileRecord.findMany({
+const prisma = new PrismaClient();
+
+async function updateSizes() {
+    try {
+        // Count records without a size
+        const count = await prisma.fileRecord.count({
             where: {
                 size: null,
             },
-            take: 1000 * page,
-            skip: 1000 * (page - 1),
         });
-        if (!unsizedFileRecords.length) {
-            break;
-        }
-        for (const file of unsizedFileRecords) {
-            console.info(`Checking size of file ${file.id}(${file.hashA}) from ${file.downloadUrl}`);
-            const cachedContent = await prisma.keyValueCache.findFirst({
+
+        const pageSize = 100; // Number of records to process per page
+        let processedCount = 0;
+
+        for (let skip = 0; skip < count; skip += pageSize) {
+            // Find records without a size, paginated
+            const recordsWithoutSize = await prisma.fileRecord.findMany({
                 where: {
-                    category: CONTENT_CATEGORY,
-                    key: file.downloadUrl,
+                    size: null,
                 },
+                take: pageSize,
+                skip: skip,
             });
-            if (cachedContent) {
-                await prisma.fileRecord.update({
+
+            for (const record of recordsWithoutSize) {
+                // Find records with the same hashA
+                const matchingRecords = await prisma.fileRecord.findMany({
                     where: {
-                        id: file.id,
-                    },
-                    data: {
-                        size: cachedContent.value.length
-                    },
-                });
-                console.info(`Found ${file.hashA} in content cache, whose size is ${cachedContent.value.length}`);
-            }
-            else {
-                const similarFileWithSize = await prisma.fileRecord.findFirst({
-                    where: {
-                        hashA: file.hashA,
+                        hashA: record.hashA,
                         size: {
                             not: null,
-                        }
+                        },
                     },
+                    take: 1, // Retrieve only one matching record
                 });
-                if (similarFileWithSize) {
-                    console.info(`Found ${similarFileWithSize.hashA} in db whose size is ${similarFileWithSize.size}`);
+
+                if (matchingRecords.length > 0) {
+                    const matchingRecord = matchingRecords[0];
+                    // Update the size of the current record with the matching record's size
                     await prisma.fileRecord.update({
                         where: {
-                            id: file.id,
+                            id: record.id,
                         },
                         data: {
-                            size: similarFileWithSize.size,
+                            size: matchingRecord.size,
                         },
                     });
+                    console.log(`Updated size for record with id ${record.id}`);
+                } else {
+                    console.log(`No matching records found for record with id ${record.id}`);
                 }
 
+                processedCount++;
+                console.log(`Processed ${processedCount} out of ${count}`);
             }
         }
 
+        console.log('Finished updating sizes.');
+    } catch (error) {
+        console.error('Error updating sizes:', error);
+    } finally {
+        await prisma.$disconnect();
     }
-    console.info("hotfix finished")
 }
 
-main().catch(console.error);
+updateSizes();
