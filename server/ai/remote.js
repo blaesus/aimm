@@ -19,21 +19,16 @@ const server = http.createServer((req, res) => {
         req.on('data', chunk => {
             body += chunk;
         });
-        req.on('end', () => {
+        req.on('end', async () => {
             try {
                 const downloadList = JSON.parse(body);
-                const downloadRecords = [];
 
-                downloadList.forEach((item, index) => {
-                    const { downloadUrl, filename } = item;
-                    downloadFile(downloadUrl, filename)
-                    downloadRecords.push({
-                        downloadUrl,
-                        filename,
-                    })
-                });
                 res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(downloadRecords));
+                res.end({ok: true});
+                for (const item of downloadList) {
+                    const { downloadUrl, filename } = item;
+                    await downloadFile(downloadUrl, filename)
+                }
             } catch (error) {
                 res.statusCode = 400;
                 res.end('Invalid JSON payload');
@@ -84,21 +79,23 @@ const server = http.createServer((req, res) => {
 });
 
 function downloadFile(url, fileName) {
-    const tempFileName = fileName + '.part';
-    const tempFilePath = path.join(downloadDir, tempFileName);
-    const finalFilePath = path.join(downloadDir, fileName);
-    const downloadCommand = `
-        wget --quiet --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -O "${tempFilePath}" "${url}" && mv "${tempFilePath}" "${finalFilePath}"`
+    return new Promise((resolve, reject) => {
+        const tempFileName = fileName + '.part';
+        const tempFilePath = path.join(downloadDir, tempFileName);
+        const finalFilePath = path.join(downloadDir, fileName);
+        const downloadCommand = `
+        wget --quiet --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -O "${tempFilePath}" "${url}" && mv "${tempFilePath}" "${finalFilePath}"`;
 
-    exec(downloadCommand, (error) => {
-        if (error) {
-            console.error(error);
-        }
-        else {
-            console.log(`Downloaded ${fileName} to ${finalFilePath}`)
-        }
+        exec(downloadCommand, (error) => {
+            if (error) {
+                console.error(error);
+                reject(error);
+            } else {
+                console.log(`Downloaded ${fileName} to ${finalFilePath}`);
+                resolve();
+            }
+        });
     });
-
 }
 
 function getFileName(url) {
