@@ -153,20 +153,20 @@ async function checkApi() {
 async function test() {
     await checkApi();
     const targets = await getTargets();
-    await downloadModels(targets);
-    await sleep(1000);
-    console.info("downloaded");
-    while (true) {
-        if (await allModelsReady(targets)) {
-            break;
-        }
-        await sleep(10_000);
-    }
-    console.info("All ready");
+    // await downloadModels(targets);
+    // await sleep(1000);
+    // console.info("downloaded");
+    // while (true) {
+    //     if (await allModelsReady(targets)) {
+    //         break;
+    //     }
+    //     await sleep(10_000);
+    // }
+    // console.info("All ready");
     await sleep(1000);
     await bench({
         benchIds: [
-            "2edb3f3d-e6cb-443c-95ea-0a1b4a4c62ae",
+            "aa78c1db-d000-44d9-9eef-04efe80f55a6",
         ],
     });
     // await clearModels();
