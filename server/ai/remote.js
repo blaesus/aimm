@@ -24,12 +24,12 @@ const server = http.createServer((req, res) => {
             try {
                 const downloadList = JSON.parse(body);
 
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify({ok: true}));
                 for (const item of downloadList) {
                     const { downloadUrl, filename } = item;
                     downloadFile(downloadUrl, filename)
                 }
+                res.setHeader('Content-Type', 'application/json');
+                res.end(JSON.stringify({ok: true}));
             } catch (error) {
                 res.statusCode = 400;
                 res.end(JSON.stringify({
