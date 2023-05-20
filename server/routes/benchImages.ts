@@ -159,7 +159,7 @@ async function test() {
         if (await allModelsReady(targets)) {
             break;
         }
-        await sleep(2_000);
+        await sleep(10_000);
     }
     console.info("All ready");
     await sleep(1000);
