@@ -128,6 +128,7 @@ async function bench(props: BenchJobProps) {
     }
 
     const requester = getWebuiApiRequester(webuiApiBase);
+    await requester.refreshCheckpoints();
     const models = await requester.getCheckpoints();
     console.info("models", models);
     const benchModels = models.filter(model => model.filename.includes(BENCH_DIR_NAME));
