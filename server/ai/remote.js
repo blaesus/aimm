@@ -26,7 +26,8 @@ const server = http.createServer((req, res) => {
 
                 for (const item of downloadList) {
                     const { downloadUrl, filename } = item;
-                    downloadFile(downloadUrl, filename)
+                    const path = `${downloadDir}/${filename}`;
+                    downloadFile(downloadUrl, path)
                 }
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({ok: true}));
@@ -83,8 +84,8 @@ const server = http.createServer((req, res) => {
     }
 });
 
-function downloadFile(url, fileName) {
-    const file = fs.createWriteStream(fileName);
+function downloadFile(url, filepath) {
+    const file = fs.createWriteStream(filepath);
     const request = http.get(url, function(response) {
         response.pipe(file);
 
