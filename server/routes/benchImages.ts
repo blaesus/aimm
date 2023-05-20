@@ -1,12 +1,108 @@
 import { getWebuiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
 import { serialize } from "../../data/serialize";
+import { sleep } from "../jobs/utils";
 
 interface BenchJobProps {
     benchIds: string[],
 }
 
 const BENCH_DIR_NAME = "for_bench";
+const webuiApiBase = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
+const remoteControlBase = "https://tuegtqwoeab9ud-1234.proxy.runpod.net";
+
+const SEPARATOR = "_"
+
+interface BenchTarget {
+    downloadUrl: string,
+    repo: string,
+    rev: string,
+    file: string,
+    filename: string,
+}
+
+async function getTargets() {
+    const targets: BenchTarget[] = (await prisma.repository.findMany({
+        where: {
+            registry: "Civitai",
+            subtype: "Checkpoint",
+        },
+        orderBy: {
+            favour: "desc"
+        },
+        select: {
+            id: true,
+            revisions: {
+                select: {
+                    id: true,
+                    fileRecords: {
+                        select: {
+                            id: true,
+                            downloadUrl: true,
+                            hashA: true,
+                        }
+                    }
+                }
+            }
+        },
+        take: 1,
+    })).map(repo => {
+        return repo.revisions.map(rev => {
+            return rev.fileRecords.map(file => {
+                return {
+                    downloadUrl: file.downloadUrl,
+                    repo: repo.id,
+                    rev: rev.id,
+                    file: file.id,
+                    filename: `${repo.id}${SEPARATOR}${rev.id}${SEPARATOR}${file.id}.safetensors`,
+                }
+            })
+        }).flat();
+    }).flat();
+    return targets
+}
+
+async function downloadModels(targets: BenchTarget[]): Promise<BenchTarget[]> {
+    const url = `${remoteControlBase}/api/download`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(targets),
+    });
+    const data = await response.text();
+    console.info(data)
+    return targets
+}
+
+async function allModelsReady(targets: BenchTarget[]): Promise<boolean> {
+    const url = `${remoteControlBase}/api/ready`;
+    const filenames = targets.map(target => target.filename);
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(filenames),
+    });
+    const data = await response.json();
+    console.info("readiness", data)
+    const readiness: boolean[] = data.map((file: {filename: string, ready: boolean}) => file.ready);
+    return readiness.every(ready => ready);
+}
+
+async function clearModels() {
+    const url = `${remoteControlBase}/api/clear`;
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+    const data = await response.text();
+    console.info(data)
+}
 
 async function bench(props: BenchJobProps) {
 
@@ -18,19 +114,15 @@ async function bench(props: BenchJobProps) {
         },
     });
 
-    if (!benches) {
-        return;
-    }
-
     if (benches.some(bench => bench.type !== "txt2img")) {
         console.error("unknown benchmark type");
         return;
     }
 
-    const base = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
-    const requester = getWebuiApiRequester(base);
+    const requester = getWebuiApiRequester(webuiApiBase);
     const models = await requester.getCheckpoints();
     const benchModels = models.filter(model => model.filename.includes(BENCH_DIR_NAME));
+    console.info("bench models", benchModels)
     for (const model of benchModels) {
         await requester.setCheckpointWithTitle(model.title);
         for (const bench of benches) {
@@ -41,11 +133,22 @@ async function bench(props: BenchJobProps) {
 }
 
 async function test() {
+    const targets = await getTargets();
+    await downloadModels(targets);
+    console.info("downloaded");
+    while (true) {
+        if (await allModelsReady(targets)) {
+            break;
+        }
+        await sleep(2_000)
+    }
+    console.info("All ready")
     await bench({
         benchIds: [
             "2edb3f3d-e6cb-443c-95ea-0a1b4a4c62ae",
         ],
     });
+    // await clearModels();
 }
 
 test().catch(console.error);
