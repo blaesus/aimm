@@ -6,6 +6,7 @@ interface WebUiApiRequester {
     setCheckpointWithTitle(checkpointTitle: string): Promise<void>;
     getCheckpoints(): Promise<WebuiCheckpoint[]>;
     setOptions(params: Partial<WebuiOptions>): Promise<void>;
+    refreshCheckpoints(): Promise<void>;
 }
 
 const defaultParams: Txt2ImgParams = {
@@ -248,6 +249,13 @@ export function getWebuiApiRequester(base: string): WebUiApiRequester {
         async getCheckpoints() {
             const url = `${base}/sdapi/v1/sd-models`;
             const response = await fetch(url);
+            return response.json()
+        },
+        async refreshCheckpoints() {
+            const url = `${base}/sdapi/v1/refresh-checkpoints`;
+            const response = await fetch(url, {
+                method: "POST",
+            });
             return response.json()
         },
         async setOptions(params: Partial<WebuiOptions>): Promise<void> {
