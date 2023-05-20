@@ -91,7 +91,7 @@ function downloadFile(url, filepath) {
     const tempPath = `${filepath}.tmp`;
     const finalPath = filepath;
     // Use wget to download
-    exec(`wget -O ${tempPath} ${url}`, (error, ) => {
+    exec(`wget --quiet -O ${tempPath} ${url}`, (error, ) => {
         if (error) {
             console.error(`exec error: ${error}`);
         }
