@@ -12,6 +12,8 @@ const server = http.createServer((req, res) => {
     const { method, url } = req;
     const { pathname } = new URL(url, `http://${req.headers.host}`);
 
+    console.info("Request: ", method, pathname);
+
     if (method === 'POST' && pathname === '/api/download') {
         let body = '';
         req.on('data', chunk => {
