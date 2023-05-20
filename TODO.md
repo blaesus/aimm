@@ -3,6 +3,7 @@ Todos
 ## Web
 - [ ] User auth
 - [x] Model search
+- [ ] Model comparison & image benchmark
 
 ## Cli
 
