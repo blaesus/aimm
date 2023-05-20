@@ -4,6 +4,7 @@ const path = require('path');
 const { URL } = require('url');
 const { exec } = require('child_process');
 
+
 const SUB_DIR = "for_bench"
 
 const downloadDir = path.join(__dirname, `stable-diffusion-webui/models/Stable-diffusion/${SUB_DIR}`);
@@ -27,7 +28,7 @@ const server = http.createServer((req, res) => {
                 res.end({ok: true});
                 for (const item of downloadList) {
                     const { downloadUrl, filename } = item;
-                    await downloadFile(downloadUrl, filename)
+                    downloadFile(downloadUrl, filename)
                 }
             } catch (error) {
                 res.statusCode = 400;
@@ -83,21 +84,14 @@ const server = http.createServer((req, res) => {
 });
 
 function downloadFile(url, fileName) {
-    return new Promise((resolve, reject) => {
-        const tempFileName = fileName + '.part';
-        const tempFilePath = path.join(downloadDir, tempFileName);
-        const finalFilePath = path.join(downloadDir, fileName);
-        const downloadCommand = `
-        wget --quiet --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3" -O "${tempFilePath}" "${url}" && mv "${tempFilePath}" "${finalFilePath}"`;
+    const file = fs.createWriteStream(fileName);
+    const request = http.get(url, function(response) {
+        response.pipe(file);
 
-        exec(downloadCommand, (error) => {
-            if (error) {
-                console.error(error);
-                reject(error);
-            } else {
-                console.log(`Downloaded ${fileName} to ${finalFilePath}`);
-                resolve();
-            }
+        // after download completed close filestream
+        file.on("finish", () => {
+            file.close();
+            console.log("Download Completed");
         });
     });
 }
