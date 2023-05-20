@@ -10,6 +10,8 @@ interface BenchJobProps {
 const BENCH_DIR_NAME = "for_bench";
 const webuiApiBase = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
 const remoteControlBase = "https://tuegtqwoeab9ud-1234.proxy.runpod.net";
+// const webuiApiBase = "http://192.168.1.4:7860";
+// const remoteControlBase = "http://tuegtqwoeab9ud-1234.proxy.runpod.net";
 
 const SEPARATOR = "_";
 
@@ -153,16 +155,16 @@ async function checkApi() {
 async function test() {
     await checkApi();
     const targets = await getTargets();
-    // await downloadModels(targets);
-    // await sleep(1000);
-    // console.info("downloaded");
-    // while (true) {
-    //     if (await allModelsReady(targets)) {
-    //         break;
-    //     }
-    //     await sleep(10_000);
-    // }
-    // console.info("All ready");
+    await downloadModels(targets);
+    await sleep(1000);
+    console.info("downloaded");
+    while (true) {
+        if (await allModelsReady(targets)) {
+            break;
+        }
+        await sleep(10_000);
+    }
+    console.info("All ready");
     await sleep(1000);
     const benches = await prisma.benchmark.findMany({
         take: 1,
