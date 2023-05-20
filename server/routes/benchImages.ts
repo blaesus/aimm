@@ -164,10 +164,11 @@ async function test() {
     // }
     // console.info("All ready");
     await sleep(1000);
+    const benches = await prisma.benchmark.findMany({
+        take: 1,
+    })
     await bench({
-        benchIds: [
-            "aa78c1db-d000-44d9-9eef-04efe80f55a6",
-        ],
+        benchIds: benches.map(bench => bench.id),
     });
     // await clearModels();
 }
