@@ -94,18 +94,18 @@ function downloadFile(url, fileName) {
         }
         else {
             console.log(`Downloaded ${fileName} to ${tempFilePath}`)
+            const renameCommand = `mv "${tempFilePath}" "${finalFilePath}"`;
+            exec(renameCommand, (error) => {
+                if (error) {
+                    console.error(error);
+                }
+                else {
+                    console.log(`Renamed ${tempFilePath} to ${finalFilePath}`)
+                }
+            })
         }
     });
 
-    const renameCommand = `mv "${tempFilePath}" "${finalFilePath}"`;
-    exec(renameCommand, (error) => {
-        if (error) {
-            console.error(error);
-        }
-        else {
-            console.log(`Renamed ${tempFilePath} to ${finalFilePath}`)
-        }
-    })
 }
 
 function getFileName(url) {
