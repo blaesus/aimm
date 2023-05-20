@@ -153,7 +153,7 @@ async function test() {
             "2edb3f3d-e6cb-443c-95ea-0a1b4a4c62ae",
         ],
     });
-    await clearModels();
+    // await clearModels();
 }
 
 test().catch(console.error);
