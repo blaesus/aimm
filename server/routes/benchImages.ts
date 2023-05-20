@@ -1,7 +1,6 @@
 import { getWebuiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "../jobs/utils";
-import dotenv from "dotenv";
 
 interface BenchJobProps {
     benchIds: string[],
@@ -9,9 +8,7 @@ interface BenchJobProps {
 
 const BENCH_DIR_NAME = "for_bench";
 const webuiApiBase = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
-const remoteControlBase = "https://tuegtqwoeab9ud-1234.proxy.runpod.net";
-// const webuiApiBase = "http://192.168.1.4:7860";
-// const remoteControlBase = "http://tuegtqwoeab9ud-1234.proxy.runpod.net";
+const remoteControlBase = "http://tuegtqwoeab9ud-1234.proxy.runpod.net";
 
 const SEPARATOR = "_";
 

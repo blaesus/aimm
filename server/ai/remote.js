@@ -22,7 +22,9 @@ const server = http.createServer((req, res) => {
         });
         req.on('end', async () => {
             try {
+                console.info("parsing")
                 const downloadList = JSON.parse(body);
+                console.info("parsed", downloadList)
 
                 for (const item of downloadList) {
                     const { downloadUrl, filename } = item;
@@ -35,7 +37,7 @@ const server = http.createServer((req, res) => {
                 res.statusCode = 400;
                 res.end(JSON.stringify({
                     ok: false,
-                    reason: 'Invalid JSON payload',
+                    reason: error,
                     data: body
                 }));
             }
@@ -85,16 +87,25 @@ const server = http.createServer((req, res) => {
 });
 
 function downloadFile(url, filepath) {
-    const file = fs.createWriteStream(filepath);
-    const request = http.get(url, function(response) {
-        response.pipe(file);
+    console.info("Downloading url: ", url, " to ", filepath);
+    const tempPath = `${filepath}.tmp`;
+    const finalPath = filepath;
+    // Use wget to download
+    exec(`wget -O ${tempPath} ${url}`, (error, ) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+        }
+        else {
+            fs.rename(tempPath, finalPath, (error) => {
+                if (error) {
+                    console.error(error)
+                } else {
+                    console.info(`Downloaded ${url} to ${finalPath}`)
+                }
+            })
 
-        // after download completed close filestream
-        file.on("finish", () => {
-            file.close();
-            console.log("Download Completed");
-        });
-    });
+        }
+    })
 }
 
 function getFileName(url) {
