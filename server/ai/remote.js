@@ -25,18 +25,18 @@ const server = http.createServer((req, res) => {
                 const downloadList = JSON.parse(body);
 
                 res.setHeader('Content-Type', 'application/json');
-                res.end({ok: true});
+                res.end(JSON.stringify({ok: true}));
                 for (const item of downloadList) {
                     const { downloadUrl, filename } = item;
                     downloadFile(downloadUrl, filename)
                 }
             } catch (error) {
                 res.statusCode = 400;
-                res.end({
+                res.end(JSON.stringify({
                     ok: false,
                     reason: 'Invalid JSON payload',
-                    data: JSON.stringify(body)
-                });
+                    data: body
+                }));
             }
         });
     } else if (method === 'POST' && pathname === '/api/ready') {
