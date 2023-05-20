@@ -62,12 +62,17 @@ async function getTargets() {
     return targets;
 }
 
+const ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+           "AppleWebKit/537.36 (KHTML, like Gecko) " +
+           "Chrome/91.0.4472.124 Safari/537.36";
+
 async function downloadModels(targets: BenchTarget[]): Promise<BenchTarget[]> {
     const url = `${remoteControlBase}/api/download`;
     const response = await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "User-Agent": ua,
         },
         body: JSON.stringify(targets),
     });
@@ -84,6 +89,7 @@ async function allModelsReady(targets: BenchTarget[]): Promise<boolean> {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "User-Agent": ua,
         },
         body: JSON.stringify(filenames),
     });
@@ -99,6 +105,7 @@ async function clearModels() {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "User-Agent": ua,
         },
     });
     const data = await response.text();
@@ -135,7 +142,15 @@ async function bench(props: BenchJobProps) {
     }
 }
 
+async function checkApi() {
+    const url = `${remoteControlBase}/api/hello`;
+    const response = await fetch(url);
+    const data = await response.text();
+    console.info(data);
+}
+
 async function test() {
+    await checkApi();
     const targets = await getTargets();
     await downloadModels(targets);
     await sleep(1000);
