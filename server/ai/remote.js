@@ -35,7 +35,7 @@ const server = http.createServer((req, res) => {
                 res.end({
                     ok: false,
                     reason: 'Invalid JSON payload',
-                    data: body
+                    data: JSON.stringify(body)
                 });
             }
         });
