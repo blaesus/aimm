@@ -31,7 +31,11 @@ const server = http.createServer((req, res) => {
                 }
             } catch (error) {
                 res.statusCode = 400;
-                res.end('Invalid JSON payload');
+                res.end({
+                    ok: false,
+                    reason: 'Invalid JSON payload',
+                    data: body
+                });
             }
         });
     } else if (method === 'POST' && pathname === '/api/ready') {
