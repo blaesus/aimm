@@ -11,8 +11,8 @@ Todos
 
 ## Cli
 
-### Include
-- [ ] Include a local file
+### CLI: Include
+- [ ] Include a local file in aimm.json
 
 ## Open source
 - [ ] Extract ops files to alternative hidden repo
