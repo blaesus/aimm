@@ -240,16 +240,16 @@ export async function executeBenches(ctx: Koa.Context) {
             await bench(props);
         }
         await clearModels();
+        await prisma.job.update({
+            where: {
+                id: masterJob.id,
+            },
+            data: {
+                status: "Success",
+                stopped: Date.now(),
+            },
+        });
     })
-    await prisma.job.update({
-        where: {
-            id: masterJob.id,
-        },
-        data: {
-            status: "Success",
-            stopped: Date.now(),
-        },
-    });
     ctx.status = 200;
     ctx.body = {
         ok: true,
