@@ -173,6 +173,7 @@ async function checkApi() {
 }
 
 export async function executeBenches(ctx: Koa.Context) {
+    console.info("A");
     const params = ctx.request.body as BenchExecuteParams;
     const records = await prisma.revision.findMany({
         where: {
@@ -220,7 +221,9 @@ export async function executeBenches(ctx: Koa.Context) {
             },
         },
     });
+    console.info("B");
     await checkApi();
+    console.info("C");
     for (const target of targets) {
         await downloadModels([target]);
         console.info("downloaded");
@@ -237,6 +240,7 @@ export async function executeBenches(ctx: Koa.Context) {
         };
         await bench(props);
     }
+    console.info("D");
     await clearModels();
     await prisma.job.update({
         where: {
