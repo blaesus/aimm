@@ -87,7 +87,6 @@ async function clearModels() {
 
 async function bench(props: BenchJobProps) {
 
-    const batch = `bench-${Date.now()}`;
 
     const benches = await prisma.benchmark.findMany({
         where: {
@@ -112,18 +111,6 @@ async function bench(props: BenchJobProps) {
             console.error("no model found:", target.filename);
             continue;
         }
-        const job = await prisma.job.create({
-            data: {
-                status: "Running",
-                type: "txt2img-bench",
-                label: batch,
-                created: Date.now(),
-                data: {
-                    benches: props.benchIds,
-                    target: target.file,
-                },
-            },
-        });
         await requester.setCheckpointWithTitle(model.title);
         for (const bench of benches) {
             const params = JSON.parse(JSON.stringify((bench.parameters)));
@@ -176,15 +163,6 @@ async function bench(props: BenchJobProps) {
             });
             await sleep(1000);
         }
-        await prisma.job.update({
-            where: {
-                id: job.id,
-            },
-            data: {
-                status: "Success",
-                stopped: Date.now(),
-            },
-        });
     }
 }
 
@@ -230,6 +208,19 @@ export async function executeBenches(ctx: Koa.Context) {
         }))
     ).flat();
     setTimeout(async () => {
+        const label = `txt2img-bench-${Date.now()}`;
+        const masterJob = await prisma.job.create({
+            data: {
+                status: "Running",
+                type: "txt2img-bench",
+                label,
+                created: Date.now(),
+                data: {
+                    benchIds: params.benchIds,
+                    revisionIds: params.revisionIds
+                },
+            },
+        });
         await checkApi();
         for (const target of targets) {
             await downloadModels([target]);
@@ -248,6 +239,15 @@ export async function executeBenches(ctx: Koa.Context) {
             await bench(props);
         }
         await clearModels();
+        await prisma.job.update({
+            where: {
+                id: masterJob.id,
+            },
+            data: {
+                status: "Success",
+                stopped: Date.now(),
+            },
+        });
     });
     ctx.status = 200;
     ctx.body = {
