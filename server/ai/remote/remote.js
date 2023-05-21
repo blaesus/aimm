@@ -82,7 +82,14 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ ok: true }));
     } else {
         res.statusCode = 404;
-        res.end('Not Found');
+        res.end({
+            ok: false,
+            reason: 'path not found',
+            data: {
+                method,
+                pathname,
+            }
+        });
     }
 });
 
