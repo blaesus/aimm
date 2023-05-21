@@ -1,6 +1,7 @@
 import { getWebuiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "../jobs/utils";
+import axios from "axios";
 
 interface BenchJobProps {
     benchIds: string[],
@@ -63,14 +64,9 @@ async function getTargets() {
 
 async function downloadModels(targets: BenchTarget[]): Promise<BenchTarget[]> {
     const url = `${remoteControlBase}/api/download`;
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(targets),
-    });
-    const data = await response.text();
+    const {data} = await axios.post(url, {
+        targets,
+    })
     console.info(data);
     return targets;
 }
@@ -79,14 +75,9 @@ async function allModelsReady(targets: BenchTarget[]): Promise<boolean> {
     const url = `${remoteControlBase}/api/ready`;
     const filenames = targets.map(target => target.filename);
     console.info("filenames", JSON.stringify(filenames));
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(filenames),
-    });
-    const data = await response.json();
+    const {data} = await axios.post(url, {
+        filenames,
+    })
     console.info("readiness", data);
     const readiness: boolean[] = data.map((file: { filename: string, ready: boolean }) => file.ready);
     return readiness.every(ready => ready);
@@ -94,13 +85,7 @@ async function allModelsReady(targets: BenchTarget[]): Promise<boolean> {
 
 async function clearModels() {
     const url = `${remoteControlBase}/api/clear`;
-    const response = await fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-    const data = await response.text();
+    const {data} = await axios.post(url)
     console.info(data);
 }
 
