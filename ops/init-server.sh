@@ -58,3 +58,10 @@ ln -s ops/.env.remote .env
 
 sudo mkdir /var/benches
 sudo chown ubuntu:ubuntu /var/benches
+
+# TLS Certs
+sudo snap install core; sudo snap refresh core
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+sudo vim /etc/nginx/conf.d/default.conf
+sudo certbot --nginx -d stage.aimm.dev
