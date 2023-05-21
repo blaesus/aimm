@@ -196,40 +196,40 @@ async function checkApi() {
 
 export async function executeBenches(ctx: Koa.Context) {
     const params = ctx.request.body as BenchExecuteParams;
+    const records = await prisma.revision.findMany({
+        where: {
+            id: {
+                in: params.revisionIds,
+            },
+        },
+        select: {
+            id: true,
+            repo: {
+                select: {
+                    id: true,
+                },
+            },
+            fileRecords: {
+                select: {
+                    id: true,
+                    downloadUrl: true,
+                    hashA: true,
+                },
+            },
+        },
+    });
+    const targets: BenchTxt2ImgFileTarget[] = records.map(record =>
+        record.fileRecords.map((file): BenchTxt2ImgFileTarget => ({
+            type: "txt2img" as "txt2img",
+            subtype: "stable-diffusion",
+            downloadUrl: file.downloadUrl,
+            repository: record.repo.id,
+            revision: record.id,
+            file: file.id,
+            filename: `${file.hashA}.safetensors`,
+        }))
+    ).flat();
     setTimeout(async () => {
-        const records = await prisma.revision.findMany({
-            where: {
-                id: {
-                    in: params.revisionIds,
-                },
-            },
-            select: {
-                id: true,
-                repo: {
-                    select: {
-                        id: true,
-                    },
-                },
-                fileRecords: {
-                    select: {
-                        id: true,
-                        downloadUrl: true,
-                        hashA: true,
-                    },
-                },
-            },
-        });
-        const targets: BenchTxt2ImgFileTarget[] = records.map(record =>
-            record.fileRecords.map((file): BenchTxt2ImgFileTarget => ({
-                type: "txt2img" as "txt2img",
-                subtype: "stable-diffusion",
-                downloadUrl: file.downloadUrl,
-                repository: record.repo.id,
-                revision: record.id,
-                file: file.id,
-                filename: `${file.hashA}.safetensors`,
-            }))
-        ).flat();
         await checkApi();
         for (const target of targets) {
             await downloadModels([target]);
