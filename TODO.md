@@ -3,7 +3,11 @@ Todos
 ## Web
 - [ ] User auth
 - [x] Model search
-- [ ] Model comparison & image benchmark
+- 
+## Bench
+- [ ] image benchmark generation
+- [ ] Detect existing benchmark, skip if combination bench and model hash are matched
+- [ ] UI: Show benchmarks
 
 ## Cli
 
