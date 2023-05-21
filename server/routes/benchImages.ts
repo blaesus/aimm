@@ -9,7 +9,7 @@ interface BenchJobProps {
 
 const BENCH_DIR_NAME = "for_bench";
 const webuiApiBase = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
-const remoteControlBase = "http://tuegtqwoeab9ud-1234.proxy.runpod.net";
+const remoteControlBase = "https://tuegtqwoeab9ud-1234.proxy.runpod.net";
 
 const SEPARATOR = "_";
 
