@@ -205,49 +205,47 @@ export async function executeBenches(ctx: Koa.Context) {
             revision: record.id,
             file: file.id,
             filename: `${file.hashA}.safetensors`,
-        }))
+        })),
     ).flat();
-    setTimeout(async () => {
-        const label = `txt2img-bench-${Date.now()}`;
-        const masterJob = await prisma.job.create({
+    const label = `txt2img-bench-${Date.now()}`;
+    const masterJob = await prisma.job.create({
+        data: {
+            status: "Running",
+            type: "txt2img-bench",
+            label,
+            created: Date.now(),
             data: {
-                status: "Running",
-                type: "txt2img-bench",
-                label,
-                created: Date.now(),
-                data: {
-                    benchIds: params.benchIds,
-                    revisionIds: params.revisionIds
-                },
-            },
-        });
-        await checkApi();
-        for (const target of targets) {
-            await downloadModels([target]);
-            console.info("downloaded");
-            while (true) {
-                if (await allModelsReady([target])) {
-                    break;
-                }
-                await sleep(10_000);
-            }
-            console.info("All ready");
-            const props: BenchJobProps = {
                 benchIds: params.benchIds,
-                targets: [target],
-            };
-            await bench(props);
+                revisionIds: params.revisionIds,
+            },
+        },
+    });
+    await checkApi();
+    for (const target of targets) {
+        await downloadModels([target]);
+        console.info("downloaded");
+        while (true) {
+            if (await allModelsReady([target])) {
+                break;
+            }
+            await sleep(10_000);
         }
-        await clearModels();
-        await prisma.job.update({
-            where: {
-                id: masterJob.id,
-            },
-            data: {
-                status: "Success",
-                stopped: Date.now(),
-            },
-        });
+        console.info("All ready");
+        const props: BenchJobProps = {
+            benchIds: params.benchIds,
+            targets: [target],
+        };
+        await bench(props);
+    }
+    await clearModels();
+    await prisma.job.update({
+        where: {
+            id: masterJob.id,
+        },
+        data: {
+            status: "Success",
+            stopped: Date.now(),
+        },
     });
     ctx.status = 200;
     ctx.body = {
