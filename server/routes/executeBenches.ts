@@ -87,6 +87,7 @@ async function clearModels() {
 
 async function bench(props: BenchJobProps) {
 
+    const {targets} = props;
 
     const benches = await prisma.benchmark.findMany({
         where: {
@@ -105,7 +106,7 @@ async function bench(props: BenchJobProps) {
     await requester.refreshCheckpoints();
     const models = await requester.getCheckpoints();
     const benchModels = models.filter(model => model.filename.includes(BENCH_DIR_NAME));
-    for (const target of props.targets) {
+    for (const target of targets) {
         const model = benchModels.find(model => model.filename.includes(target.filename));
         if (!model) {
             console.error("no model found:", target.filename);
@@ -115,7 +116,7 @@ async function bench(props: BenchJobProps) {
         for (const bench of benches) {
             const params = JSON.parse(JSON.stringify((bench.parameters)));
             const time = Date.now();
-            const filename = `${bench.id}_${model.model_name}_${time}.png`;
+            const filename = `${bench.id}_${target.file}_${time}.png`;
             const benchResultPath = `/var/benches/${filename}`;
             await requester.txt2img(params, benchResultPath);
             const hash = await hashLocalFile(benchResultPath);
