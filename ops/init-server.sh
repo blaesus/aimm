@@ -22,12 +22,18 @@ sudo apt update
 sudo apt install postgresql-15 postgresql-client-15 -y
 sudo systemctl enable postgresql
 
+# change default port to 5555
+vim /etc/postgresql/15/main/postgresql.conf
+
+sudo service postgresql restart
+
 sudo -u postgres psql
 # ALTER USER postgres WITH ENCRYPTED PASSWORD '[adminPassword]';
 # CREATE USER [Username] WITH ENCRYPTED PASSWORD '[Password]';
 # ALTER ROLE [Username] WITH SUPERUSER LOGIN;
 # CREATE DATABASE [DatabaseName];
 # GRANT ALL PRIVILEGES ON DATABASE [DatabaseName] TO [Username];
+
 
 # Node.js
 curl -sL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
@@ -65,3 +71,8 @@ sudo snap install --classic certbot
 sudo ln -s /snap/bin/certbot /usr/bin/certbot
 sudo vim /etc/nginx/conf.d/default.conf
 sudo certbot --nginx -d stage.aimm.dev
+
+
+# Data
+wget aimm.dump
+pg_restore --no-privileges --no-owner --clean -d aimm_stage aimm.dump
