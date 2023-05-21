@@ -12,6 +12,8 @@ interface Requester {
     hashRemoteFile(url: string): Promise<string | null>,
 
     downloadToLocal(params: DownloadToLocalParams): Promise<number | null>,
+
+    post<T, R>(url: string, data: T): AxiosPromise<R>
 }
 
 interface DownloadToLocalParams {
@@ -120,11 +122,16 @@ export function makeRequester(options?: RequesterOptions): Requester {
         });
     }
 
+    async function post<T, R>(url: string, data: T): AxiosPromise<R> {
+        return axiosInstance.post(url, data);
+    }
+
     return {
         hashRemoteFile,
         getData,
         getTextData,
         downloadToLocal,
+        post,
     };
 }
 
