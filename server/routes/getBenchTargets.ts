@@ -28,7 +28,7 @@ const repositoryOutputSelect = {
 };
 
 
-export async function benchTargets(ctx: Koa.Context) {
+export async function getBenchTargets(ctx: Koa.Context) {
     const query: Query = parseQuery(ctx.request.querystring);
     const take = query.limit ? parseInt(query.limit) : 1;
     const registry = getRegistry(query.registry);

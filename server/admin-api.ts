@@ -11,7 +11,7 @@ import { stopJob } from "./routes/stopJob";
 import { addBench } from "./routes/addBench";
 import { executeBenches } from "./routes/executeBenches";
 import { getBenches } from "./routes/getBenches";
-import { benchTargets } from "./routes/benchTargets";
+import { getBenchTargets } from "./routes/getBenchTargets";
 
 dotenv.config();
 
@@ -33,7 +33,7 @@ router.delete("/jobs/:id", stopJob);
 router.get("/benchmarks", getBenches);
 router.post("/benchmarks", addBench);
 router.post("/benchmarks/execute", executeBenches);
-router.get("/bench-targets", benchTargets);
+router.get("/bench-targets", getBenchTargets);
 
 app.use(router.routes());
 app.use(router.allowedMethods());

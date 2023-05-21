@@ -14,7 +14,7 @@ import { Chooser } from "./Chooser/Chooser";
 
 import "./Admin.css";
 import { Button } from "./Button/Button";
-import { BenchTargetApiItems } from "../../../server/routes/benchTargets";
+import { BenchTargetApiItems } from "../../../server/routes/getBenchTargets";
 
 function ObtainLaunchPad(props: {
     onLaunch: (params: Partial<ObtainFilesParams>) => void
