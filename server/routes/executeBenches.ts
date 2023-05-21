@@ -18,50 +18,6 @@ const requester = makeRequester({
     proxy: buildProxyConfigFromEnv(),
 });
 
-
-async function getTargets() {
-    const targets: BenchTxt2ImgFileTarget[] = (await prisma.repository.findMany({
-        where: {
-            registry: "Civitai",
-            subtype: "Checkpoint",
-        },
-        orderBy: {
-            favour: "desc",
-        },
-        select: {
-            id: true,
-            revisions: {
-                select: {
-                    id: true,
-                    fileRecords: {
-                        select: {
-                            id: true,
-                            downloadUrl: true,
-                            hashA: true,
-                        },
-                    },
-                },
-            },
-        },
-        take: 1,
-    })).map(repo => {
-        return repo.revisions.map(rev => {
-            return rev.fileRecords.map((file): BenchTxt2ImgFileTarget => {
-                return {
-                    type: "txt2img" as "txt2img",
-                    subtype: "stable-diffusion",
-                    downloadUrl: file.downloadUrl,
-                    repository: repo.id,
-                    revision: rev.id,
-                    file: file.id,
-                    filename: `${file.hashA}.safetensors`,
-                };
-            });
-        }).flat();
-    }).flat();
-    return targets;
-}
-
 async function downloadModels(targets: BenchTxt2ImgFileTarget[]): Promise<BenchTxt2ImgFileTarget[]> {
     const url = `${remoteControlBase}/api/download`;
     const {data} = await requester.post(url, targets);
@@ -192,6 +148,7 @@ export async function executeBenches(ctx: Koa.Context) {
                 select: {
                     id: true,
                     downloadUrl: true,
+                    filename: true,
                     hashA: true,
                 },
             },
@@ -206,7 +163,7 @@ export async function executeBenches(ctx: Koa.Context) {
             repository: record.repo.id,
             revision: record.id,
             file: file.id,
-            filename: `${file.hashA}.safetensors`,
+            filename: `${file.hashA}_${file.filename}`,
         })),
     ).flat();
     const label = `txt2img-bench-${Date.now()}`;
