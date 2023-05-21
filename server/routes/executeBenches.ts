@@ -234,11 +234,10 @@ export async function executeBenches(ctx: Koa.Context) {
                 await sleep(10_000);
             }
             console.info("All ready");
-            const props: BenchJobProps = {
-                benchIds: params.benchIds,
+            await bench({
                 targets: [target],
-            };
-            await bench(props);
+                benchIds: params.benchIds,
+            });
         }
         await clearModels();
         await prisma.job.update({
