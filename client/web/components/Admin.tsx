@@ -3,7 +3,7 @@ import { Benchmark, Job, JobStatus, Registry, Repository } from "@prisma/client"
 import {
     BenchExecuteParams,
     CivitaiIndexingParams, GetBenchesSuccess,
-    GetJobsSuccess, GetRepositorySuccess, HuggingFaceReindexParams, HuggingfaceRepoType,
+    GetJobsSuccess, GetBenchTargetsSuccess, HuggingFaceReindexParams, HuggingfaceRepoType,
     JobType,
     ObtainFilesParams,
     StopJobSuccess,
@@ -14,7 +14,7 @@ import { Chooser } from "./Chooser/Chooser";
 
 import "./Admin.css";
 import { Button } from "./Button/Button";
-import { RepositoryApiItems } from "../../../server/routes/repos";
+import { BenchTargetApiItems } from "../../../server/routes/benchTargets";
 
 function ObtainLaunchPad(props: {
     onLaunch: (params: Partial<ObtainFilesParams>) => void
@@ -146,48 +146,30 @@ async function startNewJob(
 
 function BenchmarkPanel() {
     const [benchmarks, setBenchmarks] = React.useState<Benchmark[]>([]);
-    const [repos, setRepos] = React.useState<RepositoryApiItems[]>([]);
+    const [benchTargets, setBenchTargets] = React.useState<BenchTargetApiItems[]>([]);
+    const [targetLimit, setTargetLimit] = React.useState<number>(5);
     return (
         <section>
             <h2>Benchmarks</h2>
-            <Button
-                onClick={async () => {
-                    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-                    const response = await fetch(
-                        "/admin-api/benchmarks",
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
+            <div>
+                <h3>Available benchmarks</h3>
+                <Button
+                    onClick={async () => {
+                        const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+                        const response = await fetch(
+                            "/admin-api/benchmarks",
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
                             },
-                        },
-                    );
-                    const data: GetBenchesSuccess = await response.json();
-                    setBenchmarks(data.benches);
-                }}
-            >
-                Get benchmarks
-            </Button>
-            <Button
-                onClick={async () => {
-                    const response = await fetch(
-                        "/api/repositories?limit=5&registry=Civitai",
-                    );
-                    const data: GetRepositorySuccess = await response.json();
-                    setRepos(data.repositories);
-                }}
-            >
-                Get repos
-            </Button>
-            <div>
-                {
-                    repos.map(r => (
-                        <div key={r.id}>
-                            <div>{r.id}</div>
-                        </div>
-                    ))
-                }
-            </div>
-            <div>
+                        );
+                        const data: GetBenchesSuccess = await response.json();
+                        setBenchmarks(data.benches);
+                    }}
+                >
+                    Get benchmarks
+                </Button>
                 {
                     benchmarks.map(b => (
                         <div key={b.id}>
@@ -218,6 +200,77 @@ function BenchmarkPanel() {
                         </div>
                     ))
                 }
+            </div>
+            <div>
+                <h3>Available Targets</h3>
+                <div>
+                    <input
+                        type="number"
+                        value={targetLimit}
+                        onChange={event => setTargetLimit(+event.target.value)}
+                    />
+                    <Button
+                        onClick={async () => {
+                            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+                            const response = await fetch(
+                                `/admin-api/bench-targets?limit=${targetLimit}&registry=Civitai`,
+                                {
+                                    headers: {
+                                        Authorization: `Bearer ${token}`,
+                                    },
+                                },
+                            );
+                            const data: GetBenchTargetsSuccess = await response.json();
+                            setBenchTargets(data.repositories);
+                        }}
+                    >
+                        Get targets
+                    </Button>
+                </div>
+                {
+                    benchTargets.map(item => (
+                        <div key={item.id}>
+                            <div>
+                                {item.name}
+                                /{Number(item.favour)} favours
+                            </div>
+                            <div>{item.revisions.map(rev => (
+                                <div key={rev.id}>
+                                    __ {rev.id}
+                                    {rev.fileRecords.map(file => (
+                                        <div key={file.id}>
+                                            ____ {file.id}
+                                            <br/>
+                                            ____ {file.filename}
+                                            <br/>
+                                            ____ {file.hashA}
+                                            <br/>
+                                            ____ {file.downloadUrl}
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}</div>
+
+                        </div>
+                    ))
+                }
+            </div>
+
+            <div>
+                <Button onClick={async () => {
+                    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+                    const payload: BenchExecuteParams = {
+                        benchIds: benchmarks.map(b => b.id),
+                        targetRevisionsIds: benchTargets.map(t => t.revisions[0].id),
+                    };
+                    await fetch("/admin-api/benchmarks/execute", {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                }}>Launch all benchmarks against targets</Button>
             </div>
         </section>
     );

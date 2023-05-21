@@ -4,13 +4,19 @@ import { Registry } from ".prisma/client";
 import { parseQuery, Query } from "./utils";
 import { serialize } from "../../data/serialize";
 import { getRegistry } from "../serverUtils";
-import { GetRepositorySuccess } from "../../data/aimmApi";
+import { GetBenchTargetsSuccess } from "../../data/aimmApi";
 
-export type RepositoryApiItems<BIGINT = bigint> = {
+export type BenchTargetApiItems<BIGINT = bigint> = {
     id: string,
     name: string,
     revisions: {
         id: string,
+        fileRecords: {
+            id: string
+            hashA: string
+            filename: string,
+            downloadUrl: string,
+        }[]
     }[]
     favour: BIGINT
 }
@@ -22,11 +28,11 @@ const repositoryOutputSelect = {
 };
 
 
-export async function repositories(ctx: Koa.Context) {
+export async function benchTargets(ctx: Koa.Context) {
     const query: Query = parseQuery(ctx.request.querystring);
     const take = query.limit ? parseInt(query.limit) : 1;
     const registry = getRegistry(query.registry);
-    let repos: RepositoryApiItems[] = await prisma.repository.findMany({
+    let repos: BenchTargetApiItems[] = await prisma.repository.findMany({
         take,
         where: {
             registry: {
@@ -39,6 +45,14 @@ export async function repositories(ctx: Koa.Context) {
             revisions: {
                 select: {
                     id: true,
+                    fileRecords: {
+                        select: {
+                            id: true,
+                            downloadUrl: true,
+                            hashA: true,
+                            filename: true,
+                        }
+                    }
                 }
             },
             favour: true
@@ -47,7 +61,7 @@ export async function repositories(ctx: Koa.Context) {
             favour: "desc"
         }
     });
-    const data: GetRepositorySuccess = {
+    const data: GetBenchTargetsSuccess = {
         ok: true,
         repositories: repos,
     }

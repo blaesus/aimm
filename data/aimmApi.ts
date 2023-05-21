@@ -1,5 +1,5 @@
 import type { Benchmark, FileRecord, Job, Repository, Revision, StorageService } from "@prisma/client";
-import { RepositoryApiItems } from "../server/routes/repos";
+import { BenchTargetApiItems } from "../server/routes/benchTargets";
 
 export type HuggingfaceRepoType = "datasets" | "models";
 
@@ -82,7 +82,7 @@ export interface GetBenchesSuccess {
     benches: Benchmark[],
 }
 
-export interface GetRepositorySuccess {
+export interface GetBenchTargetsSuccess {
     ok: true,
-    repositories: RepositoryApiItems[],
+    repositories: BenchTargetApiItems[],
 }

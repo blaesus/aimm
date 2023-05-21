@@ -22,8 +22,8 @@ const requester = makeRequester({
 interface BenchTxt2ImgFileTarget {
     type: "txt2img"
     subtype: string,
-    repo: string,
-    rev: string,
+    repository: string,
+    revision: string,
     file: string,
     downloadUrl: string,
     filename: string,
@@ -56,13 +56,13 @@ async function getTargets() {
         take: 1,
     })).map(repo => {
         return repo.revisions.map(rev => {
-            return rev.fileRecords.map(file => {
+            return rev.fileRecords.map((file): BenchTxt2ImgFileTarget => {
                 return {
                     type: "txt2img" as "txt2img",
                     subtype: "stable-diffusion",
                     downloadUrl: file.downloadUrl,
-                    repo: repo.id,
-                    rev: rev.id,
+                    repository: repo.id,
+                    revision: rev.id,
                     file: file.id,
                     filename: `${file.hashA}.safetensors`,
                 };
