@@ -174,6 +174,7 @@ async function checkApi() {
 
 export async function executeBenches(ctx: Koa.Context) {
     console.info("A");
+    console.info(ctx.request.body)
     const params = ctx.request.body as BenchExecuteParams;
     const records = await prisma.revision.findMany({
         where: {
