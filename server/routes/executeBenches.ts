@@ -206,23 +206,30 @@ async function checkApi() {
 
 export async function executeBenches(ctx: Koa.Context) {
     const params = ctx.request.body as BenchExecuteParams;
-    await checkApi();
-    const availableTargets = await getTargets();
-    await clearModels();
-    await downloadModels(availableTargets);
-    console.info("downloaded");
-    while (true) {
-        if (await allModelsReady(availableTargets)) {
-            break;
+    setTimeout(async () => {
+        await checkApi();
+        const availableTargets = await getTargets();
+        await clearModels();
+        await downloadModels(availableTargets);
+        console.info("downloaded");
+        while (true) {
+            if (await allModelsReady(availableTargets)) {
+                break;
+            }
+            await sleep(10_000);
         }
-        await sleep(10_000);
-    }
-    console.info("All ready");
-    const props: BenchJobProps = {
-        benchIds: params.benchIds,
-        targets: availableTargets,
-    }
-    await bench(props);
-    await clearModels();
+        console.info("All ready");
+        const props: BenchJobProps = {
+            benchIds: params.benchIds,
+            targets: availableTargets,
+        }
+        await bench(props);
+        await clearModels();
+    })
+    ctx.status = 200;
+    ctx.body = {
+        ok: true,
+        started: true
+    };
 }
 
