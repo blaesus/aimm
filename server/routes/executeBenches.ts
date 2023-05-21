@@ -1,8 +1,7 @@
 import { getWebuiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "../jobs/utils";
-import axios from "axios";
-import * as dotenv from "dotenv";
+import * as Koa from "koa";
 
 interface BenchJobProps {
     benchIds: string[],
@@ -12,12 +11,9 @@ const BENCH_DIR_NAME = "for_bench";
 const webuiApiBase = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
 const remoteControlBase = "https://tuegtqwoeab9ud-1234.proxy.runpod.net";
 
-const SEPARATOR = "_";
-
-dotenv.config();
 const requester = makeRequester({
     proxy: buildProxyConfigFromEnv(),
-})
+});
 
 interface BenchTarget {
     downloadUrl: string,
@@ -87,7 +83,7 @@ async function allModelsReady(targets: BenchTarget[]): Promise<boolean> {
 
 async function clearModels() {
     const url = `${remoteControlBase}/api/clear`;
-    const {data} = await requester.post(url, {})
+    const {data} = await requester.post(url, {});
     console.info(data);
 }
 
@@ -124,16 +120,16 @@ async function bench(props: BenchJobProps) {
 
 async function checkApi() {
     const url = `${remoteControlBase}/api/hello`;
-    const response = await fetch(url);
-    const data = await response.text();
+    const {data} = await requester.getData(url);
     console.info(data);
 }
 
-async function test() {
+export async function executeBenches(ctx: Koa.Context) {
+    const props = ctx.request.body as BenchJobProps;
     await checkApi();
     const targets = await getTargets();
+    await clearModels();
     await downloadModels(targets);
-    await sleep(1000);
     console.info("downloaded");
     while (true) {
         if (await allModelsReady(targets)) {
@@ -142,14 +138,7 @@ async function test() {
         await sleep(10_000);
     }
     console.info("All ready");
-    await sleep(1000);
-    const benches = await prisma.benchmark.findMany({
-        take: 1,
-    })
-    await bench({
-        benchIds: benches.map(bench => bench.id),
-    });
-    // await clearModels();
+    await bench(props);
+    await clearModels();
 }
 
-test().catch(console.error);
