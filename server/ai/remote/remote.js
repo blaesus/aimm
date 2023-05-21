@@ -6,7 +6,7 @@ const path = require('path');
 const { exec } = require('child_process');
 
 const SUB_DIR = "for_bench"
-const downloadDir = path.join(__dirname, `stable-diffusion-webui/models/Stable-diffusion/${SUB_DIR}`);
+const downloadDir = `/workspace/stable-diffusion-webui/models/Stable-diffusion/${SUB_DIR}`;
 
 async function downloadFile(url, filepath) {
     console.info("Downloading url: ", url, " to ", filepath);
