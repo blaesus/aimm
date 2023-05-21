@@ -74,7 +74,7 @@ export interface CreateBenchmarkRequest extends Pick<Benchmark, "type" | "subtyp
 
 export interface BenchExecuteParams {
     benchIds: string[],
-    targetRevisionsIds: string[],
+    revisionIds: string[],
 }
 
 export interface GetBenchesSuccess {
@@ -85,4 +85,14 @@ export interface GetBenchesSuccess {
 export interface GetBenchTargetsSuccess {
     ok: true,
     repositories: BenchTargetApiItems[],
+}
+
+export interface BenchTxt2ImgFileTarget {
+    type: "txt2img"
+    subtype: string,
+    repository: string,
+    revision: string,
+    file: string,
+    downloadUrl: string,
+    filename: string,
 }

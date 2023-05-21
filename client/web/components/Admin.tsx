@@ -181,8 +181,8 @@ function BenchmarkPanel() {
                                     const token = localStorage.getItem(ADMIN_TOKEN_KEY);
                                     const params: BenchExecuteParams = {
                                         benchIds: [b.id],
-                                        targetRevisionsIds: [],
-                                    };
+                                        revisionIds: benchTargets.map(target => target.revisions.map(r => r.id)).flat(),
+                                    }
                                     const response = await fetch(
                                         "/admin-api/benchmarks/execute",
                                         {
@@ -261,7 +261,7 @@ function BenchmarkPanel() {
                     const token = localStorage.getItem(ADMIN_TOKEN_KEY);
                     const payload: BenchExecuteParams = {
                         benchIds: benchmarks.map(b => b.id),
-                        targetRevisionsIds: benchTargets.map(t => t.revisions[0].id),
+                        revisionIds: benchTargets.map(target => target.revisions.map(r => r.id)).flat(),
                     };
                     await fetch("/admin-api/benchmarks/execute", {
                         method: "POST",

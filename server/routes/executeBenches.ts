@@ -2,9 +2,8 @@ import { getWebuiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
 import { buildProxyConfigFromEnv, hashLocalFile, makeRequester, sleep } from "../jobs/utils";
 import * as Koa from "koa";
-import { BenchExecuteParams } from "../../data/aimmApi";
+import { BenchExecuteParams, BenchTxt2ImgFileTarget } from "../../data/aimmApi";
 import { sizeLocalFile } from "../serverUtils";
-import { StorageService } from ".prisma/client";
 
 interface BenchJobProps {
     benchIds: string[],
@@ -19,15 +18,6 @@ const requester = makeRequester({
     proxy: buildProxyConfigFromEnv(),
 });
 
-interface BenchTxt2ImgFileTarget {
-    type: "txt2img"
-    subtype: string,
-    repository: string,
-    revision: string,
-    file: string,
-    downloadUrl: string,
-    filename: string,
-}
 
 async function getTargets() {
     const targets: BenchTxt2ImgFileTarget[] = (await prisma.repository.findMany({
@@ -120,7 +110,7 @@ async function bench(props: BenchJobProps) {
         const model = benchModels.find(model => model.filename.includes(target.filename));
         if (!model) {
             console.error("no model found:", target.filename);
-            continue
+            continue;
         }
         const job = await prisma.job.create({
             data: {
@@ -138,7 +128,7 @@ async function bench(props: BenchJobProps) {
         for (const bench of benches) {
             const params = JSON.parse(JSON.stringify((bench.parameters)));
             const time = Date.now();
-            const filename = `${bench.id}_${model.model_name}_${time}.png`
+            const filename = `${bench.id}_${model.model_name}_${time}.png`;
             const benchResultPath = `/var/benches/${filename}`;
             await requester.txt2img(params, benchResultPath);
             const hash = await hashLocalFile(benchResultPath);
@@ -155,8 +145,8 @@ async function bench(props: BenchJobProps) {
                     hashA: hash,
                     updated: time,
                     size,
-                }
-            })
+                },
+            });
 
             const storage = await prisma.fileStorageRecord.create({
                 data: {
@@ -165,16 +155,16 @@ async function bench(props: BenchJobProps) {
                     idInService: benchResultPath,
                     created: time,
                     size,
-                }
-            })
+                },
+            });
 
             await prisma.fileStorageRecordOnFileRecord.create({
                 data: {
                     fileRecordId: file.id,
                     fileStorageRecordId: storage.id,
                     assignmentTime: time,
-                }
-            })
+                },
+            });
 
             await prisma.benchmarkResult.create({
                 data: {
@@ -182,8 +172,8 @@ async function bench(props: BenchJobProps) {
                     targetFileId: target.file,
                     resultFileId: file.id,
                     time,
-                }
-            })
+                },
+            });
             await sleep(1000);
         }
         await prisma.job.update({
@@ -207,29 +197,63 @@ async function checkApi() {
 export async function executeBenches(ctx: Koa.Context) {
     const params = ctx.request.body as BenchExecuteParams;
     setTimeout(async () => {
+        const records = await prisma.revision.findMany({
+            where: {
+                id: {
+                    in: params.revisionIds,
+                },
+            },
+            select: {
+                id: true,
+                repo: {
+                    select: {
+                        id: true,
+                    },
+                },
+                fileRecords: {
+                    select: {
+                        id: true,
+                        downloadUrl: true,
+                        hashA: true,
+                    },
+                },
+            },
+        });
+        const targets: BenchTxt2ImgFileTarget[] = records.map(record =>
+            record.fileRecords.map((file): BenchTxt2ImgFileTarget => ({
+                type: "txt2img" as "txt2img",
+                subtype: "stable-diffusion",
+                downloadUrl: file.downloadUrl,
+                repository: record.repo.id,
+                revision: record.id,
+                file: file.id,
+                filename: `${file.hashA}.safetensors`,
+            }))
+        ).flat();
         await checkApi();
-        const availableTargets = await getTargets();
-        await clearModels();
-        await downloadModels(availableTargets);
-        console.info("downloaded");
-        while (true) {
-            if (await allModelsReady(availableTargets)) {
-                break;
+        for (const target of targets) {
+            await downloadModels([target]);
+            console.info("downloaded");
+            while (true) {
+                if (await allModelsReady([target])) {
+                    break;
+                }
+                await sleep(10_000);
             }
-            await sleep(10_000);
+            console.info("All ready");
+            const props: BenchJobProps = {
+                benchIds: params.benchIds,
+                targets: [target],
+            };
+            await bench(props);
         }
-        console.info("All ready");
-        const props: BenchJobProps = {
-            benchIds: params.benchIds,
-            targets: availableTargets,
-        }
-        await bench(props);
         await clearModels();
-    })
+
+    });
     ctx.status = 200;
     ctx.body = {
         ok: true,
-        started: true
+        started: true,
     };
 }
 
