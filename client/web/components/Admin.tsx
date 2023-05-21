@@ -161,6 +161,7 @@ function BenchmarkPanel() {
                             {
                                 headers: {
                                     Authorization: `Bearer ${token}`,
+                                    "Content-Type": "application/json",
                                 },
                             },
                         );
@@ -190,6 +191,7 @@ function BenchmarkPanel() {
                                             body: JSON.stringify(params),
                                             headers: {
                                                 Authorization: `Bearer ${token}`,
+                                                "Content-Type": "application/json",
                                             },
                                         },
                                     );
@@ -217,6 +219,7 @@ function BenchmarkPanel() {
                                 {
                                     headers: {
                                         Authorization: `Bearer ${token}`,
+                                        "Content-Type": "application/json",
                                     },
                                 },
                             );
@@ -267,6 +270,7 @@ function BenchmarkPanel() {
                         method: "POST",
                         headers: {
                             Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
                         },
                         body: JSON.stringify(payload)
                     })
