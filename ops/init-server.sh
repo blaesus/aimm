@@ -3,8 +3,6 @@
 sudo apt update
 sudo apt dist-upgrade -y
 
-sudo apt install nginx
-
 # docker
 sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -14,6 +12,7 @@ apt-cache policy docker-ce
 sudo apt install docker-ce -y
 
 sudo usermod -aG docker ${USER}
+sudo chmod 666 /var/run/docker.sock
 docker run hello-world
 
 # Postgres
@@ -26,6 +25,7 @@ sudo systemctl enable postgresql
 sudo -u postgres psql
 # ALTER USER postgres WITH ENCRYPTED PASSWORD '[adminPassword]';
 # CREATE USER [Username] WITH ENCRYPTED PASSWORD '[Password]';
+# ALTER ROLE [Username] WITH SUPERUSER LOGIN;
 # CREATE DATABASE [DatabaseName];
 # GRANT ALL PRIVILEGES ON DATABASE [DatabaseName] TO [Username];
 
@@ -35,26 +35,25 @@ sudo bash nodesource_setup.sh
 sudo apt install nodejs
 
 # Nginx
-# Get the Ubuntu version
 UBUNTU_VERSION=$(lsb_release -cs)
-
-# Add the nginx repository
 echo "deb https://nginx.org/packages/ubuntu/ $UBUNTU_VERSION nginx" | sudo tee /etc/apt/sources.list.d/nginx.list
 echo "deb-src https://nginx.org/packages/ubuntu/ $UBUNTU_VERSION nginx" | sudo tee -a /etc/apt/sources.list.d/nginx.list
-
-# Fetch the NGINX signing key
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys ABF5BD827BD9BF62
-
-# Update the package list
 sudo apt update
-
-# Install nginx
 sudo apt install -y nginx
+
+# ssh-key
+ssh-keygen -t rsa -b 4096 -C "aimm-stage"
+
+# git
+git clone git@github.com:blaesus/aimm.git
 
 # prisma
 cd ~/aimm/
+npm install
+npx prisma generate
 
-vim ops/.env # Add params for APIs
+vim ops/.env.remote # Add params for APIs
 ln -s ops/.env.remote .env
 
 sudo mkdir /var/benches
