@@ -58,6 +58,12 @@ server {
         try_files $uri =404;
     }
 
+    location /benches {
+        root /var;
+        try_files $uri $uri/ =404;
+        autoindex on;
+    }
+
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 }
