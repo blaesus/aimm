@@ -55,7 +55,7 @@ export async function search(ctx: Koa.Context) {
         revisionsFromFilesByHash = await prisma.revision.findMany({
             where: {
                 id: {
-                    in: filesByHash.map(f => f.revisionId),
+                    in: filesByHash.map(f => f.revisionId || ""),
                 },
             },
         });

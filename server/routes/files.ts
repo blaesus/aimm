@@ -84,7 +84,6 @@ export async function files(ctx: Koa.Context) {
                 take: 1000,
             });
         }
-        const jsonSpace = query.pretty ? 4 : undefined;
         ctx.set("Content-Type", "application/json");
         ctx.body = serialize(files);
 }
