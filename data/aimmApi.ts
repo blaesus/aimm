@@ -70,3 +70,7 @@ export interface StopJobSuccess {
 
 export interface CreateBenchmarkRequest extends Pick<Benchmark, "type" | "subtype" | "name" | "parameters"> {
 }
+
+export interface BenchJobProps {
+    benchIds: string[],
+}

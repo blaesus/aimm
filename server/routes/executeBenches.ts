@@ -2,10 +2,7 @@ import { getWebuiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "../jobs/utils";
 import * as Koa from "koa";
-
-interface BenchJobProps {
-    benchIds: string[],
-}
+import { BenchJobProps } from "../../data/aimmApi";
 
 const BENCH_DIR_NAME = "for_bench";
 const webuiApiBase = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
