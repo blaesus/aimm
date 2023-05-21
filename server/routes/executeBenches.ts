@@ -196,6 +196,7 @@ export async function executeBenches(ctx: Koa.Context) {
                 },
             },
         },
+        take: params.revisionIds.length,
     });
     const targets: BenchTxt2ImgFileTarget[] = records.map(record =>
         record.fileRecords.map((file): BenchTxt2ImgFileTarget => ({
