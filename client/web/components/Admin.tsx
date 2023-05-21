@@ -147,7 +147,7 @@ async function startNewJob(
 function BenchmarkPanel() {
     const [benchmarks, setBenchmarks] = React.useState<Benchmark[]>([]);
     const [benchTargets, setBenchTargets] = React.useState<BenchTargetApiItems[]>([]);
-    const [targetLimit, setTargetLimit] = React.useState<number>(5);
+    const [targetLimit, setTargetLimit] = React.useState<number>(1);
     return (
         <section>
             <h2>Benchmarks</h2>
