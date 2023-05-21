@@ -221,24 +221,26 @@ export async function executeBenches(ctx: Koa.Context) {
             },
         },
     });
-    await checkApi();
-    for (const target of targets) {
-        await downloadModels([target]);
-        console.info("downloaded");
-        while (true) {
-            if (await allModelsReady([target])) {
-                break;
+    setTimeout(async () => {
+        await checkApi();
+        for (const target of targets) {
+            await downloadModels([target]);
+            console.info("downloaded");
+            while (true) {
+                if (await allModelsReady([target])) {
+                    break;
+                }
+                await sleep(10_000);
             }
-            await sleep(10_000);
+            console.info("All ready");
+            const props: BenchJobProps = {
+                benchIds: params.benchIds,
+                targets: [target],
+            };
+            await bench(props);
         }
-        console.info("All ready");
-        const props: BenchJobProps = {
-            benchIds: params.benchIds,
-            targets: [target],
-        };
-        await bench(props);
-    }
-    await clearModels();
+        await clearModels();
+    })
     await prisma.job.update({
         where: {
             id: masterJob.id,
