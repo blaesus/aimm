@@ -18,7 +18,7 @@ export type FileRecordApiItem<BIGINT = bigint> = {
             idInRegistry: string,
             favour: BIGINT,
         }
-    }
+    } | null,
 }
 
 const fileRecordOutputSelect = {
