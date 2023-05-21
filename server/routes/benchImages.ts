@@ -64,9 +64,7 @@ async function getTargets() {
 
 async function downloadModels(targets: BenchTarget[]): Promise<BenchTarget[]> {
     const url = `${remoteControlBase}/api/download`;
-    const {data} = await axios.post(url, {
-        targets,
-    })
+    const {data} = await axios.post(url, targets)
     console.info(data);
     return targets;
 }
