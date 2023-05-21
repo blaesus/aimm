@@ -6,6 +6,7 @@ import { FileRecord, StorageService } from "@prisma/client";
 import { Registry } from ".prisma/client";
 import { ObtainFilesParams } from "../../data/aimmApi";
 import { Spider } from "./spider";
+import { getRegistry } from "../serverUtils";
 
 const MULTIPART_UPLOAD_LIMIT = 1_000_000;
 
@@ -22,14 +23,6 @@ const uploaders: { [key in StorageService]: (params: ServiceUplaodParams) => Pro
     Local: dummyUploaders,
 };
 
-function getRegistry(intendedRegistry?: string): Registry | undefined {
-    if (intendedRegistry === "Civitai"
-        || intendedRegistry === "Huggingface"
-        || intendedRegistry === "AimmHub"
-        || intendedRegistry === "GitHub") {
-        return intendedRegistry;
-    }
-}
 
 async function fetchFileRecord(fileRecord: FileRecord, service: StorageService, recordMeta?: {}) {
     // download file

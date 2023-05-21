@@ -10,6 +10,7 @@ import { spiderAdminAuth } from "./routes/spiderAdminAuth";
 import { stopJob } from "./routes/stopJob";
 import { addBench } from "./routes/addBench";
 import { executeBenches } from "./routes/executeBenches";
+import { getBenches } from "./routes/getBenches";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ router.get("/jobs/:type", getJobs);
 router.post("/jobs/:type", startJob);
 router.delete("/jobs/:id", stopJob);
 
+router.get("/benchmarks", getBenches);
 router.post("/benchmarks", addBench);
 router.post("/benchmarks/execute", executeBenches);
 

@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { Job, JobStatus, Registry } from "@prisma/client";
+import { Benchmark, Job, JobStatus, Registry, Repository } from "@prisma/client";
 import {
-    CivitaiIndexingParams,
-    GetJobsSuccess, HuggingFaceReindexParams, HuggingfaceRepoType,
+    BenchExecuteParams,
+    CivitaiIndexingParams, GetBenchesSuccess,
+    GetJobsSuccess, GetRepositorySuccess, HuggingFaceReindexParams, HuggingfaceRepoType,
     JobType,
-    jobTypes,
     ObtainFilesParams,
     StopJobSuccess,
 } from "../../../data/aimmApi";
@@ -14,6 +14,7 @@ import { Chooser } from "./Chooser/Chooser";
 
 import "./Admin.css";
 import { Button } from "./Button/Button";
+import { RepositoryApiItems } from "../../../server/routes/repos";
 
 function ObtainLaunchPad(props: {
     onLaunch: (params: Partial<ObtainFilesParams>) => void
@@ -143,6 +144,85 @@ async function startNewJob(
     });
 }
 
+function BenchmarkPanel() {
+    const [benchmarks, setBenchmarks] = React.useState<Benchmark[]>([]);
+    const [repos, setRepos] = React.useState<RepositoryApiItems[]>([]);
+    return (
+        <section>
+            <h2>Benchmarks</h2>
+            <Button
+                onClick={async () => {
+                    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+                    const response = await fetch(
+                        "/admin-api/benchmarks",
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        },
+                    );
+                    const data: GetBenchesSuccess = await response.json();
+                    setBenchmarks(data.benches);
+                }}
+            >
+                Get benchmarks
+            </Button>
+            <Button
+                onClick={async () => {
+                    const response = await fetch(
+                        "/api/repositories?limit=5&registry=Civitai",
+                    );
+                    const data: GetRepositorySuccess = await response.json();
+                    setRepos(data.repositories);
+                }}
+            >
+                Get repos
+            </Button>
+            <div>
+                {
+                    repos.map(r => (
+                        <div key={r.id}>
+                            <div>{r.id}</div>
+                        </div>
+                    ))
+                }
+            </div>
+            <div>
+                {
+                    benchmarks.map(b => (
+                        <div key={b.id}>
+                            <div>{b.id}</div>
+                            <div>{b.name}</div>
+
+                            <Button
+                                onClick={async () => {
+                                    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+                                    const params: BenchExecuteParams = {
+                                        benchIds: [b.id],
+                                        targetRevisionsIds: [],
+                                    };
+                                    const response = await fetch(
+                                        "/admin-api/benchmarks/execute",
+                                        {
+                                            method: "POST",
+                                            body: JSON.stringify(params),
+                                            headers: {
+                                                Authorization: `Bearer ${token}`,
+                                            },
+                                        },
+                                    );
+                                    const data = await response.json();
+                                    console.info(data);
+                                }}
+                            >Execute</Button>
+                        </div>
+                    ))
+                }
+            </div>
+        </section>
+    );
+}
+
 export function Admin() {
 
     const [adminToken, setAdminToken] = React.useState<string>("");
@@ -252,9 +332,8 @@ export function Admin() {
                         }
                     </tbody>
                 </table>
+                <BenchmarkPanel/>
             </main>
-
-
         </div>
     );
 

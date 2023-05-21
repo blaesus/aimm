@@ -54,9 +54,9 @@ model Revision {
 }
 
 model FileRecord {
-  id          String   @id @default(uuid()) @db.Uuid
-  revisionId  String   @db.Uuid
-  revision    Revision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  id          String    @id @default(uuid()) @db.Uuid
+  revisionId  String?   @db.Uuid
+  revision    Revision? @relation(fields: [revisionId], references: [id], onDelete: Cascade)
   filename    String
   hashA       String
   downloadUrl String
@@ -266,4 +266,5 @@ model BenchmarkResult {
   targetFile   FileRecord @relation("BenchmarkResult_TargetFile", fields: [targetFileId], references: [id])
   resultFileId String     @db.Uuid
   resultFile   FileRecord @relation("BenchmarkResult_ResultFile", fields: [resultFileId], references: [id])
+  time         BigInt
 }

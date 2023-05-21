@@ -56,3 +56,6 @@ cd ~/aimm/
 
 vim ops/.env # Add params for APIs
 ln -s ops/.env.remote .env
+
+sudo mkdir /var/benches
+sudo chown ubuntu:ubuntu /var/benches

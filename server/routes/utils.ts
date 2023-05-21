@@ -2,7 +2,7 @@ import { JobType, jobTypes } from "../../data/aimmApi";
 import { ObjectWithId } from "../../data/sharedTypes";
 
 export type QueryKey =
-    "filename" | "sha256" | "pretty" | "case-insensitive" | "force"
+    "filename" | "sha256" | "pretty" | "case-insensitive" | "force" | "limit" | "registry"
 
 export type Query = {
     [key in QueryKey]?: string
@@ -14,6 +14,8 @@ export const queryKeys: { [key in QueryKey]: QueryKey } = {
     pretty: "pretty",
     "case-insensitive": "case-insensitive",
     force: "force",
+    limit: "limit",
+    registry: "registry",
 };
 
 export function checkQueryKey(key: string): QueryKey | null {

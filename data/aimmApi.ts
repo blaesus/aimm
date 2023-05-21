@@ -1,4 +1,5 @@
 import type { Benchmark, FileRecord, Job, Repository, Revision, StorageService } from "@prisma/client";
+import { RepositoryApiItems } from "../server/routes/repos";
 
 export type HuggingfaceRepoType = "datasets" | "models";
 
@@ -71,6 +72,17 @@ export interface StopJobSuccess {
 export interface CreateBenchmarkRequest extends Pick<Benchmark, "type" | "subtype" | "name" | "parameters"> {
 }
 
-export interface BenchJobProps {
+export interface BenchExecuteParams {
     benchIds: string[],
+    targetRevisionsIds: string[],
+}
+
+export interface GetBenchesSuccess {
+    ok: true,
+    benches: Benchmark[],
+}
+
+export interface GetRepositorySuccess {
+    ok: true,
+    repositories: RepositoryApiItems[],
 }

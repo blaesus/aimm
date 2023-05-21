@@ -1,8 +1,15 @@
 import { getWebuiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
-import { buildProxyConfigFromEnv, makeRequester, sleep } from "../jobs/utils";
+import { buildProxyConfigFromEnv, hashLocalFile, makeRequester, sleep } from "../jobs/utils";
 import * as Koa from "koa";
-import { BenchJobProps } from "../../data/aimmApi";
+import { BenchExecuteParams } from "../../data/aimmApi";
+import { sizeLocalFile } from "../serverUtils";
+import { StorageService } from ".prisma/client";
+
+interface BenchJobProps {
+    benchIds: string[],
+    targets: BenchTxt2ImgFileTarget[],
+}
 
 const BENCH_DIR_NAME = "for_bench";
 const webuiApiBase = "https://tuegtqwoeab9ud-3000.proxy.runpod.net";
@@ -12,16 +19,18 @@ const requester = makeRequester({
     proxy: buildProxyConfigFromEnv(),
 });
 
-interface BenchTarget {
-    downloadUrl: string,
+interface BenchTxt2ImgFileTarget {
+    type: "txt2img"
+    subtype: string,
     repo: string,
     rev: string,
     file: string,
+    downloadUrl: string,
     filename: string,
 }
 
 async function getTargets() {
-    const targets: BenchTarget[] = (await prisma.repository.findMany({
+    const targets: BenchTxt2ImgFileTarget[] = (await prisma.repository.findMany({
         where: {
             registry: "Civitai",
             subtype: "Checkpoint",
@@ -49,6 +58,8 @@ async function getTargets() {
         return repo.revisions.map(rev => {
             return rev.fileRecords.map(file => {
                 return {
+                    type: "txt2img" as "txt2img",
+                    subtype: "stable-diffusion",
                     downloadUrl: file.downloadUrl,
                     repo: repo.id,
                     rev: rev.id,
@@ -61,14 +72,14 @@ async function getTargets() {
     return targets;
 }
 
-async function downloadModels(targets: BenchTarget[]): Promise<BenchTarget[]> {
+async function downloadModels(targets: BenchTxt2ImgFileTarget[]): Promise<BenchTxt2ImgFileTarget[]> {
     const url = `${remoteControlBase}/api/download`;
     const {data} = await requester.post(url, targets);
     console.info(data);
     return targets;
 }
 
-async function allModelsReady(targets: BenchTarget[]): Promise<boolean> {
+async function allModelsReady(targets: BenchTxt2ImgFileTarget[]): Promise<boolean> {
     const url = `${remoteControlBase}/api/ready`;
     const filenames = targets.map(target => target.filename);
     console.info("filenames", JSON.stringify(filenames));
@@ -86,6 +97,8 @@ async function clearModels() {
 
 async function bench(props: BenchJobProps) {
 
+    const batch = `bench-${Date.now()}`;
+
     const benches = await prisma.benchmark.findMany({
         where: {
             id: {
@@ -102,16 +115,86 @@ async function bench(props: BenchJobProps) {
     const requester = getWebuiApiRequester(webuiApiBase);
     await requester.refreshCheckpoints();
     const models = await requester.getCheckpoints();
-    console.info("models", models);
     const benchModels = models.filter(model => model.filename.includes(BENCH_DIR_NAME));
-    console.info("bench models", benchModels);
-    for (const model of benchModels) {
+    for (const target of props.targets) {
+        const model = benchModels.find(model => model.filename.includes(target.filename));
+        if (!model) {
+            console.error("no model found:", target.filename);
+            continue
+        }
+        const job = await prisma.job.create({
+            data: {
+                status: "Running",
+                type: "txt2img-bench",
+                label: batch,
+                created: Date.now(),
+                data: {
+                    benches: props.benchIds,
+                    target: target.file,
+                },
+            },
+        });
         await requester.setCheckpointWithTitle(model.title);
         for (const bench of benches) {
             const params = JSON.parse(JSON.stringify((bench.parameters)));
-            await requester.txt2img(params, `/tmp/${bench.name}-${model.model_name}.png`);
-            await sleep(5000);
+            const time = Date.now();
+            const filename = `${bench.id}_${model.model_name}_${time}.png`
+            const benchResultPath = `/var/benches/${filename}`;
+            await requester.txt2img(params, benchResultPath);
+            const hash = await hashLocalFile(benchResultPath);
+            const size = await sizeLocalFile(benchResultPath);
+            if (hash === null || size === null) {
+                continue;
+            }
+
+            const file = await prisma.fileRecord.create({
+                data: {
+                    revisionId: undefined,
+                    filename,
+                    downloadUrl: benchResultPath,
+                    hashA: hash,
+                    updated: time,
+                    size,
+                }
+            })
+
+            const storage = await prisma.fileStorageRecord.create({
+                data: {
+                    hashA: hash,
+                    service: "Local",
+                    idInService: benchResultPath,
+                    created: time,
+                    size,
+                }
+            })
+
+            await prisma.fileStorageRecordOnFileRecord.create({
+                data: {
+                    fileRecordId: file.id,
+                    fileStorageRecordId: storage.id,
+                    assignmentTime: time,
+                }
+            })
+
+            await prisma.benchmarkResult.create({
+                data: {
+                    benchmarkId: bench.id,
+                    targetFileId: target.file,
+                    resultFileId: file.id,
+                    time,
+                }
+            })
+            await sleep(1000);
         }
+        await prisma.job.update({
+            where: {
+                id: job.id,
+            },
+            data: {
+                status: "Success",
+                stopped: Date.now(),
+            },
+        });
     }
 }
 
@@ -122,19 +205,23 @@ async function checkApi() {
 }
 
 export async function executeBenches(ctx: Koa.Context) {
-    const props = ctx.request.body as BenchJobProps;
+    const params = ctx.request.body as BenchExecuteParams;
     await checkApi();
-    const targets = await getTargets();
+    const availableTargets = await getTargets();
     await clearModels();
-    await downloadModels(targets);
+    await downloadModels(availableTargets);
     console.info("downloaded");
     while (true) {
-        if (await allModelsReady(targets)) {
+        if (await allModelsReady(availableTargets)) {
             break;
         }
         await sleep(10_000);
     }
     console.info("All ready");
+    const props: BenchJobProps = {
+        benchIds: params.benchIds,
+        targets: availableTargets,
+    }
     await bench(props);
     await clearModels();
 }
