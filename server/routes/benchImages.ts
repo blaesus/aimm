@@ -73,9 +73,7 @@ async function allModelsReady(targets: BenchTarget[]): Promise<boolean> {
     const url = `${remoteControlBase}/api/ready`;
     const filenames = targets.map(target => target.filename);
     console.info("filenames", JSON.stringify(filenames));
-    const {data} = await axios.post(url, {
-        filenames,
-    })
+    const {data} = await axios.post(url, filenames)
     console.info("readiness", data);
     const readiness: boolean[] = data.map((file: { filename: string, ready: boolean }) => file.ready);
     return readiness.every(ready => ready);
