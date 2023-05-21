@@ -248,12 +248,12 @@ export async function executeBenches(ctx: Koa.Context) {
             await bench(props);
         }
         await clearModels();
-
     });
     ctx.status = 200;
     ctx.body = {
         ok: true,
         started: true,
+        targets,
     };
 }
 
