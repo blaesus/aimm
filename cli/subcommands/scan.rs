@@ -60,6 +60,7 @@ pub fn scan(args: &ScanArgs) {
     let root = PathBuf::from(args.root.as_ref().map(|r| r.as_str()).unwrap_or("."));
     let ai_extensions = vec![
         "safetensors",
+        "ckpt",
         "pt",
         "pth",
         "bin",

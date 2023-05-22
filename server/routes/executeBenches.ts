@@ -3,7 +3,7 @@ import { prisma } from "../../data/prismaClient";
 import { buildProxyConfigFromEnv, hashLocalFile, makeRequester, sleep } from "../jobs/utils";
 import * as Koa from "koa";
 import { BenchExecuteParams, BenchTxt2ImgFileTarget } from "../../data/aimmApi";
-import { sizeLocalFile } from "../serverUtils";
+import { aiModelExtensions, sizeLocalFile } from "../serverUtils";
 
 interface BenchJobProps {
     benchIds: string[],
@@ -82,6 +82,12 @@ async function bench(props: BenchJobProps) {
             }
             if (allBenchesDone) {
                 console.info(`Found existing benchmark result for ${target.filename} on all benches, skipped`);
+                continue;
+            }
+        }
+        {
+            if (aiModelExtensions.every(ext => !target.filename.endsWith(ext))) {
+                console.info(`${target.filename} is not a model file, skipped`);
                 continue;
             }
         }
@@ -239,7 +245,7 @@ export async function executeBenches(ctx: Koa.Context) {
         });
         try {
             await bench({
-                targets: targets,
+                targets,
                 benchIds: params.benchIds,
                 jobId: masterJob.id,
             });

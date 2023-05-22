@@ -19,3 +19,7 @@ export async function sizeLocalFile(path: string): Promise<number | null> {
         return null;
     }
 }
+
+export const aiModelExtensions = [
+    "safetensors", "ckpt"
+]
