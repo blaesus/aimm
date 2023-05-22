@@ -111,23 +111,32 @@ export function FileList(props: {
                     }
                     if (props.showBench) {
                         const results = Object.values(benchmarkResults).filter(
-                            r => r.targetFileId === f.id
+                            r => r.targetFileId === f.id,
                         );
                         return (
                             <div key={f.id}>
                                 <FileRecordCard key={f.id} file={f}/>
                                 <div>
-                                    {results.map(result => (
-                                        <div key={result.id}>
-                                            <img
-                                                src={
-                                                    `/public/${fileRecords[result.resultFileId]?.downloadUrl}`
-                                                }
-                                                width={100}
-                                            />
-                                            {result.resultFileId}
-                                        </div>
-                                    ))}
+                                    {results.map(result => {
+                                        const benchmark = benchmarks[result.benchmarkId];
+                                        return (
+                                            <div key={result.id}>
+                                                <div>
+                                                    <img
+                                                        src={
+                                                            `/public/${fileRecords[result.resultFileId]?.downloadUrl}`
+                                                        }
+                                                        alt={`benchmark result ${benchmark?.name}`}
+                                                        width={100}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    {benchmark?.name}
+                                                </div>
+
+                                            </div>
+                                        );
+                                    })}
                                     <div></div>
                                 </div>
                             </div>
