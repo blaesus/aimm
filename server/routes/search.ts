@@ -19,7 +19,7 @@ export async function search(ctx: Koa.Context) {
 
     const reposByName = await prisma.repository.findMany({
         where: {
-            name: {
+            name: keyword || {
                 contains: keyword,
                 mode: "insensitive",
             },
