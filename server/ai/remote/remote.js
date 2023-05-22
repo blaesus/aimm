@@ -13,7 +13,8 @@ function downloadFile(url, filepath) {
     const tempPath = `${filepath}.tmp`;
     const finalPath = filepath;
     // Use wget to download
-    execSync(`wget --quiet -O ${tempPath} ${url}`)
+    const ua = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36`
+    execSync(`wget --user-agent="${ua}" --quiet -O ${tempPath} ${url}`)
     console.info("Downloaded to ", tempPath);
     fs.renameSync(tempPath, finalPath)
     console.info("Renamed to ", finalPath);
