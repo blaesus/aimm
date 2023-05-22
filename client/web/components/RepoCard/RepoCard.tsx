@@ -131,7 +131,11 @@ export function FileList(props: {
                                                     />
                                                 </div>
                                                 <div>
-                                                    {benchmark?.name}
+                                                    <pre>
+                                                        <code>
+                                                            {JSON.stringify(benchmark?.parameters, null, 4)}
+                                                        </code>
+                                                    </pre>
                                                 </div>
 
                                             </div>
