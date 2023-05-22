@@ -15,6 +15,7 @@ const DEFAULT_PAGE_SIZE = 100;
 export async function search(ctx: Koa.Context) {
     const keyword = ctx.params.keyword;
     const pageSize = ctx.params.limit || DEFAULT_PAGE_SIZE;
+    const page = ctx.params.page || 0;
 
     const reposByName = await prisma.repository.findMany({
         where: {
@@ -27,6 +28,7 @@ export async function search(ctx: Koa.Context) {
             favour: "desc",
         },
         take: Math.min(MAX_PAGE_SIZE, pageSize),
+        skip: page ? page * pageSize : undefined,
     });
 
     const revisionsForReposByName = await prisma.revision.findMany({
