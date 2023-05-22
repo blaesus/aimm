@@ -9,8 +9,12 @@ function looksLikeHashHex(s: string): boolean {
     return /^[0-9a-fA-F]{6,64}$/.test(s);
 }
 
+const MAX_PAGE_SIZE = 1000;
+const DEFAULT_PAGE_SIZE = 100;
+
 export async function search(ctx: Koa.Context) {
     const keyword = ctx.params.keyword;
+    const pageSize = ctx.params.limit || DEFAULT_PAGE_SIZE;
 
     const reposByName = await prisma.repository.findMany({
         where: {
@@ -22,6 +26,7 @@ export async function search(ctx: Koa.Context) {
         orderBy: {
             favour: "desc",
         },
+        take: Math.min(MAX_PAGE_SIZE, pageSize),
     });
 
     const revisionsForReposByName = await prisma.revision.findMany({
