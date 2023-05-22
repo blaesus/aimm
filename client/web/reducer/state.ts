@@ -1,5 +1,5 @@
 import { ObjectMap, ObjectWithId } from "../../../data/sharedTypes";
-import { FileRecord, Repository, Revision } from "@prisma/client";
+import { Benchmark, BenchmarkResult, FileRecord, Repository, Revision } from "@prisma/client";
 import { ClientAction } from "./action";
 import { PageName, parseUrl } from "../utils";
 import { MatchedItems } from "../../../data/aimmApi";
@@ -23,6 +23,8 @@ export interface EntitiesState {
     repositories: ObjectMap<Repository>;
     revisions: ObjectMap<Revision>;
     fileRecords: ObjectMap<FileRecord>;
+    benchmarks: ObjectMap<Benchmark>;
+    benchmarkResults: ObjectMap<BenchmarkResult>;
 }
 
 export interface ClientState {
@@ -35,6 +37,8 @@ function getInitialEntitiesState(): EntitiesState {
         repositories: {},
         revisions: {},
         fileRecords: {},
+        benchmarks: {},
+        benchmarkResults: {},
     };
 }
 
@@ -79,6 +83,8 @@ export function entitiesReducer(entities: EntitiesState, action: ClientAction): 
             nextEntities.repositories = mergeArray(nextEntities.repositories, action.repositories);
             nextEntities.revisions = mergeArray(nextEntities.revisions, action.revisions);
             nextEntities.fileRecords = mergeArray(nextEntities.fileRecords, action.fileRecords);
+            nextEntities.benchmarks = mergeArray(nextEntities.benchmarks, action.benchmarks)
+            nextEntities.benchmarkResults = mergeArray(nextEntities.benchmarkResults, action.benchmarkResults)
             return nextEntities;
         }
         default: {

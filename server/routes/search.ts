@@ -87,12 +87,24 @@ export async function search(ctx: Koa.Context) {
         ...reposForFilesByHash,
     ]);
 
+    const benchmarks = await prisma.benchmark.findMany({})
+
+    const benchmarkResults = await prisma.benchmarkResult.findMany({
+        where: {
+            targetFileId: {
+                in: fileRecords.map(f => f.id)
+            }
+        }
+    })
+
     const result: SearchSuccess = {
         ok: true,
         keyword,
         repositories,
         revisions,
         fileRecords,
+        benchmarks,
+        benchmarkResults,
 
         reposByName: reposByName.map(r => r.id),
         filesByHash: filesByHash.map(f => f.id),

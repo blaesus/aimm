@@ -1,5 +1,5 @@
 import React from "react";
-import { FileRecord, Registry, Repository, Revision } from "@prisma/client";
+import { Benchmark, BenchmarkResult, FileRecord, Registry, Repository, Revision } from "@prisma/client";
 import { getRepoOnRevisionUrl, getRepoUrl } from "../../utils";
 
 import "./RepoCard.css";
@@ -7,6 +7,7 @@ import { AnchorButton } from "../AnchorButton/AnchorButton";
 import { HashTag } from "../HashTag/HashTag";
 import { SizeTag } from "../SizeTag/SizeTag";
 import { ObjectMap, ObjectWithId } from "../../../../data/sharedTypes";
+import { Button } from "../Button/Button";
 
 interface RepoMetaInfo {
     tags: string[];
@@ -79,7 +80,10 @@ export function FileList(props: {
     files: FileRecord[],
     repositories?: ObjectMap<Repository>,
     revisions?: ObjectMap<Revision>,
+    benchmarks?: ObjectMap<Benchmark>,
+    benchmarkResults?: ObjectMap<BenchmarkResult>,
     showRepo?: boolean,
+    showBench?: boolean,
 }) {
     const {files, repositories, revisions, showRepo} = props;
     return (
@@ -95,6 +99,7 @@ export function FileList(props: {
                                     <div key={f.id}>
                                         <h3>{repo.name} {repo.favour.toString()}</h3>
                                         <FileRecordCard key={f.id} file={f}/>
+                                        <Button>Hello</Button>
                                     </div>
                                 );
                             }

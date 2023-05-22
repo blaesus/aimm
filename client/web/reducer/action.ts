@@ -1,4 +1,4 @@
-import type { FileRecord, Repository, Revision } from "@prisma/client";
+import type { Benchmark, BenchmarkResult, FileRecord, Repository, Revision } from "@prisma/client";
 import type { MatchedItems } from "../../../data/aimmApi";
 
 export interface BaseAction {
@@ -19,6 +19,8 @@ export interface ProvideEntities extends BaseAction {
     repositories: Repository[],
     revisions: Revision[],
     fileRecords: FileRecord[],
+    benchmarks: Benchmark[],
+    benchmarkResults: BenchmarkResult[],
 }
 
 export interface SearchSuccessAction extends  BaseAction {

@@ -1,4 +1,4 @@
-import type { Benchmark, FileRecord, Job, Repository, Revision, StorageService } from "@prisma/client";
+import type { Benchmark, BenchmarkResult, FileRecord, Job, Repository, Revision, StorageService } from "@prisma/client";
 import { BenchTargetApiItems } from "../server/routes/getBenchTargets";
 
 export type HuggingfaceRepoType = "datasets" | "models";
@@ -46,6 +46,8 @@ export interface SearchSuccess extends MatchedItems {
     repositories: Repository[],
     revisions: Revision[],
     fileRecords: FileRecord[],
+    benchmarks: Benchmark[],
+    benchmarkResults: BenchmarkResult[],
 }
 
 export type JobType =
