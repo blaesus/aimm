@@ -254,6 +254,7 @@ export async function executeBenches(ctx: Koa.Context) {
                 },
             });
         } catch (error) {
+            console.error(error)
             await prisma.job.update({
                 where: {
                     id: masterJob.id,
