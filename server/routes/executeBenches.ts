@@ -65,6 +65,7 @@ async function bench(props: BenchJobProps) {
 
     let finishedTargets = 0;
     targetLoop:
+    // The server has limit disk and bandwidth. We process targets one by one.
     for (const target of targets) {
         {
             let allBenchesDone = true;
@@ -108,7 +109,6 @@ async function bench(props: BenchJobProps) {
             }
             console.info(`${target} ready`);
         }
-        // The server has limit disk and bandwidth. We process them one by one.
         const model = models.find(model => model.filename.includes(target.filename));
         if (!model) {
             console.error("no model found:", target.filename);
