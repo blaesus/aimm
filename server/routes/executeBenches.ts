@@ -96,12 +96,12 @@ async function bench(props: BenchJobProps) {
         {
             const start = Date.now();
             await downloadModels([target]);
-            console.info(`downloaded target ${target}`);
+            console.info(`started to download target ${target}`);
             while (true) {
                 if (await allModelsReady([target])) {
                     break;
                 }
-                if (Date.now() - start > 600_000) {
+                if (Date.now() - start > 1000_000) {
                     console.error(`timeout when getting ${target.filename}`);
                     break targetLoop;
                 }
