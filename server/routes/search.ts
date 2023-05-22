@@ -10,17 +10,17 @@ function looksLikeHashHex(s: string): boolean {
 }
 
 const MAX_PAGE_SIZE = 1000;
-const DEFAULT_PAGE_SIZE = 100;
+const DEFAULT_PAGE_SIZE = 10;
 
 export async function search(ctx: Koa.Context) {
     const query: Query = parseQuery(ctx.request.querystring);
     const keyword = query.keyword || "";
-    const pageSize = Number(query.limit) || DEFAULT_PAGE_SIZE;
+    const pageSize = Number(query["page-size"]) || DEFAULT_PAGE_SIZE;
     const page = Number(query.page) || 0;
 
     const reposByName = await prisma.repository.findMany({
         where: {
-            name: keyword || {
+            name: {
                 contains: keyword,
                 mode: "insensitive",
             },
@@ -121,6 +121,8 @@ export async function search(ctx: Koa.Context) {
     const result: SearchSuccess = {
         ok: true,
         keyword,
+        page,
+        pageSize,
         repositories,
         revisions,
         fileRecords,

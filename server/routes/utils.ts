@@ -3,6 +3,7 @@ import { ObjectWithId } from "../../data/sharedTypes";
 
 export type QueryKey =
     "filename" | "sha256" | "pretty" | "case-insensitive" | "force" | "limit" | "registry" | "keyword" | "page"
+    | "page-size"
 
 export type Query = {
     [key in QueryKey]?: string
@@ -16,8 +17,9 @@ export const queryKeys: { [key in QueryKey]: QueryKey } = {
     force: "force",
     limit: "limit",
     registry: "registry",
+    "page-size": "page-size",
     keyword: "keyword",
-    page: "page"
+    page: "page",
 };
 
 export function checkQueryKey(key: string): QueryKey | null {

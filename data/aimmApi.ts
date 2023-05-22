@@ -42,6 +42,8 @@ export interface MatchedItems {
 export interface SearchSuccess extends MatchedItems {
     ok: true,
     keyword: string,
+    page: number,
+    pageSize: number,
 
     repositories: Repository[],
     revisions: Revision[],
