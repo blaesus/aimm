@@ -101,7 +101,7 @@ async function bench(props: BenchJobProps) {
                 if (await allModelsReady([target])) {
                     break;
                 }
-                if (Date.now() - start > 60_000) {
+                if (Date.now() - start > 600_000) {
                     console.error(`timeout when getting ${target.filename}`);
                     break targetLoop;
                 }
