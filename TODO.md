@@ -3,6 +3,7 @@ Todos
 ## Web
 - [ ] User auth
 - [x] Model search
+- [ ] Browse models (by downloads?)
 - 
 ## Bench
 - [ ] image benchmark generation
