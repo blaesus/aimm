@@ -64,8 +64,8 @@ async function bench(props: BenchJobProps) {
     const models = await requester.getCheckpoints();
 
     let finishedTargets = 0;
+    targetLoop:
     for (const target of targets) {
-
         {
             let allBenchesDone = true;
             for (const bench of benches) {
@@ -93,15 +93,22 @@ async function bench(props: BenchJobProps) {
             continue;
         }
 
-        await downloadModels([target]);
-        console.info(`downloaded target ${target}`);
-        while (true) {
-            if (await allModelsReady([target])) {
-                break;
+        {
+            const start = Date.now();
+            await downloadModels([target]);
+            console.info(`downloaded target ${target}`);
+            while (true) {
+                if (await allModelsReady([target])) {
+                    break;
+                }
+                if (Date.now() - start > 60_000) {
+                    console.error(`timeout when getting ${target.filename}`);
+                    break targetLoop;
+                }
+                await sleep(10_000);
             }
-            await sleep(10_000);
+            console.info(`${target} ready`);
         }
-        console.info(`${target} ready`);
         await requester.setCheckpointWithTitle(model.title);
         for (const bench of benches) {
             // Find existing result, skip if found
@@ -238,7 +245,7 @@ export async function executeBenches(ctx: Koa.Context) {
             });
             await prisma.job.update({
                 where: {
-                    id: masterJob.id
+                    id: masterJob.id,
                 },
                 data: {
                     status: "Success",
@@ -246,11 +253,10 @@ export async function executeBenches(ctx: Koa.Context) {
                     total: params.benchIds.length,
                 },
             });
-        }
-        catch (error) {
+        } catch (error) {
             await prisma.job.update({
                 where: {
-                    id: masterJob.id
+                    id: masterJob.id,
                 },
                 data: {
                     status: "Failure",
