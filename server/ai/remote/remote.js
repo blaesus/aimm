@@ -3,30 +3,20 @@ const bodyParser = require('koa-bodyparser');
 const router = require('koa-router')();
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, execSync} = require('child_process');
 
 const SUB_DIR = "for_bench"
 const downloadDir = `/workspace/stable-diffusion-webui/models/Stable-diffusion/${SUB_DIR}`;
 
-async function downloadFile(url, filepath) {
+function downloadFile(url, filepath) {
     console.info("Downloading url: ", url, " to ", filepath);
     const tempPath = `${filepath}.tmp`;
     const finalPath = filepath;
     // Use wget to download
-    exec(`wget --quiet -O ${tempPath} ${url}`, (error, ) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
-        }
-        else {
-            fs.rename(tempPath, finalPath, (error) => {
-                if (error) {
-                    console.error(error)
-                } else {
-                    console.info(`Downloaded ${url} to ${finalPath}`)
-                }
-            })
-        }
-    })
+    execSync(`wget --quiet -O ${tempPath} ${url}`)
+    console.info("Downloaded to ", tempPath);
+    fs.renameSync(tempPath, finalPath)
+    console.info("Renamed to ", finalPath);
 }
 
 router.post('/api/download', async (ctx) => {
@@ -35,7 +25,7 @@ router.post('/api/download', async (ctx) => {
     for (const item of downloadList) {
         const { downloadUrl, filename } = item;
         const path = `${downloadDir}/${filename}`;
-        await downloadFile(downloadUrl, path)
+        downloadFile(downloadUrl, path)
     }
     ctx.body = {ok: true};
 })
