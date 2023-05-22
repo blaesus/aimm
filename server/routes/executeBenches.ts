@@ -8,6 +8,7 @@ import { sizeLocalFile } from "../serverUtils";
 interface BenchJobProps {
     benchIds: string[],
     targets: BenchTxt2ImgFileTarget[],
+    jobId: string
 }
 
 const BENCH_DIR_NAME = "for_bench";
@@ -43,7 +44,7 @@ async function clearModels() {
 
 async function bench(props: BenchJobProps) {
 
-    const {benchIds, targets} = props;
+    const {benchIds, targets, jobId} = props;
 
     const benches = await prisma.benchmark.findMany({
         where: {
@@ -62,6 +63,7 @@ async function bench(props: BenchJobProps) {
     await requester.refreshCheckpoints();
     const models = await requester.getCheckpoints();
 
+    let finishedTargets = 0;
     for (const target of targets) {
 
         {
@@ -156,7 +158,17 @@ async function bench(props: BenchJobProps) {
             });
             await sleep(1000);
         }
+        finishedTargets += 1;
+        await prisma.job.update({
+            where: {
+                id: jobId,
+            },
+            data: {
+                processed: finishedTargets,
+            },
+        });
     }
+
 
 }
 
@@ -204,6 +216,7 @@ export async function executeBenches(ctx: Koa.Context) {
         })),
     ).flat();
     setTimeout(async () => {
+        await checkApi();
         const label = `txt2img-bench-${Date.now()}`;
         const masterJob = await prisma.job.create({
             data: {
@@ -217,20 +230,34 @@ export async function executeBenches(ctx: Koa.Context) {
                 },
             },
         });
-        await checkApi();
-        await bench({
-            targets: targets,
-            benchIds: params.benchIds,
-        });
-        await prisma.job.update({
-            where: {
-                id: masterJob.id,
-            },
-            data: {
-                status: "Success",
-                stopped: Date.now(),
-            },
-        });
+        try {
+            await bench({
+                targets: targets,
+                benchIds: params.benchIds,
+                jobId: masterJob.id,
+            });
+            await prisma.job.update({
+                where: {
+                    id: masterJob.id
+                },
+                data: {
+                    status: "Success",
+                    stopped: Date.now(),
+                    total: params.benchIds.length,
+                },
+            });
+        }
+        catch (error) {
+            await prisma.job.update({
+                where: {
+                    id: masterJob.id
+                },
+                data: {
+                    status: "Failure",
+                    stopped: Date.now(),
+                },
+            });
+        }
     });
     ctx.status = 200;
     ctx.body = {
