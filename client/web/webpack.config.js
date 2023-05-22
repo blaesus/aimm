@@ -10,14 +10,13 @@ module.exports = {
 
     output: {
         path: path.resolve(__dirname, '..', '..', 'build', 'web'),
-        publicPath: '/',
     },
 
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.css'],
     },
 
-    devtool: "source-map",
+    devtool: 'source-map',
 
     module: {
         rules: [
@@ -47,6 +46,10 @@ module.exports = {
         historyApiFallback: true,
         hot: true,
         port: 3000,
+        static: {
+            directory: path.join(__dirname, "/"),
+            serveIndex: true,
+        },
         proxy: {
             '/api': {
                 target: 'http://localhost:4000',

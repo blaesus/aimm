@@ -119,12 +119,16 @@ export function FileList(props: {
                                 <div>
                                     {results.map(result => (
                                         <div key={result.id}>
-                                            {
-                                                fileRecords[result.resultFileId]?.downloadUrl
-                                            }
+                                            <img
+                                                src={
+                                                    `/public/${fileRecords[result.resultFileId]?.downloadUrl}`
+                                                }
+                                                width={100}
+                                            />
                                             {result.resultFileId}
                                         </div>
                                     ))}
+                                    <div></div>
                                 </div>
                             </div>
                         );
