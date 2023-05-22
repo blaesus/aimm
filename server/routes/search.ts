@@ -3,7 +3,7 @@ import { prisma } from "../../data/prismaClient";
 import { SearchSuccess } from "../../data/aimmApi";
 import { serialize } from "../../data/serialize";
 import { FileRecord, Repository, Revision } from "@prisma/client";
-import { dedupeById } from "./utils";
+import { dedupeById, parseQuery, Query } from "./utils";
 
 function looksLikeHashHex(s: string): boolean {
     return /^[0-9a-fA-F]{6,64}$/.test(s);
@@ -13,9 +13,10 @@ const MAX_PAGE_SIZE = 1000;
 const DEFAULT_PAGE_SIZE = 100;
 
 export async function search(ctx: Koa.Context) {
-    const keyword = ctx.params.keyword;
-    const pageSize = ctx.params.limit || DEFAULT_PAGE_SIZE;
-    const page = ctx.params.page || 0;
+    const query: Query = parseQuery(ctx.request.querystring);
+    const keyword = query.keyword || "";
+    const pageSize = Number(query.limit) || DEFAULT_PAGE_SIZE;
+    const page = Number(query.page) || 0;
 
     const reposByName = await prisma.repository.findMany({
         where: {
@@ -48,7 +49,7 @@ export async function search(ctx: Koa.Context) {
     });
 
     let filesByHash: FileRecord[] = [];
-    if (looksLikeHashHex(keyword)) {
+    if (keyword && looksLikeHashHex(keyword)) {
         filesByHash = await prisma.fileRecord.findMany({
             where: {
                 hashA: {

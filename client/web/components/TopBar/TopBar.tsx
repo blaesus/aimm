@@ -23,7 +23,7 @@ export function TopBar(props: {
             return;
         }
         setLoading(true);
-        const response = await fetch(`/api/search/${searchInput}`);
+        const response = await fetch(`/api/search/?keyword=${searchInput}`);
         const data = await response.json() as SearchSuccess;
         setLoading(false);
         dispatch({
