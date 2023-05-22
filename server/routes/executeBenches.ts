@@ -92,13 +92,6 @@ async function bench(props: BenchJobProps) {
             }
         }
 
-        // The server has limit disk and bandwidth. We process them one by one.
-        const model = models.find(model => model.filename.includes(target.filename));
-        if (!model) {
-            console.error("no model found:", target.filename);
-            continue;
-        }
-
         {
             const start = Date.now();
             await downloadModels([target]);
@@ -115,6 +108,13 @@ async function bench(props: BenchJobProps) {
             }
             console.info(`${target} ready`);
         }
+        // The server has limit disk and bandwidth. We process them one by one.
+        const model = models.find(model => model.filename.includes(target.filename));
+        if (!model) {
+            console.error("no model found:", target.filename);
+            continue;
+        }
+
         await requester.setCheckpointWithTitle(model.title);
         for (const bench of benches) {
             // Find existing result, skip if found
