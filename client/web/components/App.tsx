@@ -5,7 +5,7 @@ import { Admin } from "./Admin";
 import { TopBar } from "./TopBar/TopBar";
 import { getInitialClientState, reducer, UIState } from "../reducer/state";
 import { SEARCH } from "../utils";
-import { ClientStateContext } from "../context/state";
+import { ClientDispatchContext, ClientStateContext } from "../context/state";
 
 function serializeToPathName(state: UIState): string {
     if (state.pages.current === "home") {
@@ -64,14 +64,17 @@ function App() {
 
 
     return (
-        <ClientStateContext.Provider value={{state, dispatch}}>
-            <div className="App">
-                <TopBar state={state} dispatch={dispatch}/>
-                <div className="NonTopBarContent">
-                    <SearchPage state={state} dispatch={dispatch} />
-                    <Admin/>
+        <ClientStateContext.Provider value={state}>
+            <ClientDispatchContext.Provider value={dispatch}>
+                <div className="App">
+                    <TopBar state={state} dispatch={dispatch}/>
+                    <div className="NonTopBarContent">
+                        <SearchPage state={state} dispatch={dispatch} />
+                        <Admin/>
+                    </div>
                 </div>
-            </div>
+
+            </ClientDispatchContext.Provider>
         </ClientStateContext.Provider>
     );
 }

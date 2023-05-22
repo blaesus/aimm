@@ -25,7 +25,7 @@ services:
       dockerfile: ops/admin.dockerfile
     network_mode: "host"
     volumes:
-      - /var/benches:/var/benches
+      - /var/public:/var/public
     env_file:
       - ./ops/.env.remote
     command: node server/admin-api.js

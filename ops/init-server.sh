@@ -62,8 +62,8 @@ npx prisma generate
 vim ops/.env.remote # Add params for APIs
 ln -s ops/.env.remote .env
 
-sudo mkdir /var/benches
-sudo chown ubuntu:ubuntu /var/benches
+sudo mkdir -p /var/public/benches
+sudo chown ubuntu:ubuntu /var/public
 
 # TLS Certs
 sudo snap install core; sudo snap refresh core

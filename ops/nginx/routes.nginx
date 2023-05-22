@@ -58,10 +58,9 @@ server {
         try_files $uri =404;
     }
 
-    location /benches {
+    location /public {
         root /var;
         try_files $uri $uri/ =404;
-        autoindex on;
     }
 
     include /etc/letsencrypt/options-ssl-nginx.conf;

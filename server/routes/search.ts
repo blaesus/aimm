@@ -72,12 +72,12 @@ export async function search(ctx: Koa.Context) {
 
     }
 
-    const revisions = [
+    const revisions = dedupeById([
         ...revisionsForReposByName,
         ...revisionsFromFilesByHash,
-    ];
+    ]);
 
-    const fileRecords = dedupeById([
+    const foundFiles = dedupeById([
         ...fileRecordsFromReposByName,
         ...filesByHash,
     ]);
@@ -87,15 +87,28 @@ export async function search(ctx: Koa.Context) {
         ...reposForFilesByHash,
     ]);
 
-    const benchmarks = await prisma.benchmark.findMany({})
+    const benchmarks = await prisma.benchmark.findMany({});
 
     const benchmarkResults = await prisma.benchmarkResult.findMany({
         where: {
             targetFileId: {
-                in: fileRecords.map(f => f.id)
-            }
-        }
-    })
+                in: foundFiles.map(f => f.id),
+            },
+        },
+    });
+
+    const benchmarkResultFiles: FileRecord[] = await prisma.fileRecord.findMany({
+        where: {
+            id: {
+                in: benchmarkResults.map(r => r.resultFileId),
+            },
+        },
+    });
+
+    const fileRecords = dedupeById([
+        ...foundFiles,
+        ...benchmarkResultFiles,
+    ]);
 
     const result: SearchSuccess = {
         ok: true,

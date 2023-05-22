@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Benchmark, BenchmarkResult, FileRecord, Registry, Repository, Revision } from "@prisma/client";
 import { getRepoOnRevisionUrl, getRepoUrl } from "../../utils";
 
@@ -8,6 +8,8 @@ import { HashTag } from "../HashTag/HashTag";
 import { SizeTag } from "../SizeTag/SizeTag";
 import { ObjectMap, ObjectWithId } from "../../../../data/sharedTypes";
 import { Button } from "../Button/Button";
+import { ClientStateContext } from "../../context/state";
+import { ClientState } from "../../reducer/state";
 
 interface RepoMetaInfo {
     tags: string[];
@@ -86,6 +88,9 @@ export function FileList(props: {
     showBench?: boolean,
 }) {
     const {files, repositories, revisions, showRepo} = props;
+    const {entities} = useContext<ClientState>(ClientStateContext);
+    const {benchmarkResults, benchmarks, fileRecords} = entities;
+
     return (
         <div className="FileRecordList">
             {
@@ -99,11 +104,30 @@ export function FileList(props: {
                                     <div key={f.id}>
                                         <h3>{repo.name} {repo.favour.toString()}</h3>
                                         <FileRecordCard key={f.id} file={f}/>
-                                        <Button>Hello</Button>
                                     </div>
                                 );
                             }
                         }
+                    }
+                    if (props.showBench) {
+                        const results = Object.values(benchmarkResults).filter(
+                            r => r.targetFileId === f.id
+                        );
+                        return (
+                            <div key={f.id}>
+                                <FileRecordCard key={f.id} file={f}/>
+                                <div>
+                                    {results.map(result => (
+                                        <div key={result.id}>
+                                            {
+                                                fileRecords[result.resultFileId]?.downloadUrl
+                                            }
+                                            {result.resultFileId}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
                     }
                     return <FileRecordCard key={f.id} file={f}/>;
                 })
@@ -135,7 +159,7 @@ export function RevisionCard(props: {
                     </a>
                 </h3>
                 {meta.lastUpdated?.toISOString()}
-                <FileList files={files}/>
+                <FileList files={files} showBench={true}/>
 
                 <div>
                     <h3>Install</h3>

@@ -73,7 +73,8 @@ async function bench(props: BenchJobProps) {
             const params = JSON.parse(JSON.stringify((bench.parameters)));
             const time = Date.now();
             const filename = `${bench.id}_${target.file}_${time}.png`;
-            const benchResultPath = `/var/benches/${filename}`;
+            const pathName = `benches/${filename}`;
+            const benchResultPath = `/var/public/${pathName}`;
             await requester.txt2img(params, benchResultPath);
             const hash = await hashLocalFile(benchResultPath);
             const size = await sizeLocalFile(benchResultPath);
@@ -85,7 +86,7 @@ async function bench(props: BenchJobProps) {
                 data: {
                     revisionId: undefined,
                     filename,
-                    downloadUrl: benchResultPath,
+                    downloadUrl: pathName,
                     hashA: hash,
                     updated: time,
                     size,
