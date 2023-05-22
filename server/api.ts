@@ -18,7 +18,7 @@ app.use(bodyParser());
 router.prefix("/api");
 router.get("/hello", hello);
 router.get("/files", files);
-router.get("/search/:keyword", search);
+router.get("/search", search);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
