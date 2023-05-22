@@ -14,10 +14,11 @@ function downloadFile(url, filepath) {
     const finalPath = filepath;
     // Use wget to download
     const ua = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36`
-    execSync(`wget --user-agent="${ua}" --quiet -O ${tempPath} ${url}`)
-    console.info("Downloaded to ", tempPath);
-    fs.renameSync(tempPath, finalPath)
-    console.info("Renamed to ", finalPath);
+    exec(`wget --user-agent="${ua}" --quiet -O ${tempPath} ${url}`, () => {
+        console.info("Downloaded to ", tempPath);
+        fs.renameSync(tempPath, finalPath)
+        console.info("Renamed to ", finalPath);
+    })
 }
 
 router.post('/api/download', async (ctx) => {
