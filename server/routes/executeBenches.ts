@@ -43,12 +43,12 @@ async function clearModels() {
 
 async function bench(props: BenchJobProps) {
 
-    const {targets} = props;
+    const {benchIds, targets} = props;
 
     const benches = await prisma.benchmark.findMany({
         where: {
             id: {
-                in: props.benchIds,
+                in: benchIds,
             },
         },
     });
@@ -61,24 +61,59 @@ async function bench(props: BenchJobProps) {
     const requester = getWebuiApiRequester(webuiApiBase);
     await requester.refreshCheckpoints();
     const models = await requester.getCheckpoints();
-    const benchModels = models.filter(model => model.filename.includes(BENCH_DIR_NAME));
+
     for (const target of targets) {
-        const model = benchModels.find(model => model.filename.includes(target.filename));
+
+        {
+            let allBenchesDone = true;
+            for (const bench of benches) {
+                const existingResults = await prisma.benchmarkResult.count({
+                    where: {
+                        benchmarkId: bench.id,
+                        targetFileId: target.file,
+                    },
+                });
+                if (existingResults === 0) {
+                    allBenchesDone = false;
+                    break;
+                }
+            }
+            if (allBenchesDone) {
+                console.info(`Found existing benchmark result for ${target.filename} on all benches, skipped`);
+                continue;
+            }
+        }
+
+        // The server has limit disk and bandwidth. We process them one by one.
+        const model = models.find(model => model.filename.includes(target.filename));
         if (!model) {
             console.error("no model found:", target.filename);
             continue;
         }
+
+        await downloadModels([target]);
+        console.info(`downloaded target ${target}`);
+        while (true) {
+            if (await allModelsReady([target])) {
+                break;
+            }
+            await sleep(10_000);
+        }
+        console.info(`${target} ready`);
         await requester.setCheckpointWithTitle(model.title);
         for (const bench of benches) {
+            // Find existing result, skip if found
             const params = JSON.parse(JSON.stringify((bench.parameters)));
             const time = Date.now();
             const filename = `${bench.id}_${target.file}_${time}.png`;
             const pathName = `benches/${filename}`;
             const benchResultPath = `/var/public/${pathName}`;
             await requester.txt2img(params, benchResultPath);
+            await clearModels();
             const hash = await hashLocalFile(benchResultPath);
             const size = await sizeLocalFile(benchResultPath);
             if (hash === null || size === null) {
+                console.info(`Failed to hash or size local file ${benchResultPath}`);
                 continue;
             }
 
@@ -122,6 +157,7 @@ async function bench(props: BenchJobProps) {
             await sleep(1000);
         }
     }
+
 }
 
 async function checkApi() {
@@ -167,37 +203,25 @@ export async function executeBenches(ctx: Koa.Context) {
             filename: `${file.hashA}_${file.filename}`,
         })),
     ).flat();
-    const label = `txt2img-bench-${Date.now()}`;
-    const masterJob = await prisma.job.create({
-        data: {
-            status: "Running",
-            type: "txt2img-bench",
-            label,
-            created: Date.now(),
-            data: {
-                benchIds: params.benchIds,
-                revisionIds: params.revisionIds,
-            },
-        },
-    });
     setTimeout(async () => {
+        const label = `txt2img-bench-${Date.now()}`;
+        const masterJob = await prisma.job.create({
+            data: {
+                status: "Running",
+                type: "txt2img-bench",
+                label,
+                created: Date.now(),
+                data: {
+                    benchIds: params.benchIds,
+                    revisionIds: params.revisionIds,
+                },
+            },
+        });
         await checkApi();
-        for (const target of targets) {
-            await downloadModels([target]);
-            console.info("downloaded");
-            while (true) {
-                if (await allModelsReady([target])) {
-                    break;
-                }
-                await sleep(10_000);
-            }
-            console.info("All ready");
-            await bench({
-                targets: [target],
-                benchIds: params.benchIds,
-            });
-        }
-        await clearModels();
+        await bench({
+            targets: targets,
+            benchIds: params.benchIds,
+        });
         await prisma.job.update({
             where: {
                 id: masterJob.id,
@@ -207,7 +231,7 @@ export async function executeBenches(ctx: Koa.Context) {
                 stopped: Date.now(),
             },
         });
-    })
+    });
     ctx.status = 200;
     ctx.body = {
         ok: true,
