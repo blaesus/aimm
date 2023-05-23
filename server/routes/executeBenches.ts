@@ -107,7 +107,7 @@ async function bench(props: BenchJobProps) {
                 }
                 await sleep(10_000);
             }
-            console.info(`${target} ready`);
+            console.info(`${target.filename} ready`);
         }
         const model = models.find(model => model.filename.includes(target.filename));
         if (!model) {
