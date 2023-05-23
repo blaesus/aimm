@@ -4,6 +4,7 @@ import { buildProxyConfigFromEnv, hashLocalFile, makeRequester, sleep } from "..
 import * as Koa from "koa";
 import { BenchExecuteParams, BenchTxt2ImgFileTarget } from "../../data/aimmApi";
 import { aiModelExtensions, sizeLocalFile } from "../serverUtils";
+import path from "path";
 
 interface BenchJobProps {
     benchIds: string[],
@@ -121,8 +122,8 @@ async function bench(props: BenchJobProps) {
             const params = JSON.parse(JSON.stringify((bench.parameters)));
             const time = Date.now();
             const filename = `${bench.id}_${target.file}_${time}.png`;
-            const pathName = `benches/${filename}`;
-            const benchResultPath = `/var/public/${pathName}`;
+            const pathName = path.join("benches", filename);
+            const benchResultPath = path.join(process.env["PUBLIC_ASSET_BASE"] || ".", pathName);
             await requester.txt2img(params, benchResultPath);
             await clearModels();
             const hash = await hashLocalFile(benchResultPath);
