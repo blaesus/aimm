@@ -6,6 +6,7 @@ import { BenchExecuteParams, BenchTxt2ImgFileTarget } from "../../data/aimmApi";
 import { aiModelExtensions, sizeLocalFile } from "../serverUtils";
 import path from "path";
 import { db } from "../../data/db";
+import * as fs from "fs";
 
 interface BenchJobProps {
     benchIds: string[],
@@ -65,7 +66,6 @@ async function bench(props: BenchJobProps) {
     const models = await requester.getCheckpoints();
 
     let finishedTargets = 0;
-    console.info("out", process.env["PUBLIC_ASSET_BASE"]);
     targetLoop:
     // The server has limit disk and bandwidth. We process targets one by one.
     for (const target of targets) {
@@ -236,7 +236,6 @@ export async function executeBenches(ctx: Koa.Context) {
         await checkApi();
         const label = `txt2img-bench-${Date.now()}`;
         const masterJob = await db.jobs.initiate({
-            status: "Running",
             type: "txt2img-bench",
             label,
             data: {

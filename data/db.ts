@@ -8,15 +8,14 @@ export type Savable<T, ValueField extends string> = Omit<Partial<Job>, ValueFiel
 export const db = {
     jobs: {
         async initiate(props: {
-            status: JobStatus,
             type: string,
             label: string
             data?: {},
         }): Promise<Job> {
-            const {type, data, label, status} = props;
+            const {type, data, label} = props;
             return prisma.job.create({
                 data: {
-                    status,
+                    status: "Running",
                     type,
                     label,
                     created: Date.now(),
