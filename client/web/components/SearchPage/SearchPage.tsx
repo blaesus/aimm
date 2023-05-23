@@ -1,11 +1,9 @@
 import React from "react";
-import { FileRecord, Registry, Repository, Revision } from "@prisma/client";
 import "./SearchPage.css";
 import { FileList, RepoCard } from "../RepoCard/RepoCard";
 import { ClientState } from "../../reducer/state";
 import { ClientAction } from "../../reducer/action";
 import { Button } from "../Button/Button";
-import { match } from "assert";
 
 export function SearchPage(props: {
     state: ClientState,

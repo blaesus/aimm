@@ -28,9 +28,6 @@ function App() {
     const initialState = getInitialClientState();
 
     const [state, dispatch] = useReducer(reducer, initialState);
-
-
-
     function updateUIStateForUrl() {
         dispatch({
             type: "ChangeUrl",
