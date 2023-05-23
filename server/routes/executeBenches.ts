@@ -5,6 +5,7 @@ import * as Koa from "koa";
 import { BenchExecuteParams, BenchTxt2ImgFileTarget } from "../../data/aimmApi";
 import { aiModelExtensions, sizeLocalFile } from "../serverUtils";
 import path from "path";
+import { db } from "../../data/db";
 
 interface BenchJobProps {
     benchIds: string[],
@@ -32,7 +33,6 @@ async function allModelsReady(targets: BenchTxt2ImgFileTarget[]): Promise<boolea
     const filenames = targets.map(target => target.filename);
     console.info("filenames", JSON.stringify(filenames));
     const {data} = await requester.post<string[], { filename: string, ready: boolean }[]>(url, filenames);
-    console.info("readiness", data);
     const readiness: boolean[] = data.map((file) => file.ready);
     return readiness.every(ready => ready);
 }
@@ -65,6 +65,7 @@ async function bench(props: BenchJobProps) {
     const models = await requester.getCheckpoints();
 
     let finishedTargets = 0;
+    console.info("out", process.env["PUBLIC_ASSET_BASE"]);
     targetLoop:
     // The server has limit disk and bandwidth. We process targets one by one.
     for (const target of targets) {
@@ -100,6 +101,7 @@ async function bench(props: BenchJobProps) {
             console.info(`started to download target ${target}`);
             while (true) {
                 if (await allModelsReady([target])) {
+                    console.info(`${target.filename} Not ready...`)
                     break;
                 }
                 if (Date.now() - start > 1000_000) {
@@ -124,6 +126,7 @@ async function bench(props: BenchJobProps) {
             const filename = `${bench.id}_${target.file}_${time}.png`;
             const pathName = path.join("benches", filename);
             const benchResultPath = path.join(process.env["PUBLIC_ASSET_BASE"] || ".", pathName);
+            console.info("saving bench result to", benchResultPath)
             await requester.txt2img(params, benchResultPath);
             await clearModels();
             const hash = await hashLocalFile(benchResultPath);
@@ -232,45 +235,32 @@ export async function executeBenches(ctx: Koa.Context) {
     setTimeout(async () => {
         await checkApi();
         const label = `txt2img-bench-${Date.now()}`;
-        const masterJob = await prisma.job.create({
+        const masterJob = await db.jobs.initiate({
+            status: "Running",
+            type: "txt2img-bench",
+            label,
             data: {
-                status: "Running",
-                type: "txt2img-bench",
-                label,
-                created: Date.now(),
-                data: {
-                    benchIds: params.benchIds,
-                    revisionIds: params.revisionIds,
-                },
+                benchIds: params.benchIds,
+                revisionIds: params.revisionIds,
             },
-        });
+        })
         try {
             await bench({
                 targets,
                 benchIds: params.benchIds,
                 jobId: masterJob.id,
             });
-            await prisma.job.update({
-                where: {
-                    id: masterJob.id,
-                },
-                data: {
-                    status: "Success",
-                    stopped: Date.now(),
-                    total: params.benchIds.length,
-                },
-            });
+            await db.jobs.update(masterJob.id, {
+                status: "Success",
+                stopped: BigInt(Date.now()),
+                total: params.benchIds.length,
+            })
         } catch (error) {
             console.error(error)
-            await prisma.job.update({
-                where: {
-                    id: masterJob.id,
-                },
-                data: {
-                    status: "Failure",
-                    stopped: Date.now(),
-                },
-            });
+            await db.jobs.update(masterJob.id, {
+                status: "Failure",
+                stopped: BigInt(Date.now()),
+            })
         }
     });
     ctx.status = 200;
