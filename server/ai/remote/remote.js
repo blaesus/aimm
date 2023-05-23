@@ -22,7 +22,7 @@ function downloadFile(url, filepath) {
             console.info("Downloaded to ", tempPath);
             exec(`mv ${tempPath} ${finalPath}`, error => {
                 if (error) {
-                    console.error(`Error renaming ${tempPath} to ${finalPath}: ${error}`)
+                    console.error(`Error move ${tempPath} to ${finalPath}: ${error}`)
                 }
                 else {
                     console.info("Moved to ", finalPath);
