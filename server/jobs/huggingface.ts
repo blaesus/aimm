@@ -297,7 +297,7 @@ export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
         try {
             const response = await requester.getData<HuggingfaceCommitResponse>(url);
             // TODO: mark batch
-            const totalItems = response.headers[`X-Total-Count`] || undefined;
+            const totalItems = response.headers[`X-Total-Count`] || 0;
             state.total = Math.round(totalItems / pageSize) + 1;
             await prisma.fetchRecord.create({
                 data: {
