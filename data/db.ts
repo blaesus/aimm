@@ -4,7 +4,7 @@ import { prisma } from "./prismaClient";
 import { Job, JobStatus } from "@prisma/client";
 
 // If T has some field as JsonValue, use this type to make it usable in db.update
-export type Savable<T, ValueField extends string> = Omit<Partial<Job>, ValueField> & {[key in ValueField]?: {}}
+export type Savable<T, ValueField extends string> = Omit<Partial<T>, ValueField> & {[key in ValueField]?: {}}
 export const db = {
     jobs: {
         async initiate(props: {
