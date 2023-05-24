@@ -224,13 +224,8 @@ async function bench(props: BenchJobProps) {
                 await sleep(1000);
             }
             finishedTargets += 1;
-            await prisma.job.update({
-                where: {
-                    id: jobId,
-                },
-                data: {
-                    processed: finishedTargets,
-                },
+            await db.jobs.update(jobId, {
+                processed: finishedTargets,
             });
         }
     await clearModels();
