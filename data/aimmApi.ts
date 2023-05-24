@@ -1,5 +1,6 @@
 import type { Benchmark, BenchmarkResult, FileRecord, Job, Repository, Revision, StorageService } from "@prisma/client";
 import { BenchTargetApiItems } from "../server/routes/getBenchTargets";
+import { getRegistry } from "../server/serverUtils";
 
 export type HuggingfaceRepoType = "datasets" | "models";
 
@@ -99,4 +100,11 @@ export interface BenchTxt2ImgFileTarget {
     file: string,
     downloadUrl: string,
     filename: string,
+}
+
+export interface SearchParams {
+    keyword?: string,
+    page?: number,
+    pageSize?: number,
+    registry?: string,
 }
