@@ -70,6 +70,9 @@ async function allModelsReady(targets: BenchTxt2ImgFileTarget[]): Promise<boolea
     const result = await remoteControl.execCommand(`ls ${modelRoot}`);
     const existingFiles = result.stdout.split("\n").filter(Boolean);
     const finishedFiles = existingFiles.filter(file => !file.endsWith(`.${PARTIAL_EXT}`));
+    console.info("existingFiles", existingFiles);
+    console.info("finishedFiles", finishedFiles);
+    console.info("targets", targets);
     return targets.every(target => finishedFiles.includes(target.filename));
 }
 
