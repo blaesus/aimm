@@ -8,8 +8,32 @@ import path from "path";
 import { db } from "../../data/db";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { NodeSSH, SSHExecCommandResponse } from "node-ssh";
+
 
 const execAsync = promisify(exec);
+
+interface RemoteSSHController {
+    connection: NodeSSH,
+
+    connect(): Promise<void>
+
+    execCommand(command: string): Promise<SSHExecCommandResponse>
+}
+
+const remoteControl: RemoteSSHController = {
+    connection: new NodeSSH(),
+    async connect() {
+        remoteControl.connection = await remoteControl.connection.connect({
+            host: "104.143.3.153",
+            username: "root",
+            privateKeyPath: `~/.ssh/id_ed25519`,
+        });
+    },
+    async execCommand(command: string) {
+        return remoteControl.connection.execCommand(command);
+    },
+};
 
 interface BenchJobProps {
     benchIds: string[],
@@ -18,7 +42,6 @@ interface BenchJobProps {
 }
 
 const webuiApiBase = "https://9vccn95kcg7bk5-3000.proxy.runpod.net";
-const sshCommand = ` ssh root@104.143.3.153 -p 10168 -i ~/.ssh/id_ed25519`;
 
 const requester = makeRequester({
     proxy: buildProxyConfigFromEnv(),
@@ -28,19 +51,15 @@ const ua = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 
 const modelRoot = `/workspace/stable-diffusion-webui/models/Stable-diffusion/for_bench`;
 
-function remoteExecute(command: string) {
-    return execAsync(`${sshCommand} '${command}'`);
-}
-
-const PARTIAL_EXT = "part"
+const PARTIAL_EXT = "part";
 
 function downloadInBackground(url: string, filename: string) {
     const tempPath = `${modelRoot}/${filename}.${PARTIAL_EXT}`;
     const finalPath = `${modelRoot}/${filename}`;
     const wget = `wget --user-agent="${ua}" --quiet -O "${tempPath}" "${url}"`;
-    remoteExecute(`nohup ${wget} &`)
+    remoteControl.execCommand(`nohup ${wget} &`)
         .then(() => {
-            remoteExecute(`mv ${tempPath} ${finalPath}`).catch(console.error);
+            remoteControl.execCommand(`mv ${tempPath} ${finalPath}`).catch(console.error);
         })
         .catch(console.error);
 }
@@ -52,18 +71,18 @@ async function downloadModels(targets: BenchTxt2ImgFileTarget[]) {
 }
 
 async function allModelsReady(targets: BenchTxt2ImgFileTarget[]): Promise<boolean> {
-    const result = await remoteExecute(`ls ${modelRoot}`);
+    const result = await remoteControl.execCommand(`ls ${modelRoot}`);
     const existingFiles = result.stdout.split("\n").filter(Boolean);
     const finishedFiles = existingFiles.filter(file => !file.endsWith(`.${PARTIAL_EXT}`));
     console.info("existing", existingFiles, "finished", finishedFiles);
-    console.info("targets:", targets)
+    console.info("targets:", targets);
     return targets.every(target => finishedFiles.includes(target.filename));
 }
 
 async function clearModels() {
     const fallbackRoot = `/workspace/stable-diffusion-webui/models/Stable-diffusion/for_bench`;
     const root = modelRoot || fallbackRoot; // Ensure we don't delete everything
-    return remoteExecute(`rm -rf ${root}/*`);
+    return remoteControl.execCommand(`rm -rf ${root}/*`);
 }
 
 async function bench(props: BenchJobProps) {

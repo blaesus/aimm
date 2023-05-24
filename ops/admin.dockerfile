@@ -1,4 +1,4 @@
-FROM node:18.16.0-bullseye
+FROM node:18.16.0-bullseye-slim
 
 WORKDIR /usr/server/admin
 COPY package*.json ./
