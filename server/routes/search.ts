@@ -4,6 +4,7 @@ import { SearchSuccess } from "../../data/aimmApi";
 import { serialize } from "../../data/serialize";
 import { FileRecord, Repository, Revision } from "@prisma/client";
 import { dedupeById, parseQuery, Query } from "./utils";
+import { getRegistry } from "../serverUtils";
 
 function looksLikeHashHex(s: string): boolean {
     return /^[0-9a-fA-F]{6,64}$/.test(s);
@@ -17,6 +18,7 @@ export async function search(ctx: Koa.Context) {
     const keyword = query.keyword || "";
     const pageSize = Number(query["page-size"]) || DEFAULT_PAGE_SIZE;
     const page = Number(query.page) || 0;
+    const registry = getRegistry(query.registry);
 
     const reposByName = await prisma.repository.findMany({
         where: {
@@ -24,6 +26,7 @@ export async function search(ctx: Koa.Context) {
                 contains: keyword,
                 mode: "insensitive",
             },
+            registry,
         },
         orderBy: {
             favour: "desc",
