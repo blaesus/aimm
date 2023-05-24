@@ -56,7 +56,7 @@ async function allModelsReady(targets: BenchTxt2ImgFileTarget[]): Promise<boolea
     const existingFiles = result.stdout.split("\n").filter(Boolean);
     const finishedFiles = existingFiles.filter(file => !file.endsWith(`.${PARTIAL_EXT}`));
     console.info("existing", existingFiles, "finished", finishedFiles);
-    console.info(targets)
+    console.info("targets:", targets)
     return targets.every(target => finishedFiles.includes(target.filename));
 }
 
@@ -84,8 +84,6 @@ async function bench(props: BenchJobProps) {
     }
 
     const requester = getWebuiApiRequester(webuiApiBase);
-    await requester.refreshCheckpoints();
-    const models = await requester.getCheckpoints();
 
     let finishedTargets = 0;
     targetLoop:
@@ -133,7 +131,9 @@ async function bench(props: BenchJobProps) {
                     await sleep(10_000);
                 }
                 console.info(`${target.filename} ready`);
+                await requester.refreshCheckpoints();
             }
+            const models = await requester.getCheckpoints();
             const model = models.find(model => model.filename.includes(target.filename));
             if (!model) {
                 console.error("no model found:", target.filename);
