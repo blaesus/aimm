@@ -23,16 +23,7 @@ const remoteControl: RemoteSSHController = {
             host: "104.143.3.153",
             username: "root",
             port: 10168,
-            // privateKeyPath: `~/.ssh/id_ed25519`,
-            privateKey: `
------BEGIN OPENSSH PRIVATE KEY-----
-b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-QyNTUxOQAAACB/i8KwcX4dO0ZbmUKD0tlcnOhE5ot8Yi0LlL5DOjgsSAAAAJDcaR1B3Gkd
-QQAAAAtzc2gtZWQyNTUxOQAAACB/i8KwcX4dO0ZbmUKD0tlcnOhE5ot8Yi0LlL5DOjgsSA
-AAAEBMxgmv2NqhNKnXwDQnqLENYK/xZOOu8O0donWNAMcUDH+LwrBxfh07RluZQoPS2Vyc
-6ETmi3xiLQuUvkM6OCxIAAAADXNodUBpbW11eC5jb20=
------END OPENSSH PRIVATE KEY-----
-            `
+            privateKey: process.env['SD_PRIVATE_KEY']
         });
     },
     async execCommand(command: string) {
