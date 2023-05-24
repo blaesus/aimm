@@ -1,17 +1,17 @@
 import { prisma } from "../../data/prismaClient";
 
-export interface SpiderStats {
+export interface JobStats {
     total?: number,
     processed?: number,
 }
 
-export interface Spider<P, S extends SpiderStats> {
+export interface JobDescription<P, S extends JobStats> {
     name?: string,
     init(params: P): Promise<S>;
     iterate(state: S): Promise<boolean>;
 }
 
-export async function runSpider<P, S extends SpiderStats>(spider: Spider<P, S>, params: P, jobId?: string) {
+export async function runJob<P, S extends JobStats>(spider: JobDescription<P, S>, params: P, jobId?: string) {
     console.info(`Spider ${spider.name} starting with params ${JSON.stringify(params)} of job ${jobId}...`)
     try {
         let state = await spider.init(params);

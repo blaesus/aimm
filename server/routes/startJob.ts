@@ -5,10 +5,10 @@ import { fileObtainer } from "../jobs/obtain";
 import * as Koa from "koa";
 import { prisma } from "../../data/prismaClient";
 import { JobType, StartJobSuccess } from "../../data/aimmApi";
-import { runSpider, Spider } from "../jobs/spider";
 import { serialize } from "../../data/serialize";
+import { JobDescription, runJob } from "../jobs/job";
 
-const spiders: { [key in JobType]: Spider<any, any> } = {
+const spiders: { [key in JobType]: JobDescription<any, any> } = {
     "civitai-index": civitaiReindexer,
     "huggingface-index": huggingfaceIndexer,
     "obtain-files": fileObtainer,
@@ -56,7 +56,7 @@ export async function startJob(ctx: Koa.Context) {
             data: ctx.params,
         },
     });
-    runSpider(spiders[type], requestBody, job.id);
+    runJob(spiders[type], requestBody, job.id);
 
     async function cleanup() {
         const runningJob = await prisma.job.findUnique({

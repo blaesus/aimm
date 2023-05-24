@@ -5,8 +5,8 @@ import { ServiceUplaodParams, uploadToB2 } from "./s3like";
 import { FileRecord, StorageService } from "@prisma/client";
 import { Registry } from ".prisma/client";
 import { ObtainFilesParams } from "../../data/aimmApi";
-import { Spider } from "./spider";
 import { getRegistry } from "../serverUtils";
+import { JobDescription } from "./job";
 
 const MULTIPART_UPLOAD_LIMIT = 1_000_000;
 
@@ -96,7 +96,7 @@ interface State {
     processed: number,
 }
 
-export const fileObtainer: Spider<ObtainFilesParams, State> = {
+export const fileObtainer: JobDescription<ObtainFilesParams, State> = {
     name: "file-obtainer",
     async init(props) {
         const {id, registry, batchSize = 100, favourThreshold = 10_000, service = "BackBlaze_B2"} = props;

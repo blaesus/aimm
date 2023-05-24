@@ -9,7 +9,7 @@ import {
 } from "../../data/huggingfaceTypes";
 import { buildProxyConfigFromEnv, makeRequester, parsePossibleLfsPointer, sleep } from "./utils";
 import { HuggingFaceReindexParams, HuggingfaceRepoType } from "../../data/aimmApi";
-import { Spider, SpiderStats } from "./spider";
+import { JobDescription, JobStats } from "./job";
 
 type HuggingfaceCommitResponse = HuggingfaceCommitJson_FromList[]
 
@@ -259,7 +259,7 @@ function parseLinkHeader(s: string): { link: string, relation: string } | null {
     }
 }
 
-interface State extends SpiderStats {
+interface State extends JobStats {
     url: string,
     requestWaitMs: number,
     repoType: HuggingfaceRepoType,
@@ -269,7 +269,7 @@ interface State extends SpiderStats {
     pageSize: number,
 }
 
-export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
+export const huggingfaceIndexer: JobDescription<HuggingFaceReindexParams, State> = {
     name: "huggingface-indexer",
     async init(params) {
         const repoType = params.repoType ?? "models";

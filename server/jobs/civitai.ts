@@ -5,7 +5,7 @@ import RevisionCreateInput = Prisma.RevisionCreateInput;
 import { CivitaiModelFileJson, CivitaiModelJson, CivitaiModelVersionJson } from "../../data/civitaiTypes";
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "./utils";
 import { CivitaiIndexingParams } from "../../data/aimmApi";
-import { Spider, SpiderStats } from "./spider";
+import { JobDescription, JobStats } from "./job";
 
 export interface CivitaiModelPayload {
     metadata: {
@@ -186,7 +186,7 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
 }
 
 const HARD_PAGE_LIMIT = 10_000; // Prevent infinite loop
-interface State extends SpiderStats {
+interface State extends JobStats {
     pageSize: number
     requestWaitMs: number
     prisma: PrismaClient,
@@ -196,7 +196,7 @@ interface State extends SpiderStats {
     processed: number,
 }
 
-export const civitaiReindexer: Spider<CivitaiIndexingParams, State> = {
+export const civitaiReindexer: JobDescription<CivitaiIndexingParams, State> = {
     name: "civitai-indexer",
     async init(params) {
         return {
