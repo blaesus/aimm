@@ -33,7 +33,7 @@ function ObtainLaunchPad(props: {
                 />
             </div>
             <label>
-                Batch size:
+                Items to obtain
                 <input
                     type="number"
                     value={batchSize}
