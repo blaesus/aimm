@@ -6,12 +6,7 @@ import { BenchExecuteParams, BenchTxt2ImgFileTarget } from "../../data/aimmApi";
 import { aiModelExtensions, sizeLocalFile } from "../serverUtils";
 import path from "path";
 import { db } from "../../data/db";
-import { exec } from "child_process";
-import { promisify } from "util";
 import { NodeSSH, SSHExecCommandResponse } from "node-ssh";
-
-
-const execAsync = promisify(exec);
 
 interface RemoteSSHController {
     connection: NodeSSH,
@@ -27,7 +22,17 @@ const remoteControl: RemoteSSHController = {
         remoteControl.connection = await remoteControl.connection.connect({
             host: "104.143.3.153",
             username: "root",
-            privateKeyPath: `~/.ssh/id_ed25519`,
+            port: 10168,
+            // privateKeyPath: `~/.ssh/id_ed25519`,
+            privateKey: `
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACB/i8KwcX4dO0ZbmUKD0tlcnOhE5ot8Yi0LlL5DOjgsSAAAAJDcaR1B3Gkd
+QQAAAAtzc2gtZWQyNTUxOQAAACB/i8KwcX4dO0ZbmUKD0tlcnOhE5ot8Yi0LlL5DOjgsSA
+AAAEBMxgmv2NqhNKnXwDQnqLENYK/xZOOu8O0donWNAMcUDH+LwrBxfh07RluZQoPS2Vyc
+6ETmi3xiLQuUvkM6OCxIAAAADXNodUBpbW11eC5jb20=
+-----END OPENSSH PRIVATE KEY-----
+            `
         });
     },
     async execCommand(command: string) {
@@ -74,8 +79,6 @@ async function allModelsReady(targets: BenchTxt2ImgFileTarget[]): Promise<boolea
     const result = await remoteControl.execCommand(`ls ${modelRoot}`);
     const existingFiles = result.stdout.split("\n").filter(Boolean);
     const finishedFiles = existingFiles.filter(file => !file.endsWith(`.${PARTIAL_EXT}`));
-    console.info("existing", existingFiles, "finished", finishedFiles);
-    console.info("targets:", targets);
     return targets.every(target => finishedFiles.includes(target.filename));
 }
 
@@ -86,6 +89,9 @@ async function clearModels() {
 }
 
 async function bench(props: BenchJobProps) {
+
+    await remoteControl.connect();
+    console.info("Connected")
 
     const {benchIds, targets, jobId} = props;
 
@@ -108,6 +114,7 @@ async function bench(props: BenchJobProps) {
     targetLoop:
         // The server has limit disk and bandwidth. We process targets one by one.
         for (const target of targets) {
+            console.info(`Processing target ${target.file}`)
             {
                 let allBenchesDone = true;
                 for (const bench of benches) {
@@ -137,7 +144,7 @@ async function bench(props: BenchJobProps) {
             {
                 const start = Date.now();
                 await downloadModels([target]);
-                console.info(`started to download target ${target.downloadUrl}`);
+                console.info(`started to download target ${target.filename} (${target.downloadUrl})`);
                 while (true) {
                     if (await allModelsReady([target])) {
                         console.info(`${target.filename} Not ready...`);
