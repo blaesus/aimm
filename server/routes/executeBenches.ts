@@ -83,7 +83,7 @@ async function clearModels() {
 }
 
 async function deleteModelFile(filepath: string) {
-    return remoteControl.execCommand(`rm ${filepath}`);
+    return remoteControl.execCommand(`rm "${filepath}"`);
 }
 
 async function bench(props: BenchJobProps) {
