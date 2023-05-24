@@ -172,53 +172,55 @@ async function bench(props: BenchJobProps) {
                 const filename = `${bench.id}_${target.file}_${time}.png`;
                 const pathName = path.join("benches", filename);
                 const benchResultPath = path.join(process.env["PUBLIC_ASSET_BASE"] || ".", pathName);
-                console.info("saving bench result to", benchResultPath);
-                await requester.txt2img(params, benchResultPath);
+                console.info("Trying to generate bench result, to be saved to", benchResultPath);
+                const success = await requester.txt2img(params, benchResultPath);
                 await deleteModelFile(model.filename);
-                const hash = await hashLocalFile(benchResultPath);
-                const size = await sizeLocalFile(benchResultPath);
-                if (hash === null || size === null) {
-                    console.info(`Failed to hash or size local file ${benchResultPath}`);
-                    continue;
+                if (success) {
+                    const hash = await hashLocalFile(benchResultPath);
+                    const size = await sizeLocalFile(benchResultPath);
+                    if (hash === null || size === null) {
+                        console.info(`Failed to hash or size local file ${benchResultPath}`);
+                        continue;
+                    }
+                    const file = await prisma.fileRecord.create({
+                        data: {
+                            revisionId: undefined,
+                            filename,
+                            downloadUrl: pathName,
+                            hashA: hash,
+                            updated: time,
+                            size,
+                        },
+                    });
+
+                    const storage = await prisma.fileStorageRecord.create({
+                        data: {
+                            hashA: hash,
+                            service: "Local",
+                            idInService: benchResultPath,
+                            created: time,
+                            size,
+                        },
+                    });
+
+                    await prisma.fileStorageRecordOnFileRecord.create({
+                        data: {
+                            fileRecordId: file.id,
+                            fileStorageRecordId: storage.id,
+                            assignmentTime: time,
+                        },
+                    });
+
+                    await prisma.benchmarkResult.create({
+                        data: {
+                            benchmarkId: bench.id,
+                            targetFileId: target.file,
+                            resultFileId: file.id,
+                            time,
+                        },
+                    });
                 }
 
-                const file = await prisma.fileRecord.create({
-                    data: {
-                        revisionId: undefined,
-                        filename,
-                        downloadUrl: pathName,
-                        hashA: hash,
-                        updated: time,
-                        size,
-                    },
-                });
-
-                const storage = await prisma.fileStorageRecord.create({
-                    data: {
-                        hashA: hash,
-                        service: "Local",
-                        idInService: benchResultPath,
-                        created: time,
-                        size,
-                    },
-                });
-
-                await prisma.fileStorageRecordOnFileRecord.create({
-                    data: {
-                        fileRecordId: file.id,
-                        fileStorageRecordId: storage.id,
-                        assignmentTime: time,
-                    },
-                });
-
-                await prisma.benchmarkResult.create({
-                    data: {
-                        benchmarkId: bench.id,
-                        targetFileId: target.file,
-                        resultFileId: file.id,
-                        time,
-                    },
-                });
                 await sleep(1000);
             }
             finishedTargets += 1;

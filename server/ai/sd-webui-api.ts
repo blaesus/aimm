@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import { Txt2ImgParams, WebuiCheckpoint, WebuiOptions } from "./webui-types";
 
 interface WebUiApiRequester {
-    txt2img(params: Partial<Txt2ImgParams>, outputPath?: string): Promise<Txt2ImgResult>;
+    txt2img(params: Partial<Txt2ImgParams>, outputPath?: string): Promise<boolean>;
     setCheckpointWithTitle(checkpointTitle: string): Promise<void>;
     getCheckpoints(): Promise<WebuiCheckpoint[]>;
     setOptions(params: Partial<WebuiOptions>): Promise<void>;
@@ -219,7 +219,7 @@ function resultSuccessful(result: Txt2ImgResult): result is Txt2ImgSuccess {
 
 export function getWebuiApiRequester(base: string): WebUiApiRequester {
     const requester: WebUiApiRequester = {
-        async txt2img(params: Partial<Txt2ImgParams>, outputPath?: string): Promise<Txt2ImgResult> {
+        async txt2img(params: Partial<Txt2ImgParams>, outputPath?: string): Promise<boolean> {
             const url = `${base}/sdapi/v1/txt2img`;
             const response = await fetch(url, {
                 method: "POST",
@@ -234,12 +234,15 @@ export function getWebuiApiRequester(base: string): WebUiApiRequester {
 
             const data: Txt2ImgResult = await response.json();
             console.info(data)
-            if (outputPath && resultSuccessful(data)) {
-                const imageBase64 = data.images[0];
-                const imageBinary = Buffer.from(imageBase64, "base64");
-                await fs.writeFile(outputPath, imageBinary);
+            if (resultSuccessful(data)) {
+                if (outputPath) {
+                    const imageBase64 = data.images[0];
+                    const imageBinary = Buffer.from(imageBase64, "base64");
+                    await fs.writeFile(outputPath, imageBinary);
+                }
+                return true
             }
-            return data;
+            return false;
         },
         async setCheckpointWithTitle(checkpoint: string): Promise<void> {
             return requester.setOptions({
