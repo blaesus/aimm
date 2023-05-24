@@ -267,7 +267,7 @@ export async function executeBenches(ctx: Koa.Context) {
             file: file.id,
             filename: `${file.hashA}_${file.filename}`,
         })),
-    ).flat().sort((a, b) => a.filename.localeCompare(b.filename));
+    ).flat().sort((a, b) => a.revision.localeCompare(b.revision));
     setTimeout(async () => {
         const label = `txt2img-bench-${Date.now()}`;
         const masterJob = await db.jobs.initiate({
