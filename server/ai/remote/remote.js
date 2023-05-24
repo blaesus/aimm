@@ -20,7 +20,7 @@ function downloadFile(url, filepath) {
         }
         else {
             console.info("Downloaded to ", tempPath);
-            exec(`mv ${tempPath} ${finalPath}`, error => {
+            exec(`mv "${tempPath}" "${finalPath}"`, error => {
                 if (error) {
                     console.error(`Error move ${tempPath} to ${finalPath}: ${error}`)
                 }

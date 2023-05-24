@@ -55,7 +55,7 @@ function downloadInBackground(url: string, filename: string) {
     const wget = `wget --user-agent="${ua}" --quiet -O "${tempPath}" "${url}"`;
     remoteControl.execCommand(`nohup ${wget} &`)
         .then(() => {
-            remoteControl.execCommand(`mv ${tempPath} ${finalPath}`).catch(console.error);
+            remoteControl.execCommand(`mv "${tempPath}" "${finalPath}"`).catch(console.error);
         })
         .catch(console.error);
 }
