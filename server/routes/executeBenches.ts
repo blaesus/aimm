@@ -23,7 +23,7 @@ const remoteControl: RemoteSSHController = {
             host: "104.143.3.153",
             username: "root",
             port: 10168,
-            privateKey: process.env['SD_PRIVATE_KEY']
+            privateKey: process.env["SD_PRIVATE_KEY"],
         });
     },
     async execCommand(command: string) {
@@ -54,10 +54,10 @@ function downloadInBackground(url: string, filename: string) {
     const finalPath = `${modelRoot}/${filename}`;
     const wget = `wget --user-agent="${ua}" --quiet -O "${tempPath}" "${url}"`;
     remoteControl.execCommand(`nohup ${wget} &`)
-        .then(() => {
-            remoteControl.execCommand(`mv "${tempPath}" "${finalPath}"`).catch(console.error);
-        })
-        .catch(console.error);
+                 .then(() => {
+                     remoteControl.execCommand(`mv "${tempPath}" "${finalPath}"`).catch(console.error);
+                 })
+                 .catch(console.error);
 }
 
 async function downloadModels(targets: BenchTxt2ImgFileTarget[]) {
@@ -89,7 +89,7 @@ async function deleteModelFile(filepath: string) {
 async function bench(props: BenchJobProps) {
 
     await remoteControl.connect();
-    console.info("Connected")
+    console.info("Connected");
 
     const {benchIds, targets, jobId} = props;
 
@@ -112,7 +112,7 @@ async function bench(props: BenchJobProps) {
     targetLoop:
         // The server has limit disk and bandwidth. We process targets one by one.
         for (const target of targets) {
-            console.info(`Processing target ${target.file}`)
+            console.info(`Processing target ${target.file}`);
             {
                 let allBenchesDone = true;
                 for (const bench of benches) {
@@ -272,7 +272,7 @@ export async function executeBenches(ctx: Koa.Context) {
             file: file.id,
             filename: `${file.hashA}_${file.filename}`,
         })),
-    ).flat();
+    ).flat().sort((a, b) => a.filename.localeCompare(b.filename));
     setTimeout(async () => {
         const label = `txt2img-bench-${Date.now()}`;
         const masterJob = await db.jobs.initiate({
