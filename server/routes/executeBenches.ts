@@ -79,6 +79,10 @@ async function clearModels() {
     return remoteControl.execCommand(`rm -rf ${root}/*`);
 }
 
+async function deleteModelFile(filepath: string) {
+    return remoteControl.execCommand(`rm ${filepath}`);
+}
+
 async function bench(props: BenchJobProps) {
 
     await remoteControl.connect();
@@ -167,7 +171,7 @@ async function bench(props: BenchJobProps) {
                 const benchResultPath = path.join(process.env["PUBLIC_ASSET_BASE"] || ".", pathName);
                 console.info("saving bench result to", benchResultPath);
                 await requester.txt2img(params, benchResultPath);
-                await clearModels();
+                await deleteModelFile(model.filename);
                 const hash = await hashLocalFile(benchResultPath);
                 const size = await sizeLocalFile(benchResultPath);
                 if (hash === null || size === null) {
@@ -224,8 +228,7 @@ async function bench(props: BenchJobProps) {
                 },
             });
         }
-
-
+    await clearModels();
 }
 
 export async function executeBenches(ctx: Koa.Context) {
