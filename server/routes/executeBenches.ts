@@ -278,6 +278,7 @@ export async function executeBenches(ctx: Koa.Context) {
         const masterJob = await db.jobs.initiate({
             type: "txt2img-bench",
             label,
+            total: params.benchIds.length,
             data: {
                 benchIds: params.benchIds,
                 revisionIds: params.revisionIds,

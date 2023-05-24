@@ -10,14 +10,16 @@ export const db = {
         async initiate(props: {
             type: string,
             label: string
+            total?: number,
             data?: {},
         }): Promise<Job> {
-            const {type, data, label} = props;
+            const {type, data, label, total} = props;
             return prisma.job.create({
                 data: {
                     status: "Running",
                     type,
                     label,
+                    total,
                     created: Date.now(),
                     data,
                 },
