@@ -53,7 +53,7 @@ async function downloadModels(targets: BenchTxt2ImgFileTarget[]) {
 
 async function allModelsReady(targets: BenchTxt2ImgFileTarget[]): Promise<boolean> {
     const result = await remoteExecute(`ls ${modelRoot}`);
-    const existingFiles = result.stdout.split("\n");
+    const existingFiles = result.stdout.split("\n").filter(Boolean);
     const finishedFiles = existingFiles.filter(file => !file.endsWith(`.${PARTIAL_EXT}`));
     console.info("existing", existingFiles, "finished", finishedFiles);
     console.info(targets)
