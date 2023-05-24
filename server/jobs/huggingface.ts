@@ -28,7 +28,7 @@ const requester = makeRequester({
 async function fetchFileMeta(
     prisma: PrismaClient,
     revision: HuggingfaceCommitJson_Full,
-    repoType: HuggingfaceRepoType
+    repoType: HuggingfaceRepoType,
 ): Promise<HuggingFaceFileRecord[]> {
     const HASH_CATEGORY = "URL-TO-SHA256";
     const SIZE_CATEGORY = "URL-TO-SIZE";
@@ -38,10 +38,10 @@ async function fetchFileMeta(
         let sha256;
 
         let rawUrl = `https://huggingface.co/${revision.id}/raw/${revision.sha}/${f.rfilename}`;
-        let downloadUrl  = `https://huggingface.co/${revision.id}/resolve/${revision.sha}/${f.rfilename}`;
+        let downloadUrl = `https://huggingface.co/${revision.id}/resolve/${revision.sha}/${f.rfilename}`;
         if (repoType === "datasets") {
             rawUrl = `https://huggingface.co/datasets/${revision.id}/raw/${revision.sha}/${f.rfilename}`;
-            downloadUrl  = `https://huggingface.co/datasets/${revision.id}/resolve/${revision.sha}/${f.rfilename}`;
+            downloadUrl = `https://huggingface.co/datasets/${revision.id}/resolve/${revision.sha}/${f.rfilename}`;
         }
 
         let size = 0;
@@ -266,6 +266,7 @@ interface State extends SpiderStats {
     batch: string,
     prisma: PrismaClient,
     processed: number,
+    pageSize: number,
 }
 
 export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
@@ -287,15 +288,17 @@ export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
             page: 1,
             total: undefined,
             processed: 0,
-        }
+        };
     },
     async iterate(state: State): Promise<boolean> {
-        const {batch, url, repoType, prisma, requestWaitMs} = state;
+        const {batch, url, repoType, prisma, requestWaitMs, pageSize} = state;
 
         console.info(`Loading Huggingface model index page ${url}`);
         try {
             const response = await requester.getData<HuggingfaceCommitResponse>(url);
             // TODO: mark batch
+            const totalItems = response.headers[`X-Total-Count`] || undefined;
+            state.total = Math.round(totalItems / pageSize) + 1;
             await prisma.fetchRecord.create({
                 data: {
                     fetcher: "huggingface-index-fetcher",
@@ -357,6 +360,6 @@ export const huggingfaceIndexer: Spider<HuggingFaceReindexParams, State> = {
         state.processed += 1;
         await sleep(requestWaitMs);
         return state.processed <= 10000;
-    }
+    },
 
-}
+};
