@@ -7,11 +7,13 @@ import { prisma } from "../../data/prismaClient";
 import { JobType, StartJobSuccess } from "../../data/aimmApi";
 import { serialize } from "../../data/serialize";
 import { JobDescription, runJob } from "../jobs/job";
+import { benchExecutor } from "./executeBenches";
 
 const spiders: { [key in JobType]: JobDescription<any, any> } = {
     "civitai-index": civitaiReindexer,
     "huggingface-index": huggingfaceIndexer,
     "obtain-files": fileObtainer,
+    "execute-benches": benchExecutor,
 };
 
 // For spider labels; changed each time this process is re-started

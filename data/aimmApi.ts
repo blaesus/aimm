@@ -57,11 +57,13 @@ export type JobType =
     "civitai-index"
     | "huggingface-index"
     | "obtain-files"
+    | "execute-benches";
 
 export const jobTypes: { [key in JobType]: JobType } = {
     "civitai-index": "civitai-index",
     "huggingface-index": "huggingface-index",
     "obtain-files": "obtain-files",
+    "execute-benches": "execute-benches",
 };
 
 export interface StartJobSuccess {

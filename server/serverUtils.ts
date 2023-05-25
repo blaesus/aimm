@@ -23,3 +23,7 @@ export async function sizeLocalFile(path: string): Promise<number | null> {
 export const aiModelExtensions = [
     "safetensors", "ckpt",
 ]
+
+export function looksLikeAiModel(filename: string): boolean {
+    return aiModelExtensions.some(ext => filename.endsWith(`.${ext}`))
+}

@@ -32,7 +32,6 @@ router.delete("/jobs/:id", stopJob);
 
 router.get("/benchmarks", getBenches);
 router.post("/benchmarks", addBench);
-router.post("/benchmarks/execute", executeBenches);
 router.get("/bench-targets", getBenchTargets);
 
 app.use(router.routes());

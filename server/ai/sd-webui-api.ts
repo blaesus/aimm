@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import { Txt2ImgParams, WebuiCheckpoint, WebuiOptions } from "./webui-types";
 
-interface WebUiApiRequester {
+export interface WebUiApiRequester {
     txt2img(params: Partial<Txt2ImgParams>, outputPath?: string): Promise<boolean>;
     setCheckpointWithTitle(checkpointTitle: string): Promise<void>;
     getCheckpoints(): Promise<WebuiCheckpoint[]>;
