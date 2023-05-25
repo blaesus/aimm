@@ -161,7 +161,7 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
         const masterJob = await db.jobs.initiate({
             type: "txt2img-bench",
             label,
-            total: params.benchIds.length,
+            total: targets.length,
             data: {
                 benchIds: params.benchIds,
                 revisionIds: params.revisionIds,
