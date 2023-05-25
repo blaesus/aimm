@@ -9,7 +9,6 @@ import { startJob } from "./routes/startJob";
 import { spiderAdminAuth } from "./routes/spiderAdminAuth";
 import { stopJob } from "./routes/stopJob";
 import { addBench } from "./routes/addBench";
-import { executeBenches } from "./routes/executeBenches";
 import { getBenches } from "./routes/getBenches";
 import { getBenchTargets } from "./routes/getBenchTargets";
 

@@ -15,6 +15,7 @@ import { Chooser } from "./Chooser/Chooser";
 import "./Admin.css";
 import { Button } from "./Button/Button";
 import { BenchTargetApiItems } from "../../../server/routes/getBenchTargets";
+import { getJobs } from "../../../server/routes/getJobs";
 
 function ObtainLaunchPad(props: {
     onLaunch: (params: Partial<ObtainFilesParams>) => void
@@ -131,7 +132,7 @@ function HuggingfaceIndexLaunchPad(props: {
 
 async function startNewJob(
     type: JobType,
-    params?: Partial<CivitaiIndexingParams | HuggingFaceReindexParams | ObtainFilesParams>,
+    params?: Partial<CivitaiIndexingParams | HuggingFaceReindexParams | ObtainFilesParams | BenchExecuteParams>,
 ) {
     const token = localStorage.getItem(ADMIN_TOKEN_KEY);
     await fetch(`/admin-api/jobs/${type}`, {
@@ -176,29 +177,6 @@ function BenchmarkPanel() {
                         <div key={b.id}>
                             <div>{b.id}</div>
                             <div>{b.name}</div>
-
-                            <Button
-                                onClick={async () => {
-                                    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-                                    const params: BenchExecuteParams = {
-                                        benchIds: [b.id],
-                                        revisionIds: benchTargets.map(target => target.revisions.map(r => r.id)).flat(),
-                                    }
-                                    const response = await fetch(
-                                        "/admin-api/benchmarks/execute",
-                                        {
-                                            method: "POST",
-                                            body: JSON.stringify(params),
-                                            headers: {
-                                                Authorization: `Bearer ${token}`,
-                                                "Content-Type": "application/json",
-                                            },
-                                        },
-                                    );
-                                    const data = await response.json();
-                                    console.info(data);
-                                }}
-                            >Execute</Button>
                         </div>
                     ))
                 }
@@ -261,19 +239,11 @@ function BenchmarkPanel() {
 
             <div>
                 <Button onClick={async () => {
-                    const token = localStorage.getItem(ADMIN_TOKEN_KEY);
                     const payload: BenchExecuteParams = {
                         benchIds: benchmarks.map(b => b.id),
                         revisionIds: benchTargets.map(target => target.revisions.map(r => r.id)).flat(),
                     };
-                    await fetch("/admin-api/benchmarks/execute", {
-                        method: "POST",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(payload)
-                    })
+                    await startNewJob("execute-benches", payload);
                 }}>Launch all benchmarks against targets</Button>
             </div>
         </section>
