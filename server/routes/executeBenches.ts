@@ -179,118 +179,123 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
 
         console.info(`Processing target file ${target.filename}`);
 
-        // Skip if benches had been executed for this target
-        {
-            let allBenchesDone = true;
-            for (const bench of benches) {
-                const existingResults = await prisma.benchmarkResult.count({
-                    where: {
-                        benchmarkId: bench.id,
-                        targetFileId: target.file,
-                    },
-                });
-                if (existingResults === 0) {
-                    allBenchesDone = false;
-                    break;
+        try {
+            // Skip if benches had been executed for this target
+            {
+                let allBenchesDone = true;
+                for (const bench of benches) {
+                    const existingResults = await prisma.benchmarkResult.count({
+                        where: {
+                            benchmarkId: bench.id,
+                            targetFileId: target.file,
+                        },
+                    });
+                    if (existingResults === 0) {
+                        allBenchesDone = false;
+                        break;
+                    }
                 }
-            }
-            if (allBenchesDone) {
-                console.info(`Found existing benchmark result for ${target.filename} on all benches, skipped`);
-                return true;
-            }
-        }
-        {
-            if (!looksLikeAiModel(target.filename)) {
-                console.info(`${target.filename} is not a model file, skipped`);
-                return true;
-            }
-        }
-
-        {
-            const start = Date.now();
-            await downloadModels(remoteControl, [target]);
-            console.info(`started to download target ${target.filename} (${target.downloadUrl})`);
-            while (true) {
-                if (await allModelsReady(remoteControl, [target])) {
-                    console.info(`${target.filename} Not ready...`);
-                    break;
-                }
-                if (Date.now() - start > 1000_000) {
-                    console.error(`timeout when getting ${target.filename}`);
+                if (allBenchesDone) {
+                    console.info(`Found existing benchmark result for ${target.filename} on all benches, skipped`);
                     return true;
                 }
-                await sleep(10_000);
             }
-            console.info(`${target.filename} ready`);
-        }
-        await requester.refreshCheckpoints();
-        const models = await requester.getCheckpoints();
-        const model = models.find(model => model.filename.includes(target.filename));
-        if (!model) {
-            console.error("no model found:", target.filename);
+            {
+                if (!looksLikeAiModel(target.filename)) {
+                    console.info(`${target.filename} is not a model file, skipped`);
+                    return true;
+                }
+            }
+
+            {
+                const start = Date.now();
+                await downloadModels(remoteControl, [target]);
+                console.info(`started to download target ${target.filename} (${target.downloadUrl})`);
+                while (true) {
+                    if (await allModelsReady(remoteControl, [target])) {
+                        console.info(`${target.filename} Not ready...`);
+                        break;
+                    }
+                    if (Date.now() - start > 1000_000) {
+                        console.error(`timeout when getting ${target.filename}`);
+                        return true;
+                    }
+                    await sleep(10_000);
+                }
+                console.info(`${target.filename} ready`);
+            }
+            await requester.refreshCheckpoints();
+            const models = await requester.getCheckpoints();
+            const model = models.find(model => model.filename.includes(target.filename));
+            if (!model) {
+                console.error("no model found:", target.filename);
+                return true;
+            }
+
+            await requester.setCheckpointWithTitle(model.title);
+            for (const bench of benches) {
+                // Find existing result, skip if found
+                const params = JSON.parse(JSON.stringify((bench.parameters)));
+                const time = Date.now();
+                const filename = `${bench.id}_${target.file}_${time}.png`;
+                const pathName = path.join("benches", filename);
+                const benchResultPath = path.join(process.env["PUBLIC_ASSET_BASE"] || ".", pathName);
+                console.info("Trying to generate bench result, to be saved to", benchResultPath);
+                const success = await requester.txt2img(params, benchResultPath);
+                await deleteModelFile(remoteControl, model.filename);
+                if (success) {
+                    const hash = await hashLocalFile(benchResultPath);
+                    const size = await sizeLocalFile(benchResultPath);
+                    if (hash === null || size === null) {
+                        console.info(`Failed to hash or size local file ${benchResultPath}`);
+                        continue;
+                    }
+                    const file = await prisma.fileRecord.create({
+                        data: {
+                            revisionId: undefined,
+                            filename,
+                            downloadUrl: pathName,
+                            hashA: hash,
+                            updated: time,
+                            size,
+                        },
+                    });
+
+                    const storage = await prisma.fileStorageRecord.create({
+                        data: {
+                            hashA: hash,
+                            service: "Local",
+                            idInService: benchResultPath,
+                            created: time,
+                            size,
+                        },
+                    });
+
+                    await prisma.fileStorageRecordOnFileRecord.create({
+                        data: {
+                            fileRecordId: file.id,
+                            fileStorageRecordId: storage.id,
+                            assignmentTime: time,
+                        },
+                    });
+
+                    await prisma.benchmarkResult.create({
+                        data: {
+                            benchmarkId: bench.id,
+                            targetFileId: target.file,
+                            resultFileId: file.id,
+                            time,
+                        },
+                    });
+                }
+                await sleep(1000);
+            }
             return true;
         }
-
-        await requester.setCheckpointWithTitle(model.title);
-        for (const bench of benches) {
-            // Find existing result, skip if found
-            const params = JSON.parse(JSON.stringify((bench.parameters)));
-            const time = Date.now();
-            const filename = `${bench.id}_${target.file}_${time}.png`;
-            const pathName = path.join("benches", filename);
-            const benchResultPath = path.join(process.env["PUBLIC_ASSET_BASE"] || ".", pathName);
-            console.info("Trying to generate bench result, to be saved to", benchResultPath);
-            const success = await requester.txt2img(params, benchResultPath);
-            await deleteModelFile(remoteControl, model.filename);
-            if (success) {
-                const hash = await hashLocalFile(benchResultPath);
-                const size = await sizeLocalFile(benchResultPath);
-                if (hash === null || size === null) {
-                    console.info(`Failed to hash or size local file ${benchResultPath}`);
-                    continue;
-                }
-                const file = await prisma.fileRecord.create({
-                    data: {
-                        revisionId: undefined,
-                        filename,
-                        downloadUrl: pathName,
-                        hashA: hash,
-                        updated: time,
-                        size,
-                    },
-                });
-
-                const storage = await prisma.fileStorageRecord.create({
-                    data: {
-                        hashA: hash,
-                        service: "Local",
-                        idInService: benchResultPath,
-                        created: time,
-                        size,
-                    },
-                });
-
-                await prisma.fileStorageRecordOnFileRecord.create({
-                    data: {
-                        fileRecordId: file.id,
-                        fileStorageRecordId: storage.id,
-                        assignmentTime: time,
-                    },
-                });
-
-                await prisma.benchmarkResult.create({
-                    data: {
-                        benchmarkId: bench.id,
-                        targetFileId: target.file,
-                        resultFileId: file.id,
-                        time,
-                    },
-                });
-            }
-            await sleep(1000);
+        catch (error) {
+            console.error(error);
+            return true;
         }
-        return true;
-
     },
 
 };
