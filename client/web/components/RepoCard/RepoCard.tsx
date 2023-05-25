@@ -78,6 +78,50 @@ export function FileRecordCard(props: {
     );
 }
 
+function Txt2ImgBenchmarkBar(props: {
+    fileId: string,
+}) {
+    const {fileId} = props;
+    const {entities} = useContext<ClientState>(ClientStateContext);
+    const {benchmarks, benchmarkResults} = entities;
+
+    return (
+        <div>
+            {
+                Object.values(benchmarks).map(benchmark => {
+                    const results = Object.values(benchmarkResults)
+                                          .filter(r =>
+                                              r.benchmarkId === benchmark.id
+                                              && r.targetFileId === fileId,
+                                          );
+                    return (
+                        <div key={benchmark.id}>
+                            {
+                                results.map(result => {
+                                    const file = entities.fileRecords[result.resultFileId];
+                                    if (!file) {
+                                        return null;
+                                    }
+                                    return (
+                                        <div key={result.id}>
+                                            <img
+                                                src={`/public/${file.downloadUrl}`}
+                                                width={100}
+                                            />
+                                        </div>
+                                    );
+                                })
+                            }
+                        </div>
+                    );
+                })
+            }
+        </div>
+    );
+
+
+}
+
 export function FileList(props: {
     files: FileRecord[],
     repositories?: ObjectMap<Repository>,
@@ -110,39 +154,10 @@ export function FileList(props: {
                         }
                     }
                     if (props.showBench) {
-                        const results = Object.values(benchmarkResults).filter(
-                            r => r.targetFileId === f.id,
-                        );
                         return (
-                            <div key={f.id}>
+                            <div>
+                                <Txt2ImgBenchmarkBar fileId={f.id}/>
                                 <FileRecordCard key={f.id} file={f}/>
-                                <div>
-                                    {results.map(result => {
-                                        const benchmark = benchmarks[result.benchmarkId];
-                                        return (
-                                            <div key={result.id}>
-                                                <div>
-                                                    <img
-                                                        src={
-                                                            `/public/${fileRecords[result.resultFileId]?.downloadUrl}`
-                                                        }
-                                                        alt={`benchmark result ${benchmark?.name}`}
-                                                        width={100}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <pre>
-                                                        <code>
-                                                            {JSON.stringify(benchmark?.parameters, null, 4)}
-                                                        </code>
-                                                    </pre>
-                                                </div>
-
-                                            </div>
-                                        );
-                                    })}
-                                    <div></div>
-                                </div>
                             </div>
                         );
                     }
