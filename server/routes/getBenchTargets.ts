@@ -37,7 +37,8 @@ export async function getBenchTargets(ctx: Koa.Context) {
         where: {
             registry: {
                 equals: registry,
-            }
+            },
+            subtype: "Checkpoint"
         },
         select: {
             id: true,
