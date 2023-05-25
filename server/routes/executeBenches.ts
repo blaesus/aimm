@@ -170,6 +170,8 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
 
         const requester = getWebuiApiRequester(webuiApiBase);
 
+        await clearModels(remoteControl);
+
         return {
             targets,
             benches,
