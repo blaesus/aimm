@@ -148,6 +148,7 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
         const remoteControl = makeRemoteControl();
         await remoteControl.connect();
         console.info("Connected");
+        await clearModels(remoteControl);
 
         const benches = await prisma.benchmark.findMany({
             where: {
@@ -170,7 +171,6 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
 
         const requester = getWebuiApiRequester(webuiApiBase);
 
-        await clearModels(remoteControl);
 
         return {
             targets,
