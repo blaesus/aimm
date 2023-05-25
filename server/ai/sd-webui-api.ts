@@ -232,20 +232,25 @@ export function getWebuiApiRequester(base: string): WebUiApiRequester {
                 }),
             });
 
-            try {
-                const data: Txt2ImgResult = await response.json();
-                console.info(data)
-                if (resultSuccessful(data)) {
-                    if (outputPath) {
-                        const imageBase64 = data.images[0];
-                        const imageBinary = Buffer.from(imageBase64, "base64");
-                        await fs.writeFile(outputPath, imageBinary);
+            if (response.ok) {
+                try {
+                    const data: Txt2ImgResult = await response.json();
+                    console.info(data)
+                    if (resultSuccessful(data)) {
+                        if (outputPath) {
+                            const imageBase64 = data.images[0];
+                            const imageBinary = Buffer.from(imageBase64, "base64");
+                            await fs.writeFile(outputPath, imageBinary);
+                        }
+                        return true
                     }
-                    return true
+                    return false;
                 }
-                return false;
+                catch {
+                    return false;
+                }
             }
-            catch {
+            else {
                 return false;
             }
         },
