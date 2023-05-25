@@ -1,11 +1,9 @@
 import { getWebuiApiRequester, WebUiApiRequester } from "../ai/sd-webui-api";
 import { prisma } from "../../data/prismaClient";
-import { buildProxyConfigFromEnv, hashLocalFile, makeRequester, sleep } from "../jobs/utils";
-import * as Koa from "koa";
+import { hashLocalFile, sleep } from "../jobs/utils";
 import { BenchExecuteParams, BenchTxt2ImgFileTarget, ObtainFilesParams } from "../../data/aimmApi";
 import { aiModelExtensions, looksLikeAiModel, sizeLocalFile } from "../serverUtils";
 import path from "path";
-import { db } from "../../data/db";
 import { NodeSSH, SSHExecCommandResponse } from "node-ssh";
 import { JobDescription, JobStats } from "../jobs/job";
 import { Benchmark } from "@prisma/client";
@@ -99,7 +97,6 @@ interface State extends JobStats {
     remoteControl: RemoteSSHController,
     requester: WebUiApiRequester,
     processed: number,
-    jobId: string,
 }
 
 export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
@@ -159,15 +156,6 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
         });
 
         const label = `txt2img-bench-${Date.now()}`;
-        const masterJob = await db.jobs.initiate({
-            type: "txt2img-bench",
-            label,
-            total: targets.length,
-            data: {
-                benchIds: params.benchIds,
-                revisionIds: params.revisionIds,
-            },
-        });
 
         const requester = getWebuiApiRequester(webuiApiBase);
 
@@ -177,13 +165,12 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
             benches,
             remoteControl,
             requester,
-            jobId: masterJob.id,
             total: targets.length,
             processed: 0,
         };
     },
     async iterate(state) {
-        const {targets, benches, remoteControl, jobId, requester} = state;
+        const {targets, benches, remoteControl, requester} = state;
         const target = targets[state.processed];
         if (!target) {
             return false;
