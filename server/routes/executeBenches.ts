@@ -222,8 +222,8 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
                 await sleep(10_000);
             }
             console.info(`${target.filename} ready`);
-            await requester.refreshCheckpoints();
         }
+        await requester.refreshCheckpoints();
         const models = await requester.getCheckpoints();
         const model = models.find(model => model.filename.includes(target.filename));
         if (!model) {
