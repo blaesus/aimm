@@ -213,13 +213,13 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
                 console.info(`started to download target ${target.filename} (${target.downloadUrl})`);
                 while (true) {
                     if (await allModelsReady(remoteControl, [target])) {
-                        console.info(`${target.filename} Not ready...`);
                         break;
                     }
                     if (Date.now() - start > 1000_000) {
                         console.error(`timeout when getting ${target.filename}`);
                         return true;
                     }
+                    console.info(`${target.filename} Not ready...`);
                     await sleep(10_000);
                 }
                 console.info(`${target.filename} ready`);
