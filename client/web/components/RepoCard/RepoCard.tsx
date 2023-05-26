@@ -78,6 +78,10 @@ export function FileRecordCard(props: {
     );
 }
 
+function chooseResult(results: BenchmarkResult[]): BenchmarkResult | undefined {
+    return results.sort((a, b) => Number(b.time - a.time))[0];
+}
+
 function Txt2ImgBenchmarkBar(props: {
     fileId: string,
 }) {
@@ -86,7 +90,7 @@ function Txt2ImgBenchmarkBar(props: {
     const {benchmarks, benchmarkResults} = entities;
 
     return (
-        <div>
+        <div className="Txt2ImgBenchmarkBar">
             {
                 Object.values(benchmarks).map(benchmark => {
                     const results = Object.values(benchmarkResults)
@@ -94,25 +98,21 @@ function Txt2ImgBenchmarkBar(props: {
                                               r.benchmarkId === benchmark.id
                                               && r.targetFileId === fileId,
                                           );
+                    const result = chooseResult(results);
+                    if (!result) {
+                        return null;
+                    }
+                    const file = entities.fileRecords[result.resultFileId];
+                    if (!file) {
+                        return null;
+                    }
                     return (
-                        <div key={benchmark.id}>
-                            {
-                                results.map(result => {
-                                    const file = entities.fileRecords[result.resultFileId];
-                                    if (!file) {
-                                        return null;
-                                    }
-                                    return (
-                                        <div key={result.id}>
-                                            <img
-                                                src={`/public/${file.downloadUrl}`}
-                                                width={100}
-                                            />
-                                        </div>
-                                    );
-                                })
-                            }
-                        </div>
+                        <img
+                            key={file.id}
+                            src={`/public/${file.downloadUrl}`}
+                            alt={file.filename}
+                            width={100}
+                        />
                     );
                 })
             }
@@ -155,7 +155,7 @@ export function FileList(props: {
                     }
                     if (props.showBench) {
                         return (
-                            <div>
+                            <div key={f.id}>
                                 <Txt2ImgBenchmarkBar fileId={f.id}/>
                                 <FileRecordCard key={f.id} file={f}/>
                             </div>

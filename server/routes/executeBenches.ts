@@ -242,7 +242,7 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
                 const benchResultPath = path.join(process.env["PUBLIC_ASSET_BASE"] || ".", pathName);
                 console.info("Trying to generate bench result, to be saved to", benchResultPath);
                 const success = await requester.txt2img(params, benchResultPath);
-                await deleteModelFile(remoteControl, model.filename);
+                await clearModels(remoteControl);
                 if (success) {
                     const hash = await hashLocalFile(benchResultPath);
                     const size = await sizeLocalFile(benchResultPath);
