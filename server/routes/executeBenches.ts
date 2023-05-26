@@ -84,7 +84,7 @@ async function allModelsReady(remoteControl: RemoteSSHController, targets: Bench
 async function clearModels(remoteControl: RemoteSSHController) {
     const fallbackRoot = `/workspace/stable-diffusion-webui/models/Stable-diffusion/for_bench`;
     const root = modelRoot || fallbackRoot; // Ensure we don't delete everything
-    return remoteControl.execCommand(`rm -rf ${root}/*`);
+    return remoteControl.execCommand(`rm -f ${root}/*`);
 }
 
 async function deleteModelFile(remoteControl: RemoteSSHController, filepath: string) {
