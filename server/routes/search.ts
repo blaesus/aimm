@@ -1,6 +1,6 @@
 import Koa from "koa";
 import { prisma } from "../../data/prismaClient";
-import { SearchSuccess } from "../../data/aimmApi";
+import { SearchParams, SearchSuccess } from "../../data/aimmApi";
 import { serialize } from "../../data/serialize";
 import { FileRecord, Repository, Revision } from "@prisma/client";
 import { dedupeById, parseQuery, Query } from "./utils";
