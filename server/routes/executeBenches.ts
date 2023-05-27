@@ -208,6 +208,7 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
             }
 
             {
+                await clearModels(remoteControl);
                 const start = Date.now();
                 await downloadModels(remoteControl, [target]);
                 console.info(`started to download target ${target.filename} (${target.downloadUrl})`);
@@ -242,7 +243,6 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
                 const benchResultPath = path.join(process.env["PUBLIC_ASSET_BASE"] || ".", pathName);
                 console.info("Trying to generate bench result, to be saved to", benchResultPath);
                 const success = await requester.txt2img(params, benchResultPath);
-                await clearModels(remoteControl);
                 if (success) {
                     const hash = await hashLocalFile(benchResultPath);
                     const size = await sizeLocalFile(benchResultPath);
@@ -294,7 +294,6 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
         }
         catch (error) {
             console.error(error);
-            await clearModels(remoteControl);
             return true;
         }
     },
