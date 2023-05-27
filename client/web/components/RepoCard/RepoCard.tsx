@@ -9,6 +9,7 @@ import { SizeTag } from "../SizeTag/SizeTag";
 import { ObjectMap, ObjectWithId } from "../../../../data/sharedTypes";
 import { ClientStateContext } from "../../context/state";
 import { ClientState } from "../../reducer/state";
+import { pickMost } from "../../../../data/dataUtils";
 
 export function FileRecordCard(props: {
     file: FileRecord
@@ -30,9 +31,9 @@ function chooseResult(results: BenchmarkResult[]): BenchmarkResult | undefined {
 }
 
 function Txt2ImgBenchmarkBar(props: {
-    fileId: string,
+    targetModelFileId: string,
 }) {
-    const {fileId} = props;
+    const {targetModelFileId} = props;
     const {entities} = useContext<ClientState>(ClientStateContext);
     const {benchmarks, benchmarkResults} = entities;
 
@@ -43,7 +44,7 @@ function Txt2ImgBenchmarkBar(props: {
                     const results = Object.values(benchmarkResults)
                                           .filter(r =>
                                               r.benchmarkId === benchmark.id
-                                              && r.targetFileId === fileId,
+                                              && r.targetFileId === targetModelFileId,
                                           );
                     const result = chooseResult(results);
                     if (!result) {
@@ -103,7 +104,7 @@ export function FileList(props: {
                     if (props.showBench) {
                         return (
                             <div key={f.id}>
-                                <Txt2ImgBenchmarkBar fileId={f.id}/>
+                                <Txt2ImgBenchmarkBar targetModelFileId={f.id}/>
                                 <FileRecordCard key={f.id} file={f}/>
                             </div>
                         );
@@ -159,6 +160,20 @@ export function RevisionCard(props: {
     }
 }
 
+function pickRepoRepresentativeRevision(repo: Repository, revisions: ObjectMap<Revision>): Revision | null {
+    const repoRevisions = Object.values(revisions).filter(r => r.repoId === repo.id);
+    return pickMost(repoRevisions, (revision) => Number(revision.updatedInRegistry));
+}
+
+function pickRepoRepresentativeFile(repo: Repository, revisions: ObjectMap<Revision>, files: ObjectMap<FileRecord>): FileRecord | null {
+    const revision = pickRepoRepresentativeRevision(repo, revisions);
+    if (!revision) {
+        return null
+    }
+    const revisionFiles = Object.values(files).filter(f => f.revisionId === revision.id);
+    return revisionFiles[0];
+}
+
 export function RepoCard(props: {
     repoId: string,
 }) {
@@ -174,9 +189,17 @@ export function RepoCard(props: {
                                 .filter(r => r.repoId === repoId)
                                 .sort((r1, r2) => Number(r2.updatedInRegistry) - Number(r1.updatedInRegistry));
 
+    const representativeFile = pickRepoRepresentativeFile(repo, revisions, fileRecords);
+
     return (
         <div key={repo.id} className="RepoCard">
             <h2><a href={getRepoUrl(repo)}>{repo.name}</a></h2>
+            {
+                representativeFile &&
+                <div>
+                    <Txt2ImgBenchmarkBar targetModelFileId={representativeFile.id} />
+                </div>
+            }
             <div>
                 {repo.registry}
             </div>

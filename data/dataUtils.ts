@@ -18,3 +18,19 @@ export function getLatestUpdateDate(revisions: RevisionInput[]): {updated: bigin
     const updated = dates.sort((a, b) => Number(b.updated - a.updated))[0].updated;
     return {updated};
 }
+
+export function pickMost<T>(items: T[], evaluate: (item: T) => number): T | null {
+    if (!items.length) {
+        return null
+    }
+    let max = evaluate(items[0]);
+    let maxItem = items[0];
+    for (const item of items) {
+        const score = evaluate(item);
+        if (score > max) {
+            max = score;
+            maxItem = item;
+        }
+    }
+    return maxItem;
+}
