@@ -226,7 +226,7 @@ export function RepoCard(props: {
         return null;
     }
 
-    const repoRevisions = Object.values(revisions).filter(r => r.repoId === repoId);
+    const repoRevisions = Object.values(revisions).filter(r => r.repoId === repoId).sort((r1, r2) => r2.idInRegistry.localeCompare(r1.idInRegistry));
 
     const meta = readRepoRaw(repo.registry, repo.raw as string);
 
