@@ -40,7 +40,7 @@ function serializeParamsToQueryString(params: SearchParams): string {
         segments.push(`page=${params.page}`);
     }
     if (params.pageSize) {
-        segments.push(`pageSize=${params.pageSize}`);
+        segments.push(`page-size=${params.pageSize}`);
     }
 
     return `?${segments.join("&")}`;
