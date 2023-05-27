@@ -6,6 +6,7 @@ import { CivitaiModelFileJson, CivitaiModelJson, CivitaiModelVersionJson } from 
 import { buildProxyConfigFromEnv, makeRequester, sleep } from "./utils";
 import { CivitaiIndexingParams } from "../../data/aimmApi";
 import { JobDescription, JobStats } from "./job";
+import { getLatestUpdateDate } from "../../data/dataUtils";
 
 export interface CivitaiModelPayload {
     metadata: {
@@ -106,6 +107,8 @@ function civitaiRevisionHashA(hashHexes: string[]): string {
 async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson): Promise<void> {
     console.info(`Updating Civitai model ${item.id} ${item.name}`);
     const registry = "Civitai";
+
+    const repoDates = getLatestUpdateDate(item.modelVersions);
     const fetchedRepo: RepositoryCreateInput = {
         name: item.name,
         subtype: item.type,
@@ -114,8 +117,7 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
         raw: JSON.stringify(item),
         updated: Date.now(),
         favour: item.stats.downloadCount,
-        createdInRegistry: +new Date(item.createdAt),
-        updatedInRegistry: +new Date(item.updatedAt),
+        updatedInRegistry: repoDates.updated,
         tags: item.tags,
         description: item.description,
     };
@@ -132,9 +134,9 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
 
     for (const version of item.modelVersions) {
         const filesWithHash = await completeFileHashes(prisma, version);
-        const verionId = version.id.toString();
+        const versionId = version.id.toString();
         if (!filesWithHash) {
-            console.info(`Skipping model version ${verionId} due to failure to obtain all file hashes`);
+            console.info(`Skipping model version ${versionId} due to failure to obtain all file hashes`);
             continue;
         }
         const revisionHashA = civitaiRevisionHashA(filesWithHash.map(f => f.hashes.SHA256 || ""));
@@ -145,7 +147,7 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
                 },
             },
             hashA: revisionHashA,
-            idInRegistry: verionId,
+            idInRegistry: versionId,
             raw: JSON.stringify(version),
             updated: Date.now(),
             createdInRegistry: +new Date(version.createdAt),
@@ -156,7 +158,7 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
             where: {
                 repoId_idInRegistry: {
                     repoId: repo.id,
-                    idInRegistry: verionId,
+                    idInRegistry: versionId,
                 },
             },
             create: fetchedRevision,

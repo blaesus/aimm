@@ -29,20 +29,13 @@ export type CivitaiModelJson = {
     name: string
     description: string | null
     type: CivitaiModelType
-    createdAt: string
-    updatedAt: string
-    lastVersionAt: string | null
     nsfw: boolean
-    tosViolation: boolean
     poi: boolean
     userId: number
     status: ModelStatus
     publishedAt: string | null
     fromImportId: number | null
     meta: {}
-    deletedAt: string | null
-    deletedBy: number | null
-    checkpointType: CheckpointType | null
     locked: boolean
     underAttack: boolean
     earlyAccessDeadline: Date | null
