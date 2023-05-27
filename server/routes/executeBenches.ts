@@ -294,6 +294,7 @@ export const benchExecutor: JobDescription<BenchExecuteParams, State> = {
         }
         catch (error) {
             console.error(error);
+            await clearModels(remoteControl);
             return true;
         }
     },
