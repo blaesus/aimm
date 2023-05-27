@@ -4,10 +4,10 @@ interface RevisionInput {
     // createdAt: string,
     updatedAt: string,
 }
-export function getLatestUpdateDate(revisions: RevisionInput[]): {updated: bigint} {
+export function getLatestUpdateDate(revisions: RevisionInput[]): {updated: bigint | undefined} {
     if (revisions.length === 0) {
         return {
-            updated: 0n,
+            updated: undefined,
         }
     }
     const dates = revisions.map(r => {
