@@ -31,6 +31,11 @@ model Repository {
   favour       BigInt
   raw          Json?
 
+  tags              String[]
+  createdInRegistry BigInt?
+  updatedInRegistry BigInt?
+  description       String?
+
   revisions Revision[]
 
   @@unique([registry, idInRegistry])
@@ -46,6 +51,10 @@ model Revision {
   hashA        String
   updated      BigInt
   raw          Json?
+  name         String?
+
+  createdInRegistry BigInt?
+  updatedInRegistry BigInt?
 
   fileRecords FileRecord[]
 

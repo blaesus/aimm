@@ -7,7 +7,6 @@ import { AnchorButton } from "../AnchorButton/AnchorButton";
 import { HashTag } from "../HashTag/HashTag";
 import { SizeTag } from "../SizeTag/SizeTag";
 import { ObjectMap, ObjectWithId } from "../../../../data/sharedTypes";
-import { Button } from "../Button/Button";
 import { ClientStateContext } from "../../context/state";
 import { ClientState } from "../../reducer/state";
 

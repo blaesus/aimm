@@ -114,6 +114,10 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
         raw: JSON.stringify(item),
         updated: Date.now(),
         favour: item.stats.downloadCount,
+        createdInRegistry: +new Date(item.createdAt),
+        updatedInRegistry: +new Date(item.updatedAt),
+        tags: item.tags,
+        description: item.description,
     };
     const repo = await prisma.repository.upsert({
         where: {
@@ -144,6 +148,9 @@ async function updateCivitaiModel(prisma: PrismaClient, item: CivitaiModelJson):
             idInRegistry: verionId,
             raw: JSON.stringify(version),
             updated: Date.now(),
+            createdInRegistry: +new Date(version.createdAt),
+            updatedInRegistry: +new Date(version.updatedAt),
+            name: version.name,
         };
         const createdRevision = await prisma.revision.upsert({
             where: {
