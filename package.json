@@ -50,6 +50,7 @@
         "css-loader": "^6.7.3",
         "css-minimizer-webpack-plugin": "^5.0.0",
         "html-webpack-plugin": "^5.5.1",
+        "http-server": "^14.1.1",
         "mini-css-extract-plugin": "^2.7.5",
         "nodemon": "^2.0.22",
         "react-refresh": "^0.14.0",

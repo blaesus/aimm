@@ -45,10 +45,6 @@ module.exports = {
     devServer: {
         historyApiFallback: true,
         port: 3000,
-        static: {
-            directory: path.join(__dirname, "/"),
-            serveIndex: true,
-        },
         proxy: {
             '/api': {
                 target: 'http://localhost:4000',
@@ -56,6 +52,10 @@ module.exports = {
             },
             '/admin-api': {
                 target: 'http://localhost:4100',
+                changeOrigin: true,
+            },
+            '/public': {
+                target: 'http://localhost:8010',
                 changeOrigin: true,
             },
         },
