@@ -41,7 +41,7 @@ async function fix() {
                     }
                     await prisma.revision.update({
                         where: {
-                            id: repo.id,
+                            id: revision.id,
                         },
                         data: newData
                     });
