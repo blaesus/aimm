@@ -72,3 +72,14 @@ export function throttle<A>(callback: (args?: A) => void, limit: number = 500): 
         }
     }
 }
+
+export function representDate(ms: number | bigint | null | undefined): string {
+    if (!ms) {
+        return "";
+    }
+    const date = new Date(Number(ms));
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${year}-${month}-${day}`;
+}

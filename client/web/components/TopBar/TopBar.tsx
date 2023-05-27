@@ -4,7 +4,7 @@ import { ClientState } from "../../reducer/state";
 import { ClientAction } from "../../reducer/action";
 import { SearchParams, SearchSuccess } from "../../../../data/aimmApi";
 import { Button } from "../Button/Button";
-import { throttle } from "../../utils";
+import { throttle } from "../../clientUtils";
 
 function parseSearchInput(input: string): SearchParams {
     const params: SearchParams = {};

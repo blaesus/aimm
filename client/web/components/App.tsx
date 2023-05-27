@@ -4,7 +4,7 @@ import { SearchPage } from "./SearchPage/SearchPage";
 import { Admin } from "./Admin";
 import { TopBar } from "./TopBar/TopBar";
 import { getInitialClientState, reducer, UIState } from "../reducer/state";
-import { SEARCH } from "../utils";
+import { SEARCH } from "../clientUtils";
 import { ClientDispatchContext, ClientStateContext } from "../context/state";
 
 function serializeToPathName(state: UIState): string {

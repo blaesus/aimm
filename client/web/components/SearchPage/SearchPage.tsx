@@ -21,22 +21,14 @@ export function SearchPage(props: {
                 <section>
                     <h3>Matched repos</h3>
                     {
-                        matchedItems.reposByName.map(id => {
-                            const repo = repositories[id];
-                            if (!repo) {
-                                console.warn(`Missing repo ${id}`);
-                                return null;
-                            }
-                            return (
+                        matchedItems.reposByName.map(id =>
+                            (
                                 <RepoCard
-                                    key={repo.id}
-                                    repoId={repo.id}
-                                    repositories={repositories}
-                                    revisions={revisions}
-                                    fileRecords={fileRecords}
+                                    key={id}
+                                    repoId={id}
                                 />
-                            );
-                        })
+                            )
+                        )
                     }
                 </section>
                 <section>

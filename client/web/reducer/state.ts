@@ -1,7 +1,7 @@
 import { ObjectMap, ObjectWithId } from "../../../data/sharedTypes";
 import { Benchmark, BenchmarkResult, FileRecord, Repository, Revision } from "@prisma/client";
 import { ClientAction } from "./action";
-import { PageName, parseUrl } from "../utils";
+import { PageName, parseUrl } from "../clientUtils";
 import { MatchedItems } from "../../../data/aimmApi";
 
 export interface SearchPageState {

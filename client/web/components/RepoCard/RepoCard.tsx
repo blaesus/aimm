@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Benchmark, BenchmarkResult, FileRecord, Registry, Repository, Revision } from "@prisma/client";
-import { getRepoOnRevisionUrl, getRepoUrl } from "../../utils";
+import { getRepoOnRevisionUrl, getRepoUrl, representDate } from "../../clientUtils";
 
 import "./RepoCard.css";
 import { AnchorButton } from "../AnchorButton/AnchorButton";
@@ -9,58 +9,6 @@ import { SizeTag } from "../SizeTag/SizeTag";
 import { ObjectMap, ObjectWithId } from "../../../../data/sharedTypes";
 import { ClientStateContext } from "../../context/state";
 import { ClientState } from "../../reducer/state";
-
-interface RepoMetaInfo {
-    tags: string[];
-    description: string,
-}
-
-type RepoRaw = { [key in string]: any };
-
-function readRepoRaw(registry: Registry, rawInput?: any): Partial<RepoMetaInfo> {
-    const raw: RepoRaw = JSON.parse(rawInput ? rawInput.toString() : "{}");
-    switch (registry) {
-        case "Civitai": {
-            return {
-                tags: raw.tags ?? [],
-                description: raw.description ?? "",
-            };
-        }
-        case "Huggingface": {
-            return {
-                tags: raw.tags ?? [],
-            };
-        }
-        default: {
-            return {};
-        }
-    }
-}
-
-type RevisionMetaInfo = {
-    lastUpdated: Date,
-    name: string
-}
-
-function readRevisionRaw(registry: Registry, rawInput?: any): Partial<RevisionMetaInfo> {
-    const raw: RepoRaw = JSON.parse(rawInput ? rawInput.toString() : "{}");
-    switch (registry) {
-        case "Civitai": {
-            return {
-                lastUpdated: new Date(raw.updatedAt),
-                name: raw.name,
-            };
-        }
-        case "Huggingface": {
-            return {
-                lastUpdated: new Date(raw.lastModified),
-            };
-        }
-        default: {
-            return {};
-        }
-    }
-}
 
 export function FileRecordCard(props: {
     file: FileRecord
@@ -177,19 +125,17 @@ export function RevisionCard(props: {
     const {revision, files, registry, repository} = props;
     const [expanded, setExpanded] = React.useState(props.defaultExpand ?? false);
 
-    const meta = readRevisionRaw(registry, revision.raw);
-
     if (expanded) {
         return (
             <div key={revision.id} className="RevisionCard">
                 <h3>
                     <a href={getRepoOnRevisionUrl(repository, revision.idInRegistry)}>
-                        {meta.name}
+                        {revision.name}
 
                         <HashTag hash={revision.hashA}/>
                     </a>
                 </h3>
-                {meta.lastUpdated?.toISOString()}
+                {representDate(revision.createdInRegistry)}
                 <FileList files={files} showBench={true}/>
 
                 <div>
@@ -215,11 +161,10 @@ export function RevisionCard(props: {
 
 export function RepoCard(props: {
     repoId: string,
-    repositories: ObjectMap<Repository>,
-    revisions: ObjectMap<Revision>,
-    fileRecords: ObjectMap<FileRecord>,
 }) {
-    const {repoId, repositories, revisions, fileRecords} = props;
+    const {repoId} = props;
+    const {entities} = useContext<ClientState>(ClientStateContext);
+    const {repositories, revisions, fileRecords} = entities;
     const repo = repositories[repoId];
     if (!repo) {
         return null;
@@ -228,9 +173,6 @@ export function RepoCard(props: {
     const repoRevisions = Object.values(revisions)
                                 .filter(r => r.repoId === repoId)
                                 .sort((r1, r2) => Number(r2.updatedInRegistry) - Number(r1.updatedInRegistry));
-
-    const meta = readRepoRaw(repo.registry, repo.raw as string);
-
 
     return (
         <div key={repo.id} className="RepoCard">
@@ -245,7 +187,7 @@ export function RepoCard(props: {
                 {repo.favour.toString()}
             </div>
             <div>
-                {meta.tags?.map(tag => (
+                {repo.tags?.map(tag => (
                     <span key={tag} className="TagLabel">{tag}</span>
                 ))}
             </div>
