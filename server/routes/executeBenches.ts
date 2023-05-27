@@ -23,7 +23,7 @@ function makeRemoteControl(): RemoteSSHController {
             remoteControl.connection = await remoteControl.connection.connect({
                 host: "104.143.3.153",
                 username: "root",
-                port: 10168,
+                port: 10553,
                 privateKey: process.env["SD_PRIVATE_KEY"],
             });
         },
