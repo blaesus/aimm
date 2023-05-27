@@ -5,7 +5,7 @@ import { getLatestUpdateDate } from "../../dataUtils";
 async function fix() {
     dotenv.config();
     const prisma = new PrismaClient({});
-    for (let page = 0; page < 1000; page+=1) {
+    for (let page = 0; page < 10000; page+=1) {
         const repos = await prisma.repository.findMany({
             skip: page * 100,
             take: 100,
