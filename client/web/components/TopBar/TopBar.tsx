@@ -14,6 +14,12 @@ function parseSearchInput(input: string): SearchParams {
         if (segment.startsWith("registry:")) {
             params.registry = segment.slice("registry:".length);
         }
+        else if (segment.startsWith("page:")) {
+            params.page = Number(segment.slice("page:".length));
+        }
+        else if (segment.startsWith("pageSize:")) {
+            params.pageSize = Number(segment.slice("pageSize:".length));
+        }
         else {
             keywords.push(segment);
         }
