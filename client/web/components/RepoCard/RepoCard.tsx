@@ -165,12 +165,19 @@ function pickRepoRepresentativeRevision(repo: Repository, revisions: ObjectMap<R
     return pickMost(repoRevisions, (revision) => Number(revision.updatedInRegistry));
 }
 
-function pickRepoRepresentativeFile(repo: Repository, revisions: ObjectMap<Revision>, files: ObjectMap<FileRecord>): FileRecord | null {
+function pickRepoRepresentativeFile(
+    repo: Repository,
+    revisions: ObjectMap<Revision>,
+    files: ObjectMap<FileRecord>,
+): FileRecord | null {
     const revision = pickRepoRepresentativeRevision(repo, revisions);
     if (!revision) {
-        return null
+        return null;
     }
     const revisionFiles = Object.values(files).filter(f => f.revisionId === revision.id);
+    if (!revisionFiles.length) {
+        return null;
+    }
     return revisionFiles[0];
 }
 
@@ -216,7 +223,7 @@ export function RepoCard(props: {
                 {
                     representativeFile &&
                     <div>
-                        <Txt2ImgBenchmarkBar targetModelFileId={representativeFile.id} />
+                        <Txt2ImgBenchmarkBar targetModelFileId={representativeFile.id}/>
                     </div>
                 }
 

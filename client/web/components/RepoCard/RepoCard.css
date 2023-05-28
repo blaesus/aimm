@@ -17,7 +17,7 @@
 .RepoCard .TagBox {
     display: flex;
     overflow: scroll;
-    max-width: 20%;
+    max-width: calc(var(--main-max-width) * 0.5);
 }
 
 .RevisionCard {
