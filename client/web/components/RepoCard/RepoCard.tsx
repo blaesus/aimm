@@ -185,6 +185,8 @@ export function RepoCard(props: {
         return null;
     }
 
+    const [expanded, setExpanded] = React.useState(false);
+
     const repoRevisions = Object.values(revisions)
                                 .filter(r => r.repoId === repoId)
                                 .sort((r1, r2) => Number(r2.updatedInRegistry) - Number(r1.updatedInRegistry));
@@ -214,23 +216,26 @@ export function RepoCard(props: {
                     <span key={tag} className="TagLabel">{tag}</span>
                 ))}
             </div>
-            <div>
-                {
-                    repoRevisions.map((revision, i) => {
-                        const files = Object.values(fileRecords).filter(r => r.revisionId === revision.id);
-                        return (
-                            <RevisionCard
-                                key={revision.id}
-                                revision={revision}
-                                repository={repo}
-                                registry={repo.registry}
-                                defaultExpand={i === 0}
-                                files={files}
-                            />
-                        );
-                    })
-                }
-            </div>
+            {
+                expanded &&
+                <div>
+                    {
+                        repoRevisions.map((revision, i) => {
+                            const files = Object.values(fileRecords).filter(r => r.revisionId === revision.id);
+                            return (
+                                <RevisionCard
+                                    key={revision.id}
+                                    revision={revision}
+                                    repository={repo}
+                                    registry={repo.registry}
+                                    defaultExpand={i === 0}
+                                    files={files}
+                                />
+                            );
+                        })
+                    }
+                </div>
+            }
         </div>
     );
 }
