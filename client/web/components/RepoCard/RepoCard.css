@@ -1,8 +1,8 @@
 .RepoCard {
-    margin: 1rem;
+    margin: 0.5rem 0;
     padding: 1rem;
-    border: 1px solid black;
     display: flex;
+    background: #eee;
     justify-content: space-between;
 }
 
@@ -11,7 +11,7 @@
 }
 
 .RepoCard .BenchmarkBox {
-    align-self: end;
+    align-self: start;
 }
 
 .RepoCard .TagBox {

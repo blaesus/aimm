@@ -205,13 +205,7 @@ export function RepoCard(props: {
             <div>
                 <h2><a href={getRepoUrl(repo)}>{repo.name}</a></h2>
                 <div>
-                    {repo.registry}
-                </div>
-                <div>
-                    {repo.subtype}
-                </div>
-                <div>
-                    {repo.favour.toString()}
+                    {repo.registry} / {repo.subtype} / {repo.favour.toString()}
                 </div>
                 <div className="TagBox">
                     {repo.tags?.map(tag => (
