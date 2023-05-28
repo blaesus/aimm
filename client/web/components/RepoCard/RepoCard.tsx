@@ -59,7 +59,7 @@ function Txt2ImgBenchmarkBar(props: {
                             key={file.id}
                             src={`/public/${file.downloadUrl}`}
                             alt={file.filename}
-                            width={100}
+                            width={256}
                         />
                     );
                 })
