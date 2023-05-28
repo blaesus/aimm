@@ -56,10 +56,14 @@ export function TopBar(props: {
     const [searchInput, setSearchInput] = React.useState("");
 
     useEffect(() => {
-        setSearchInput(props.state.ui.pages.search.keyword);
+        setSearchInput(state.ui.pages.search.keyword);
+        if (Object.keys(state.entities.repositories).length === 0 && state.ui.pages.search.keyword) {
+            console.info("Trigger")
+            confirmSearch(state.ui.pages.search.keyword)
+        }
     }, [state.ui.pages.search.keyword]);
 
-    async function confirmSearch() {
+    async function confirmSearch(searchInput: string) {
         if (loading) {
             return;
         }
@@ -82,7 +86,7 @@ export function TopBar(props: {
         });
     }
 
-    const throttledConfirm = throttle(confirmSearch, 1000);
+    const throttledConfirm = throttle<string>(confirmSearch, 1000);
 
     return (
         <nav className="TopBar">
@@ -96,11 +100,11 @@ export function TopBar(props: {
                     onChange={event => setSearchInput(event.target.value)}
                     onKeyDown={e => {
                         if (e.key === "Enter") {
-                            throttledConfirm();
+                            throttledConfirm(searchInput);
                         }
                     }}
                 />
-                <Button onClick={() => throttledConfirm()}>Search!</Button>
+                <Button onClick={() => throttledConfirm(searchInput)}>Search!</Button>
             </span>
             <span>
                 Menu

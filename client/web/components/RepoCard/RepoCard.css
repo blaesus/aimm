@@ -2,10 +2,22 @@
     margin: 1rem;
     padding: 1rem;
     border: 1px solid black;
+    display: flex;
+    justify-content: space-between;
 }
 
 .RepoCard h2 a {
     text-decoration: underline;
+}
+
+.RepoCard .BenchmarkBox {
+    align-self: end;
+}
+
+.RepoCard .TagBox {
+    display: flex;
+    overflow: scroll;
+    max-width: 20%;
 }
 
 .RevisionCard {

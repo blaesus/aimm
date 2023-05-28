@@ -60,9 +60,9 @@ export function parseUrl(url: string): PathState {
     return state;
 }
 
-export function throttle<A>(callback: (args?: A) => void, limit: number = 500): (args?: A) => void {
+export function throttle<A>(callback: (args: A) => void, limit: number = 500): (args: A) => void {
     let waiting = false;                      // Initially, we're not waiting
-    return function (args?: A) {                      // We return a throttled function
+    return function (args: A) {                      // We return a throttled function
         if (!waiting) {                       // If we're not waiting
             callback(args);  // Execute users function
             waiting = true;                   // Prevent future invocations

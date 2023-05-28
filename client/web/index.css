@@ -9,6 +9,7 @@ body {
             "Hiragino Sans GB", "PingFang SC", "Heiti SC", "Microsoft YaHei UI", "Microsoft YaHei", "Source Han Sans",
             /* fallback */
             sans-serif;
+    max-width: var(--main-max-width);
     margin: 0 auto 1rem;
 
     overflow: scroll;
@@ -18,6 +19,7 @@ body {
     -moz-osx-font-smoothing: auto;
 
     --top-bar-height: 50px;
+    --main-max-width: 1024px;
 
     --side-margin: 1rem;
     --light-warning-color: #ffdddd;

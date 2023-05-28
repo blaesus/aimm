@@ -195,26 +195,31 @@ export function RepoCard(props: {
 
     return (
         <div key={repo.id} className="RepoCard">
-            <h2><a href={getRepoUrl(repo)}>{repo.name}</a></h2>
-            {
-                representativeFile &&
+            <div>
+                <h2><a href={getRepoUrl(repo)}>{repo.name}</a></h2>
                 <div>
-                    <Txt2ImgBenchmarkBar targetModelFileId={representativeFile.id} />
+                    {repo.registry}
                 </div>
-            }
-            <div>
-                {repo.registry}
+                <div>
+                    {repo.subtype}
+                </div>
+                <div>
+                    {repo.favour.toString()}
+                </div>
+                <div className="TagBox">
+                    {repo.tags?.map(tag => (
+                        <span key={tag} className="TagLabel">{tag}</span>
+                    ))}
+                </div>
             </div>
-            <div>
-                {repo.subtype}
-            </div>
-            <div>
-                {repo.favour.toString()}
-            </div>
-            <div>
-                {repo.tags?.map(tag => (
-                    <span key={tag} className="TagLabel">{tag}</span>
-                ))}
+            <div className="BenchmarkBox">
+                {
+                    representativeFile &&
+                    <div>
+                        <Txt2ImgBenchmarkBar targetModelFileId={representativeFile.id} />
+                    </div>
+                }
+
             </div>
             {
                 expanded &&
