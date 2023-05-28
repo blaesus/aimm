@@ -56,3 +56,26 @@
     text-align: right;
     margin-right: 1rem;
 }
+
+.BenchmarkImageBox {
+    display: inline-block;
+    position: relative;
+    width: 256px;
+    height: 256px;
+}
+
+.BenchmarkImageBox img {
+    width: 256px;
+    height: 256px;
+}
+
+.BenchmarkImageBox.highlight img {
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 512px;
+    height: 512px;
+    padding: 1rem;
+    background: #ccc;
+}

@@ -30,6 +30,26 @@ function chooseResult(results: BenchmarkResult[]): BenchmarkResult | undefined {
     return results.sort((a, b) => Number(b.time - a.time))[0];
 }
 
+function BenchmarkImage(props: {
+    file: FileRecord
+}) {
+    const {file} = props;
+    const [highlight, setHighlight] = React.useState(false);
+    return (
+        <div
+            onMouseEnter={() => setHighlight(true)}
+            onMouseLeave={() => setHighlight(false)}
+            className={`BenchmarkImageBox ${highlight ? "highlight" : ""}`}
+        >
+            <img
+                key={file.id}
+                src={`/public/${file.downloadUrl}`}
+                alt={file.filename}
+            />
+        </div>
+    );
+}
+
 function Txt2ImgBenchmarkBar(props: {
     targetModelFileId: string,
 }) {
@@ -55,12 +75,7 @@ function Txt2ImgBenchmarkBar(props: {
                         return null;
                     }
                     return (
-                        <img
-                            key={file.id}
-                            src={`/public/${file.downloadUrl}`}
-                            alt={file.filename}
-                            width={256}
-                        />
+                        <BenchmarkImage file={file}/>
                     );
                 })
             }
