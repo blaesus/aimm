@@ -55,6 +55,8 @@ export function TopBar(props: {
     const [loading, setLoading] = React.useState(false);
     const [searchInput, setSearchInput] = React.useState("");
 
+    const localDevEnvironement = window.location.hostname === "localhost";
+
     useEffect(() => {
         setSearchInput(state.ui.pages.search.keyword);
         if (Object.keys(state.entities.repositories).length === 0 && state.ui.pages.search.keyword) {
@@ -91,7 +93,7 @@ export function TopBar(props: {
     return (
         <nav className="TopBar">
             <span>
-                aimm
+                aimm {localDevEnvironement && "(local dev)"}
             </span>
             <span>
                 <input
