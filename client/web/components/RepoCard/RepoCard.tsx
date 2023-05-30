@@ -75,7 +75,7 @@ function Txt2ImgBenchmarkBar(props: {
                         return null;
                     }
                     return (
-                        <BenchmarkImage file={file}/>
+                        <BenchmarkImage key={benchmark.id} file={file}/>
                     );
                 })
             }

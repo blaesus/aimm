@@ -45,6 +45,9 @@ function serializeParamsToQueryString(params: SearchParams): string {
     if (params.pageSize) {
         segments.push(`page-size=${params.pageSize}`);
     }
+    if (params.subtype) {
+        segments.push(`subtype=${params.subtype}`);
+    }
 
     return `?${segments.join("&")}`;
 }
