@@ -109,4 +109,5 @@ export interface SearchParams {
     page?: number,
     pageSize?: number,
     registry?: string,
+    subtype?: string
 }

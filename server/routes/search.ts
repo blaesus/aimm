@@ -19,6 +19,7 @@ export async function search(ctx: Koa.Context) {
     const pageSize = Number(query["page-size"]) || DEFAULT_PAGE_SIZE;
     const page = Number(query.page) || 0;
     const registry = getRegistry(query.registry);
+    const subtype = query.subtype;
 
     const reposByName = await prisma.repository.findMany({
         where: {
@@ -27,6 +28,7 @@ export async function search(ctx: Koa.Context) {
                 mode: "insensitive",
             },
             registry,
+            subtype,
         },
         orderBy: {
             favour: "desc",

@@ -20,6 +20,9 @@ function parseSearchInput(input: string): SearchParams {
         else if (segment.startsWith("pageSize:")) {
             params.pageSize = Number(segment.slice("pageSize:".length));
         }
+        else if (segment.startsWith("subtype:")) {
+            params.subtype = segment.slice("subtype:".length);
+        }
         else {
             keywords.push(segment);
         }
