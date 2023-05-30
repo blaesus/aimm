@@ -299,8 +299,7 @@ export const huggingfaceIndexer: JobDescription<HuggingFaceReindexParams, State>
         console.info(`Loading Huggingface model index page ${url}`);
         try {
             const response = await requester.getData<HuggingfaceCommitResponse>(url);
-            // TODO: mark batch
-            const totalItems = response.headers[`X-Total-Count`] || 0;
+            const totalItems = Number(response.headers[`X-Total-Count`] || response.headers[`x-total-count`]) || 0;
             state.total = Math.ceil(totalItems / pageSize);
             await prisma.fetchRecord.create({
                 data: {
@@ -350,7 +349,7 @@ export const huggingfaceIndexer: JobDescription<HuggingFaceReindexParams, State>
             const nextPageInstruction = parseLinkHeader(response.headers.link);
             if (nextPageInstruction && nextPageInstruction.relation === "next") {
                 state.url = nextPageInstruction.link;
-                console.info("Switching to next page", url);
+                console.info("Switching to next page", nextPageInstruction.link);
             }
             else {
                 console.error("Cannot find proper link header", response.headers.link);
