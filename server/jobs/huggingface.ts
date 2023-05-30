@@ -301,7 +301,7 @@ export const huggingfaceIndexer: JobDescription<HuggingFaceReindexParams, State>
             const response = await requester.getData<HuggingfaceCommitResponse>(url);
             // TODO: mark batch
             const totalItems = response.headers[`X-Total-Count`] || 0;
-            state.total = Math.round(totalItems / pageSize) + 1;
+            state.total = Math.ceil(totalItems / pageSize);
             await prisma.fetchRecord.create({
                 data: {
                     fetcher: "huggingface-index-fetcher",
