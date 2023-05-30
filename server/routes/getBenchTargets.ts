@@ -32,13 +32,12 @@ export async function getBenchTargets(ctx: Koa.Context) {
     const query: Query = parseQuery(ctx.request.querystring);
     const take = query.limit ? parseInt(query.limit) : 1;
     const registry = getRegistry(query.registry);
+    const subtype = query.subtype;
     let repos: BenchTargetApiItems[] = await prisma.repository.findMany({
         take,
         where: {
-            registry: {
-                equals: registry,
-            },
-            subtype: "Checkpoint"
+            registry,
+            subtype,
         },
         select: {
             id: true,

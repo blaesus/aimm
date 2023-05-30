@@ -193,7 +193,7 @@ function BenchmarkPanel() {
                         onClick={async () => {
                             const token = localStorage.getItem(ADMIN_TOKEN_KEY);
                             const response = await fetch(
-                                `/admin-api/bench-targets?limit=${targetLimit}&registry=Civitai`,
+                                `/admin-api/bench-targets?limit=${targetLimit}&registry=Civitai&subtype=Checkpoint`,
                                 {
                                     headers: {
                                         Authorization: `Bearer ${token}`,
