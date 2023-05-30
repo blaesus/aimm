@@ -52,15 +52,10 @@ server {
         proxy_pass http://localhost:4100;
     }
 
-    location /remote {
-        rewrite ^/remote(.*)$ $1 break;
-        root /var/www/html;
-        try_files $uri =404;
-    }
-
     location /public {
         root /var;
         try_files $uri $uri/ =404;
+        limit_req zone=static burst=5 nodelay;
     }
 
     include /etc/letsencrypt/options-ssl-nginx.conf;
