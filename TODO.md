@@ -40,3 +40,6 @@ Todos
 
 ## API
 - [ ] Check input types
+
+## Misc
+- [ ] Reguarly delete local / R2 files that no longer have a FileRecord pointing to it
