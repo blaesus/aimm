@@ -92,8 +92,8 @@ export function TopBar(props: {
 
     return (
         <nav className="TopBar">
-            <span>
-                aimm {localDevEnvironement && "(local dev)"}
+            <span className="SiteLogo">
+                aimm {localDevEnvironement && <span className="DevMark">DEV</span>}
             </span>
             <span>
                 <input

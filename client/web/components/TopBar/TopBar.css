@@ -10,3 +10,14 @@
     align-items: center;
     z-index: 100;
 }
+
+.SiteLogo {
+    margin: 1rem;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.DevMark {
+    background: var(--warning-color);
+    padding: 0.5rem;
+}
