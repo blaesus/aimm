@@ -21,3 +21,8 @@
     background: var(--warning-color);
     padding: 0.5rem;
 }
+
+
+.SearchInput {
+    min-width: 500px;
+}

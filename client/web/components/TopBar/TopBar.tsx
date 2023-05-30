@@ -104,6 +104,7 @@ export function TopBar(props: {
             <span>
                 <input
                     type="text"
+                    className={"SearchInput"}
                     value={searchInput}
                     onChange={event => setSearchInput(event.target.value)}
                     onKeyDown={e => {
