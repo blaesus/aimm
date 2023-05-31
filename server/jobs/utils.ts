@@ -102,7 +102,7 @@ export function makeRequester(options?: RequesterOptions): Requester {
             await pipeline(data, writer);
             const contentLength = headers["content-length"];
             if (contentLength && +contentLength !== writer.bytesWritten) {
-                console.error(`Length mistach`)
+                console.error(`Length mismatch`)
                 return null
             }
             return writer.bytesWritten;
