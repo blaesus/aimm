@@ -6,6 +6,7 @@ import { TopBar } from "./TopBar/TopBar";
 import { getInitialClientState, reducer, UIState } from "../reducer/state";
 import { SEARCH } from "../clientUtils";
 import { ClientDispatchContext, ClientStateContext } from "../context/state";
+import { ADMIN_ENABLE_KEY } from "../shared";
 
 function serializeToPathName(state: UIState): string {
     if (state.pages.current === "home") {
@@ -59,6 +60,7 @@ function App() {
         document.title = state.ui.pages.current;
     }, [state.ui.pages]);
 
+    const enableAdmin = !!localStorage.getItem(ADMIN_ENABLE_KEY);
 
     return (
         <ClientStateContext.Provider value={state}>
@@ -67,7 +69,9 @@ function App() {
                     <TopBar state={state} dispatch={dispatch}/>
                     <div className="NonTopBarContent">
                         <SearchPage state={state} dispatch={dispatch} />
-                        <Admin/>
+                        {
+                            enableAdmin && <Admin/>
+                        }
                     </div>
                 </div>
 

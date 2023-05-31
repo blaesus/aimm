@@ -116,7 +116,6 @@ export function TopBar(props: {
                 <Button onClick={() => throttledConfirm(searchInput)}>Search!</Button>
             </span>
             <span>
-                Menu
             </span>
         </nav>
     );

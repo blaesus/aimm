@@ -1,1 +1,2 @@
 export const ADMIN_TOKEN_KEY = "ADMIN_TOKEN"
+export const ADMIN_ENABLE_KEY = "ADMIN_ENABLE"
