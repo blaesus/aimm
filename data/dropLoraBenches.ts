@@ -23,7 +23,7 @@ async function fix() {
             },
         },
     });
-    await prisma.benchmarkResult.findMany({
+    await prisma.benchmarkResult.deleteMany({
         where: {
             id: {
                 in: benchResults.map(b => b.id),
