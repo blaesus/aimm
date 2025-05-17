@@ -17,7 +17,7 @@
         "schema": "data/schema.prisma"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.329.0",
+        "@aws-sdk/client-s3": "^3.797.0",
         "@aws-sdk/lib-storage": "^3.329.0",
         "@babel/core": "^7.21.8",
         "@babel/preset-react": "^7.18.6",
